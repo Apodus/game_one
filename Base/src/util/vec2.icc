@@ -1,0 +1,122 @@
+
+template <class T>
+vec2<T>::vec2():
+	x(T(0)),
+	y(T(0))
+{
+}
+
+template <class T>
+vec2<T>::vec2(const T& a, const T& b):
+	x(a),
+	y(b)
+{
+}
+
+template <class T>
+vec2<T> vec2<T>::operator*(const T& scalar) const
+{
+	return vec2(*this) *= scalar;
+}
+
+template <class T>
+vec2<T> vec2<T>::operator/(const T& scalar) const
+{
+	return vec2(*this) /= scalar;
+}
+
+template <class T>
+vec2<T>& vec2<T>::operator*=(const T& scalar)
+{
+	x *= scalar;
+	y *= scalar;
+	return *this;
+}
+
+template <class T>
+vec2<T>& vec2<T>::operator/=(const T& scalar)
+{
+	x /= scalar;
+	y /= scalar;
+	return *this;
+}
+
+template <class T>
+vec2<T>& vec2<T>::operator+=(const vec2<T>& a)
+{
+	x += a.x;
+	y += a.y;
+	return *this;
+}
+
+template <class T>
+vec2<T>& vec2<T>::operator-=(const vec2<T>& a)
+{
+	x -= a.x;
+	y -= a.y;
+	return *this;
+}
+
+template <class T>
+vec2<T> vec2<T>::operator+(const vec2<T>& b) const
+{
+	return vec2(*this) += b;
+}
+
+template <class T>
+vec2<T> vec2<T>::operator-(const vec2<T>& b) const
+{
+	return vec2(*this) -= b;
+}
+
+template <class T>
+vec2<T> vec2<T>::operator*(const vec2<T>& t) const
+{
+	return vec2<T>(x * t.x, y * t.y);
+}
+
+
+template <class T>
+vec2<T>& vec2<T>::set(const T& a, const T& b)
+{
+	x = a;
+	y = b;
+	return *this;
+}
+
+template <class T>
+T vec2<T>::crossProduct(const vec2<T>& b) const
+{
+	return x * b.y  -  y * b.x;
+}
+
+template <class T>
+T vec2<T>::dotProduct(const vec2<T>& b) const
+{
+	T result;
+	result = x*b.x + y*b.y + z*b.z;
+	return result;
+}
+
+template <class T>
+T vec2<T>::length() const
+{
+	return sa::math::sqrt((x*x + y*y));
+}
+
+template <class T>
+T vec2<T>::lengthSquared() const
+{
+	return (x*x + y*y);
+}
+
+template <class T>
+T vec2<T>::operator[](int i) const
+{
+	switch(i)
+	{
+		case 0: return x;
+		case 1: return y;
+		default: return T(1.0f);
+	}
+}

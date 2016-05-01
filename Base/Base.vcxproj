@@ -1,0 +1,217 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\graphics\camera\camera.cpp" />
+    <ClCompile Include="src\graphics\camera\frustumr.cpp" />
+    <ClCompile Include="src\graphics\framebuffer.cpp" />
+    <ClCompile Include="src\graphics\import\meshhandler.cpp" />
+    <ClCompile Include="src\graphics\loadpng.cpp" />
+    <ClCompile Include="src\graphics\meshCollection.cpp" />
+    <ClCompile Include="src\graphics\opengl\opengl.cpp" />
+    <ClCompile Include="src\graphics\renderer\meshrenderer.cpp" />
+    <ClCompile Include="src\graphics\renderer\textrenderer.cpp" />
+    <ClCompile Include="src\graphics\shader\shader.cpp" />
+    <ClCompile Include="src\graphics\shader\shaders.cpp" />
+    <ClCompile Include="src\graphics\texture\image.cpp" />
+    <ClCompile Include="src\graphics\texture\texturehandler.cpp" />
+    <ClCompile Include="src\graphics\text\fontdata\consolamono.cpp" />
+    <ClCompile Include="src\graphics\text\fontdata\lenka.cpp" />
+    <ClCompile Include="src\graphics\window\window.cpp" />
+    <ClCompile Include="src\input\userio.cpp" />
+    <ClCompile Include="src\localization\localization.cpp" />
+    <ClCompile Include="src\math\2d\mesh.cpp" />
+    <ClCompile Include="src\math\matrix\matrix4.cpp" />
+    <ClCompile Include="src\math\matrix\matrixUtils.cpp" />
+    <ClCompile Include="src\math\plane\plane.cpp" />
+    <ClCompile Include="src\net\socket.cpp" />
+    <ClCompile Include="src\net\socket_handler.cpp" />
+    <ClCompile Include="src\script\Scripter.cpp" />
+    <ClCompile Include="src\thread\fiber\Fiber.cpp" />
+    <ClCompile Include="src\thread\fiber\linux\LinuxFiber.cpp" />
+    <ClCompile Include="src\thread\fiber\windows\WinFiber.cpp" />
+    <ClCompile Include="src\util\fixedpoint.cpp" />
+    <ClCompile Include="src\util\fps_manager.cpp" />
+    <ClCompile Include="src\util\murmur3.cpp" />
+    <ClCompile Include="src\util\timer.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\graphics\camera\camera.hpp" />
+    <ClInclude Include="src\graphics\camera\frustumr.hpp" />
+    <ClInclude Include="src\graphics\color.hpp" />
+    <ClInclude Include="src\graphics\framebuffer.hpp" />
+    <ClInclude Include="src\graphics\glew\glew.h" />
+    <ClInclude Include="src\graphics\glew\glxew.h" />
+    <ClInclude Include="src\graphics\glew\wglew.h" />
+    <ClInclude Include="src\graphics\graphics.hpp" />
+    <ClInclude Include="src\graphics\import\meshhandler.hpp" />
+    <ClInclude Include="src\graphics\meshCollection.hpp" />
+    <ClInclude Include="src\graphics\opengl\opengl.hpp" />
+    <ClInclude Include="src\graphics\renderer\meshrenderer.hpp" />
+    <ClInclude Include="src\graphics\renderer\textrenderer.hpp" />
+    <ClInclude Include="src\graphics\shader\shader.hpp" />
+    <ClInclude Include="src\graphics\shader\shaders.hpp" />
+    <ClInclude Include="src\graphics\texture\image.hpp" />
+    <ClInclude Include="src\graphics\texture\textureatlas.hpp" />
+    <ClInclude Include="src\graphics\texture\textureatlashandler.hpp" />
+    <ClInclude Include="src\graphics\texture\texturecoordinate.hpp" />
+    <ClInclude Include="src\graphics\texture\texturehandler.hpp" />
+    <ClInclude Include="src\graphics\text\font.hpp" />
+    <ClInclude Include="src\graphics\text\fontdata.hpp" />
+    <ClInclude Include="src\graphics\text\fontdata\consolamono.hpp" />
+    <ClInclude Include="src\graphics\text\fontdata\lenka.hpp" />
+    <ClInclude Include="src\graphics\text\glyph.hpp" />
+    <ClInclude Include="src\graphics\window\messages.hpp" />
+    <ClInclude Include="src\graphics\window\window.hpp" />
+    <ClInclude Include="src\input\userio.hpp" />
+    <ClInclude Include="src\jsoncons\src\jsoncons\error_handler.hpp" />
+    <ClInclude Include="src\jsoncons\src\jsoncons\json.hpp" />
+    <ClInclude Include="src\jsoncons\src\jsoncons\json1.hpp" />
+    <ClInclude Include="src\jsoncons\src\jsoncons\json2.hpp" />
+    <ClInclude Include="src\jsoncons\src\jsoncons\jsoncons.hpp" />
+    <ClInclude Include="src\jsoncons\src\jsoncons\jsoncons_config.hpp" />
+    <ClInclude Include="src\jsoncons\src\jsoncons\json_deserializer.hpp" />
+    <ClInclude Include="src\jsoncons\src\jsoncons\json_exception.hpp" />
+    <ClInclude Include="src\jsoncons\src\jsoncons\json_filter.hpp" />
+    <ClInclude Include="src\jsoncons\src\jsoncons\json_input_handler.hpp" />
+    <ClInclude Include="src\jsoncons\src\jsoncons\json_output_handler.hpp" />
+    <ClInclude Include="src\jsoncons\src\jsoncons\json_reader.hpp" />
+    <ClInclude Include="src\jsoncons\src\jsoncons\json_serializer.hpp" />
+    <ClInclude Include="src\jsoncons\src\jsoncons\json_structures.hpp" />
+    <ClInclude Include="src\jsoncons\src\jsoncons\output_format.hpp" />
+    <ClInclude Include="src\jsoncons\src\jsoncons_ext\bson\bson_reader.hpp" />
+    <ClInclude Include="src\jsoncons\src\jsoncons_ext\bson\bson_serializer.hpp" />
+    <ClInclude Include="src\jsoncons\src\jsoncons_ext\csv\csv_reader.hpp" />
+    <ClInclude Include="src\jsoncons\src\jsoncons_ext\csv\csv_serializer.hpp" />
+    <ClInclude Include="src\localization\localization.hpp" />
+    <ClInclude Include="src\math\2d\LineSegment.hpp" />
+    <ClInclude Include="src\math\2d\math.hpp" />
+    <ClInclude Include="src\math\2d\mesh.hpp" />
+    <ClInclude Include="src\math\2d\polygon.hpp" />
+    <ClInclude Include="src\math\2d\polygonEditor.hpp" />
+    <ClInclude Include="src\math\2d\polygonModifier.hpp" />
+    <ClInclude Include="src\math\2d\polygonTesselator.hpp" />
+    <ClInclude Include="src\math\2d\shape.hpp" />
+    <ClInclude Include="src\math\matrix\matrix4.hpp" />
+    <ClInclude Include="src\math\matrix\matrixUtils.hpp" />
+    <ClInclude Include="src\math\plane\plane.hpp" />
+    <ClInclude Include="src\menu\MenuButton.hpp" />
+    <ClInclude Include="src\menu\MenuComponent.hpp" />
+    <ClInclude Include="src\menu\MenuFrame.hpp" />
+    <ClInclude Include="src\menu\MenuLogicalFrame.hpp" />
+    <ClInclude Include="src\menu\MenuSlider.hpp" />
+    <ClInclude Include="src\menu\sample\mainmenu.hpp" />
+    <ClInclude Include="src\menu\sample\menuroot.hpp" />
+    <ClInclude Include="src\messagesystem\TypedMessage.hpp" />
+    <ClInclude Include="src\net\socket.hpp" />
+    <ClInclude Include="src\net\socket_handler.hpp" />
+    <ClInclude Include="src\properties\PropertyManager.hpp" />
+    <ClInclude Include="src\script\Scripter.hpp" />
+    <ClInclude Include="src\thread\fiber\Fiber.hpp" />
+    <ClInclude Include="src\thread\Semaphore.hpp" />
+    <ClInclude Include="src\thread\TaskManager.hpp" />
+    <ClInclude Include="src\util\attributes.hpp" />
+    <ClInclude Include="src\util\dynarray.hpp" />
+    <ClInclude Include="src\util\fixedpoint.hpp" />
+    <ClInclude Include="src\util\fps_manager.hpp" />
+    <ClInclude Include="src\util\logging.hpp" />
+    <ClInclude Include="src\util\murmur3.hpp" />
+    <ClInclude Include="src\util\ObjectID.hpp" />
+    <ClInclude Include="src\util\platform.hpp" />
+    <ClInclude Include="src\util\timer.hpp" />
+    <ClInclude Include="src\util\vec2.hpp" />
+    <ClInclude Include="src\util\vec3.hpp" />
+    <ClInclude Include="src\util\vec4.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="src\jsoncons\index.html" />
+    <None Include="src\util\vec2.icc" />
+    <None Include="src\util\vec3.icc" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{2B53EDA6-99CB-47BA-81FE-4120E0332FE7}</ProjectGuid>
+    <RootNamespace>Base</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(SolutionDir)\out\$(Configuration)\$(ProjectName)\</OutDir>
+    <TargetName>$(ProjectName)</TargetName>
+    <IntDir>$(OutDir)</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_VS2013|Win32'">
+    <OutDir>$(SolutionDir)$(ProjectName)\$(Configuration)\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>$(SolutionDir)\out\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(OutDir)</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>$(ProjectDir)\src\jsoncons\src;$(ProjectDir)\lib\win32\libpng\include;$(ProjectDir)\src;$(ProjectDir)\lib\win32\glew-1.10.0\include;$(ProjectDir)\lib\win32\assimp\include;$(ProjectDir)\lib\win32\GLFW-3.0.4\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <ProgramDataBaseFileName>$(OutDir)$(TargetName)\vc$(PlatformToolsetVersion).pdb</ProgramDataBaseFileName>
+      <FloatingPointModel>Fast</FloatingPointModel>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>$(ProjectDir)\lib\win32\assimp\lib;$(ProjectDir)\lib\win32\libpng\lib\debug;$(ProjectDir)\lib\win32\glew-1.10.0\lib;$(ProjectDIr)\lib\win32\GLFW-3.0.4\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>zlib.lib;libpng16.lib;opengl32.lib;glew32.lib;glfw3dll.lib;assimp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>$(ProjectDir)\src\jsoncons\src;$(ProjectDir)\lib\win32\libpng\include;$(ProjectDir)\src;$(ProjectDir)\lib\win32\glew-1.10.0\include;$(ProjectDir)\lib\win32\assimp\include;$(ProjectDir)\lib\win32\GLFW-3.0.4\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <ProgramDataBaseFileName>$(OutDir)$(TargetName)\vc$(PlatformToolsetVersion).pdb</ProgramDataBaseFileName>
+      <FloatingPointModel>Fast</FloatingPointModel>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalLibraryDirectories>$(ProjectDir)\lib\win32\assimp\lib;$(ProjectDir)\lib\win32\libpng\lib\release;$(ProjectDir)\lib\win32\glew-1.10.0\lib;$(ProjectDIr)\lib\win32\GLFW-3.0.4\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>libpng16.lib;opengl32.lib;glew32.lib;glfw3dll.lib;assimp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

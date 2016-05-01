@@ -1,0 +1,113 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{C0D8BDEE-573C-4E91-BB19-BA615DF8E146}</ProjectGuid>
+    <RootNamespace>game_1</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>$(SolutionDir)\$(ProjectName)\build\bin\</OutDir>
+    <IntDir>$(SolutionDir)\out\$(Configuration)\$(ProjectName)\</IntDir>
+    <TargetName>$(ProjectName)_$(Configuration)</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(SolutionDir)\$(ProjectName)\build\bin</OutDir>
+    <IntDir>$(SolutionDir)\out\$(Configuration)\$(ProjectName)\</IntDir>
+    <TargetName>$(ProjectName)_$(Configuration)</TargetName>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>$(ProjectDir)\..\Base\src;$(ProjectDir)\..\Base\lib\win32\GLFW-3.0.4\include;$(ProjectDir)\..\Base\lib\win32\assimp\include;$(ProjectDir)\..\Base\lib\win32\glew-1.10.0\include;$(ProjectDir)\..\Base\lib\win32\SFML\include;$(ProjectDir)\src;$(ProjectDir)\..\Box2D-master\Box2D\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <FloatingPointModel>Fast</FloatingPointModel>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>assimp.lib;glew32.lib;opengl32.lib;glfw3dll.lib;libpng16.lib;zlib.lib;sfml-audio-d.lib;Box2D.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ProjectDir)\..\Base\lib\win32\libpng\lib\debug;$(ProjectDir)\..\Base\lib\win32\GLFW-3.0.4\lib;$(ProjectDir)\..\Base\lib\win32\glew-1.10.0\lib;$(ProjectDir)\..\Base\lib\win32\assimp\lib;$(ProjectDir)\..\Base\lib\win32\SFML\lib\debug;$(ProjectDir)\..\Box2D-master\Box2D\Build\vs2015\bin\x32\Debug</AdditionalLibraryDirectories>
+      <SubSystem>Console</SubSystem>
+    </Link>
+    <PreBuildEvent>
+      <Command>copy $(SolutionDir)$(Configuration)\libpng16.dll $(ProjectDir)\build\bin\</Command>
+    </PreBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>$(ProjectDir)\..\Base\src;$(ProjectDir)\..\Base\lib\win32\GLFW-3.0.4\include;$(ProjectDir)\..\Base\lib\win32\assimp\include;$(ProjectDir)\..\Base\lib\win32\glew-1.10.0\include;$(ProjectDir)\..\Base\lib\win32\SFML\include;$(ProjectDir)\src;$(ProjectDir)\..\Box2D-master\Box2D\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <FloatingPointModel>Fast</FloatingPointModel>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>assimp.lib;glew32.lib;opengl32.lib;glfw3dll.lib;libpng16.lib;sfml-audio.lib;Box2D.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ProjectDir)\..\Base\lib\win32\libpng\lib\release;$(ProjectDir)\..\Base\lib\win32\GLFW-3.0.4\lib;$(ProjectDir)\..\Base\lib\win32\glew-1.10.0\lib;$(ProjectDir)\..\Base\lib\win32\assimp\lib;$(ProjectDir)\..\Base\lib\win32\SFML\lib\release;$(ProjectDir)\..\Box2D-master\Box2D\Build\vs2015\bin\x32\Release</AdditionalLibraryDirectories>
+      <SubSystem>Console</SubSystem>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="src\logic\ShapePrototype.cpp" />
+    <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\session\application\session.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\logic\GraphicsPolygon.hpp" />
+    <ClInclude Include="src\logic\SceneObject.hpp" />
+    <ClInclude Include="src\logic\ShapePrototype.hpp" />
+    <ClInclude Include="src\logic\Transform.hpp" />
+    <ClInclude Include="src\menu\gameline.hpp" />
+    <ClInclude Include="src\session\application\session.hpp" />
+    <ClInclude Include="src\session\game\game.hpp" />
+    <ClInclude Include="src\menu\mainmenu.hpp" />
+    <ClInclude Include="src\menu\menuroot.hpp" />
+    <ClInclude Include="src\menu\optionsmenu.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Base\Base.vcxproj">
+      <Project>{2b53eda6-99cb-47ba-81fe-4120e0332fe7}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

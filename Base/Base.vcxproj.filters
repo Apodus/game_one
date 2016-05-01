@@ -1,0 +1,419 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="src\input\userio.cpp">
+      <Filter>input</Filter>
+    </ClCompile>
+    <ClCompile Include="src\thread\fiber\Fiber.cpp">
+      <Filter>thread\fiber</Filter>
+    </ClCompile>
+    <ClCompile Include="src\thread\fiber\windows\WinFiber.cpp">
+      <Filter>thread\fiber</Filter>
+    </ClCompile>
+    <ClCompile Include="src\graphics\framebuffer.cpp">
+      <Filter>graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="src\graphics\loadpng.cpp">
+      <Filter>graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="src\graphics\meshCollection.cpp">
+      <Filter>graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="src\graphics\camera\frustumr.cpp">
+      <Filter>graphics\camera</Filter>
+    </ClCompile>
+    <ClCompile Include="src\graphics\opengl\opengl.cpp">
+      <Filter>graphics\opengl</Filter>
+    </ClCompile>
+    <ClCompile Include="src\graphics\shader\shader.cpp">
+      <Filter>graphics\shader</Filter>
+    </ClCompile>
+    <ClCompile Include="src\graphics\shader\shaders.cpp">
+      <Filter>graphics\shader</Filter>
+    </ClCompile>
+    <ClCompile Include="src\graphics\text\fontdata\consolamono.cpp">
+      <Filter>graphics\text\fontdata</Filter>
+    </ClCompile>
+    <ClCompile Include="src\graphics\text\fontdata\lenka.cpp">
+      <Filter>graphics\text\fontdata</Filter>
+    </ClCompile>
+    <ClCompile Include="src\graphics\texture\image.cpp">
+      <Filter>graphics\texture</Filter>
+    </ClCompile>
+    <ClCompile Include="src\graphics\texture\texturehandler.cpp">
+      <Filter>graphics\texture</Filter>
+    </ClCompile>
+    <ClCompile Include="src\graphics\window\window.cpp">
+      <Filter>graphics\window</Filter>
+    </ClCompile>
+    <ClCompile Include="src\net\socket.cpp">
+      <Filter>net</Filter>
+    </ClCompile>
+    <ClCompile Include="src\net\socket_handler.cpp">
+      <Filter>net</Filter>
+    </ClCompile>
+    <ClCompile Include="src\util\fps_manager.cpp">
+      <Filter>util</Filter>
+    </ClCompile>
+    <ClCompile Include="src\util\murmur3.cpp">
+      <Filter>util</Filter>
+    </ClCompile>
+    <ClCompile Include="src\util\timer.cpp">
+      <Filter>util</Filter>
+    </ClCompile>
+    <ClCompile Include="src\math\2d\mesh.cpp">
+      <Filter>math\2d</Filter>
+    </ClCompile>
+    <ClCompile Include="src\thread\fiber\linux\LinuxFiber.cpp">
+      <Filter>thread\fiber</Filter>
+    </ClCompile>
+    <ClCompile Include="src\math\matrix\matrix4.cpp">
+      <Filter>math\matrix</Filter>
+    </ClCompile>
+    <ClCompile Include="src\math\matrix\matrixUtils.cpp">
+      <Filter>math\matrix</Filter>
+    </ClCompile>
+    <ClCompile Include="src\math\plane\plane.cpp">
+      <Filter>math\plane</Filter>
+    </ClCompile>
+    <ClCompile Include="src\localization\localization.cpp" />
+    <ClCompile Include="src\graphics\import\meshhandler.cpp" />
+    <ClCompile Include="src\graphics\renderer\textrenderer.cpp" />
+    <ClCompile Include="src\util\fixedpoint.cpp" />
+    <ClCompile Include="src\graphics\renderer\meshrenderer.cpp" />
+    <ClCompile Include="src\graphics\camera\camera.cpp" />
+    <ClCompile Include="src\script\Scripter.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\jsoncons\src\jsoncons\json.hpp">
+      <Filter>json</Filter>
+    </ClInclude>
+    <ClInclude Include="src\jsoncons\src\jsoncons\json1.hpp">
+      <Filter>json</Filter>
+    </ClInclude>
+    <ClInclude Include="src\jsoncons\src\jsoncons\json2.hpp">
+      <Filter>json</Filter>
+    </ClInclude>
+    <ClInclude Include="src\jsoncons\src\jsoncons\json_deserializer.hpp">
+      <Filter>json</Filter>
+    </ClInclude>
+    <ClInclude Include="src\jsoncons\src\jsoncons\json_exception.hpp">
+      <Filter>json</Filter>
+    </ClInclude>
+    <ClInclude Include="src\jsoncons\src\jsoncons\json_filter.hpp">
+      <Filter>json</Filter>
+    </ClInclude>
+    <ClInclude Include="src\jsoncons\src\jsoncons\json_input_handler.hpp">
+      <Filter>json</Filter>
+    </ClInclude>
+    <ClInclude Include="src\jsoncons\src\jsoncons\json_output_handler.hpp">
+      <Filter>json</Filter>
+    </ClInclude>
+    <ClInclude Include="src\jsoncons\src\jsoncons\json_reader.hpp">
+      <Filter>json</Filter>
+    </ClInclude>
+    <ClInclude Include="src\jsoncons\src\jsoncons\json_serializer.hpp">
+      <Filter>json</Filter>
+    </ClInclude>
+    <ClInclude Include="src\jsoncons\src\jsoncons\json_structures.hpp">
+      <Filter>json</Filter>
+    </ClInclude>
+    <ClInclude Include="src\jsoncons\src\jsoncons\jsoncons.hpp">
+      <Filter>json</Filter>
+    </ClInclude>
+    <ClInclude Include="src\jsoncons\src\jsoncons\jsoncons_config.hpp">
+      <Filter>json</Filter>
+    </ClInclude>
+    <ClInclude Include="src\jsoncons\src\jsoncons\error_handler.hpp">
+      <Filter>json</Filter>
+    </ClInclude>
+    <ClInclude Include="src\jsoncons\src\jsoncons\output_format.hpp">
+      <Filter>json</Filter>
+    </ClInclude>
+    <ClInclude Include="src\input\userio.hpp">
+      <Filter>input</Filter>
+    </ClInclude>
+    <ClInclude Include="src\thread\Semaphore.hpp">
+      <Filter>thread</Filter>
+    </ClInclude>
+    <ClInclude Include="src\thread\TaskManager.hpp">
+      <Filter>thread</Filter>
+    </ClInclude>
+    <ClInclude Include="src\thread\fiber\Fiber.hpp">
+      <Filter>thread\fiber</Filter>
+    </ClInclude>
+    <ClInclude Include="src\graphics\color.hpp">
+      <Filter>graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\graphics\framebuffer.hpp">
+      <Filter>graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\graphics\graphics.hpp">
+      <Filter>graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\graphics\meshCollection.hpp">
+      <Filter>graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\graphics\camera\frustumr.hpp">
+      <Filter>graphics\camera</Filter>
+    </ClInclude>
+    <ClInclude Include="src\graphics\glew\glew.h">
+      <Filter>graphics\glew</Filter>
+    </ClInclude>
+    <ClInclude Include="src\graphics\glew\glxew.h">
+      <Filter>graphics\glew</Filter>
+    </ClInclude>
+    <ClInclude Include="src\graphics\glew\wglew.h">
+      <Filter>graphics\glew</Filter>
+    </ClInclude>
+    <ClInclude Include="src\graphics\opengl\opengl.hpp">
+      <Filter>graphics\opengl</Filter>
+    </ClInclude>
+    <ClInclude Include="src\graphics\renderer\textrenderer.hpp">
+      <Filter>graphics\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\graphics\shader\shader.hpp">
+      <Filter>graphics\shader</Filter>
+    </ClInclude>
+    <ClInclude Include="src\graphics\shader\shaders.hpp">
+      <Filter>graphics\shader</Filter>
+    </ClInclude>
+    <ClInclude Include="src\graphics\text\font.hpp">
+      <Filter>graphics\text</Filter>
+    </ClInclude>
+    <ClInclude Include="src\graphics\text\fontdata.hpp">
+      <Filter>graphics\text</Filter>
+    </ClInclude>
+    <ClInclude Include="src\graphics\text\glyph.hpp">
+      <Filter>graphics\text</Filter>
+    </ClInclude>
+    <ClInclude Include="src\graphics\text\fontdata\consolamono.hpp">
+      <Filter>graphics\text\fontdata</Filter>
+    </ClInclude>
+    <ClInclude Include="src\graphics\text\fontdata\lenka.hpp">
+      <Filter>graphics\text\fontdata</Filter>
+    </ClInclude>
+    <ClInclude Include="src\graphics\texture\image.hpp">
+      <Filter>graphics\texture</Filter>
+    </ClInclude>
+    <ClInclude Include="src\graphics\texture\textureatlas.hpp">
+      <Filter>graphics\texture</Filter>
+    </ClInclude>
+    <ClInclude Include="src\graphics\texture\textureatlashandler.hpp">
+      <Filter>graphics\texture</Filter>
+    </ClInclude>
+    <ClInclude Include="src\graphics\texture\texturecoordinate.hpp">
+      <Filter>graphics\texture</Filter>
+    </ClInclude>
+    <ClInclude Include="src\graphics\texture\texturehandler.hpp">
+      <Filter>graphics\texture</Filter>
+    </ClInclude>
+    <ClInclude Include="src\graphics\window\window.hpp">
+      <Filter>graphics\window</Filter>
+    </ClInclude>
+    <ClInclude Include="src\net\socket.hpp">
+      <Filter>net</Filter>
+    </ClInclude>
+    <ClInclude Include="src\net\socket_handler.hpp">
+      <Filter>net</Filter>
+    </ClInclude>
+    <ClInclude Include="src\menu\MenuButton.hpp">
+      <Filter>menu</Filter>
+    </ClInclude>
+    <ClInclude Include="src\menu\MenuComponent.hpp">
+      <Filter>menu</Filter>
+    </ClInclude>
+    <ClInclude Include="src\menu\MenuFrame.hpp">
+      <Filter>menu</Filter>
+    </ClInclude>
+    <ClInclude Include="src\menu\MenuLogicalFrame.hpp">
+      <Filter>menu</Filter>
+    </ClInclude>
+    <ClInclude Include="src\menu\sample\menuroot.hpp">
+      <Filter>menu</Filter>
+    </ClInclude>
+    <ClInclude Include="src\menu\MenuSlider.hpp">
+      <Filter>menu</Filter>
+    </ClInclude>
+    <ClInclude Include="src\menu\sample\mainmenu.hpp">
+      <Filter>menu</Filter>
+    </ClInclude>
+    <ClInclude Include="src\messagesystem\TypedMessage.hpp">
+      <Filter>messagesystem</Filter>
+    </ClInclude>
+    <ClInclude Include="src\properties\PropertyManager.hpp">
+      <Filter>properties</Filter>
+    </ClInclude>
+    <ClInclude Include="src\util\attributes.hpp">
+      <Filter>util</Filter>
+    </ClInclude>
+    <ClInclude Include="src\util\dynarray.hpp">
+      <Filter>util</Filter>
+    </ClInclude>
+    <ClInclude Include="src\util\fps_manager.hpp">
+      <Filter>util</Filter>
+    </ClInclude>
+    <ClInclude Include="src\util\logging.hpp">
+      <Filter>util</Filter>
+    </ClInclude>
+    <ClInclude Include="src\util\murmur3.hpp">
+      <Filter>util</Filter>
+    </ClInclude>
+    <ClInclude Include="src\util\ObjectID.hpp">
+      <Filter>util</Filter>
+    </ClInclude>
+    <ClInclude Include="src\util\platform.hpp">
+      <Filter>util</Filter>
+    </ClInclude>
+    <ClInclude Include="src\util\timer.hpp">
+      <Filter>util</Filter>
+    </ClInclude>
+    <ClInclude Include="src\util\vec3.hpp">
+      <Filter>util</Filter>
+    </ClInclude>
+    <ClInclude Include="src\util\vec4.hpp">
+      <Filter>util</Filter>
+    </ClInclude>
+    <ClInclude Include="src\math\2d\LineSegment.hpp">
+      <Filter>math\2d</Filter>
+    </ClInclude>
+    <ClInclude Include="src\math\2d\math.hpp">
+      <Filter>math\2d</Filter>
+    </ClInclude>
+    <ClInclude Include="src\math\2d\mesh.hpp">
+      <Filter>math\2d</Filter>
+    </ClInclude>
+    <ClInclude Include="src\math\2d\polygon.hpp">
+      <Filter>math\2d</Filter>
+    </ClInclude>
+    <ClInclude Include="src\math\2d\polygonEditor.hpp">
+      <Filter>math\2d</Filter>
+    </ClInclude>
+    <ClInclude Include="src\math\2d\polygonTesselator.hpp">
+      <Filter>math\2d</Filter>
+    </ClInclude>
+    <ClInclude Include="src\math\2d\shape.hpp">
+      <Filter>math\2d</Filter>
+    </ClInclude>
+    <ClInclude Include="src\math\matrix\matrix4.hpp">
+      <Filter>math\matrix</Filter>
+    </ClInclude>
+    <ClInclude Include="src\math\matrix\matrixUtils.hpp">
+      <Filter>math\matrix</Filter>
+    </ClInclude>
+    <ClInclude Include="src\math\plane\plane.hpp">
+      <Filter>math\plane</Filter>
+    </ClInclude>
+    <ClInclude Include="src\util\vec2.hpp">
+      <Filter>util</Filter>
+    </ClInclude>
+    <ClInclude Include="src\jsoncons\src\jsoncons_ext\bson\bson_serializer.hpp">
+      <Filter>json</Filter>
+    </ClInclude>
+    <ClInclude Include="src\jsoncons\src\jsoncons_ext\bson\bson_reader.hpp">
+      <Filter>json</Filter>
+    </ClInclude>
+    <ClInclude Include="src\jsoncons\src\jsoncons_ext\csv\csv_reader.hpp">
+      <Filter>json</Filter>
+    </ClInclude>
+    <ClInclude Include="src\jsoncons\src\jsoncons_ext\csv\csv_serializer.hpp">
+      <Filter>json</Filter>
+    </ClInclude>
+    <ClInclude Include="src\localization\localization.hpp" />
+    <ClInclude Include="src\graphics\import\meshhandler.hpp" />
+    <ClInclude Include="src\graphics\window\messages.hpp" />
+    <ClInclude Include="src\util\fixedpoint.hpp" />
+    <ClInclude Include="src\graphics\renderer\meshrenderer.hpp" />
+    <ClInclude Include="src\graphics\camera\camera.hpp" />
+    <ClInclude Include="src\math\2d\polygonModifier.hpp" />
+    <ClInclude Include="src\script\Scripter.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="src\util\vec3.icc">
+      <Filter>util</Filter>
+    </None>
+    <None Include="src\util\vec2.icc">
+      <Filter>util</Filter>
+    </None>
+    <None Include="src\jsoncons\index.html">
+      <Filter>json</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="json">
+      <UniqueIdentifier>{a4304d93-80cb-4aef-8cd7-13636930abb3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="input">
+      <UniqueIdentifier>{2ee57e8b-c6bd-48fe-91cb-1470e8e1e918}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="thread">
+      <UniqueIdentifier>{091fe376-edfe-4afb-9b34-ea660df6954d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="thread\fiber">
+      <UniqueIdentifier>{1e8f3505-5e58-480d-b8a2-f60c60040d21}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="samplebot">
+      <UniqueIdentifier>{0a4cc718-0c73-4dbe-852c-a555a29fec91}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="graphics">
+      <UniqueIdentifier>{ae83bcc3-b3f8-4d07-8612-db02116dcc92}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="graphics\camera">
+      <UniqueIdentifier>{368f93ec-8948-471b-be43-4917c458d28a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="graphics\glew">
+      <UniqueIdentifier>{df0fa56b-ac0a-4c4f-b8d3-2a5e1300dd7c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="graphics\opengl">
+      <UniqueIdentifier>{2746acda-3174-4da7-a790-3d36b173492a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="graphics\renderer">
+      <UniqueIdentifier>{d316947d-79c6-4d15-b52b-1efc0d98c0ae}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="graphics\shader">
+      <UniqueIdentifier>{65d90885-ba46-4583-8c63-cf52f22a32f2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="graphics\text">
+      <UniqueIdentifier>{1b4f19ce-b9d1-4ebd-99ae-5ff1ed27e5f8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="graphics\text\fontdata">
+      <UniqueIdentifier>{b0a49c6b-5bbe-4643-b10d-8988b4bdb2bf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="graphics\texture">
+      <UniqueIdentifier>{1531ddf2-8530-492e-ac4f-fc4f2018e068}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="graphics\window">
+      <UniqueIdentifier>{72c186b4-4db4-4c8e-b057-b8f6bdea5f74}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="net">
+      <UniqueIdentifier>{0e1f67b7-3711-4eed-a7d5-a21f8fde4518}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="menu">
+      <UniqueIdentifier>{4f1d8fe0-3094-416e-88f6-fff276dbbe27}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="messagesystem">
+      <UniqueIdentifier>{dba2af08-69f4-461b-b083-7553d0bc911d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="properties">
+      <UniqueIdentifier>{7ff8cb9f-2391-45af-a1ae-91db22aee472}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="util">
+      <UniqueIdentifier>{4b2e37be-6285-44d8-8579-77e8422810f8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="math">
+      <UniqueIdentifier>{eb0055ec-7c27-4cb4-bbf2-73db446a6251}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="math\2d">
+      <UniqueIdentifier>{1fcf613d-7635-4dc5-98c0-ad3577fad23a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="math\matrix">
+      <UniqueIdentifier>{43826c7f-107c-4fc8-9c00-d51f7e5e0fb0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="math\physics">
+      <UniqueIdentifier>{aee1b1e3-7ef4-49c0-aca4-f500fd4219c3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="math\plane">
+      <UniqueIdentifier>{322f39b1-7d1d-49ba-b4ce-27f5b4496242}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
