@@ -14,7 +14,7 @@
 #include "math/matrix/matrix4.hpp"
 
 #include "Box2D/Box2D.h"
-
+#include "NetEngine.h"
 
 #include "logic/SceneObject.hpp"
 #include "input/userio.hpp"
@@ -122,6 +122,16 @@ public:
 		
 	}
 
+	void preTick()
+	{
+		netEngine.Tick();
+	}
+
+	void postTick()
+	{
+		// TODO: Send local to remote
+	}
+
 	void update(std::shared_ptr<sa::UserIO> userio)
 	{
 		for (auto&& obj : objs)
@@ -151,4 +161,6 @@ private:
 	b2World physicsWorld;
 	std::vector<SceneObject> objs;
 	std::vector<SceneObject> newObjs;
+
+	net::Engine netEngine;
 };

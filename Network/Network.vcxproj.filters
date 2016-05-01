@@ -1,0 +1,88 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tga;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="ExitGames">
+      <UniqueIdentifier>{933aec06-f79d-4305-87e5-c56e68ceff1d}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="NetEngine.cpp" />
+    <ClCompile Include="NetPch.cpp" />
+    <ClCompile Include="LoadBalancing-cpp\src\AuthenticationValues.cpp">
+      <Filter>ExitGames</Filter>
+    </ClCompile>
+    <ClCompile Include="LoadBalancing-cpp\src\Internal\AuthenticationValuesSecretSetter.cpp">
+      <Filter>ExitGames</Filter>
+    </ClCompile>
+    <ClCompile Include="LoadBalancing-cpp\src\Client.cpp">
+      <Filter>ExitGames</Filter>
+    </ClCompile>
+    <ClCompile Include="LoadBalancing-cpp\src\FriendInfo.cpp">
+      <Filter>ExitGames</Filter>
+    </ClCompile>
+    <ClCompile Include="LoadBalancing-cpp\src\LobbyStatsRequest.cpp">
+      <Filter>ExitGames</Filter>
+    </ClCompile>
+    <ClCompile Include="LoadBalancing-cpp\src\LobbyStatsResponse.cpp">
+      <Filter>ExitGames</Filter>
+    </ClCompile>
+    <ClCompile Include="LoadBalancing-cpp\src\MutablePlayer.cpp">
+      <Filter>ExitGames</Filter>
+    </ClCompile>
+    <ClCompile Include="LoadBalancing-cpp\src\Internal\MutablePlayerFactory.cpp">
+      <Filter>ExitGames</Filter>
+    </ClCompile>
+    <ClCompile Include="LoadBalancing-cpp\src\MutableRoom.cpp">
+      <Filter>ExitGames</Filter>
+    </ClCompile>
+    <ClCompile Include="LoadBalancing-cpp\src\Internal\MutableRoomFactory.cpp">
+      <Filter>ExitGames</Filter>
+    </ClCompile>
+    <ClCompile Include="LoadBalancing-cpp\src\Internal\Utils.cpp" />
+    <ClCompile Include="LoadBalancing-cpp\src\Internal\PlayerPropertiesUpdateInformant.cpp">
+      <Filter>ExitGames</Filter>
+    </ClCompile>
+    <ClCompile Include="LoadBalancing-cpp\src\Internal\PlayerPropertiesCacher.cpp">
+      <Filter>ExitGames</Filter>
+    </ClCompile>
+    <ClCompile Include="LoadBalancing-cpp\src\Internal\PlayerMovementInformant.cpp">
+      <Filter>ExitGames</Filter>
+    </ClCompile>
+    <ClCompile Include="LoadBalancing-cpp\src\Internal\PlayerFactory.cpp">
+      <Filter>ExitGames</Filter>
+    </ClCompile>
+    <ClCompile Include="LoadBalancing-cpp\src\Player.cpp">
+      <Filter>ExitGames</Filter>
+    </ClCompile>
+    <ClCompile Include="LoadBalancing-cpp\src\Peer.cpp">
+      <Filter>ExitGames</Filter>
+    </ClCompile>
+    <ClCompile Include="LoadBalancing-cpp\src\RaiseEventOptions.cpp">
+      <Filter>ExitGames</Filter>
+    </ClCompile>
+    <ClCompile Include="LoadBalancing-cpp\src\Room.cpp">
+      <Filter>ExitGames</Filter>
+    </ClCompile>
+    <ClCompile Include="LoadBalancing-cpp\src\Internal\RoomFactory.cpp">
+      <Filter>ExitGames</Filter>
+    </ClCompile>
+    <ClCompile Include="LoadBalancing-cpp\src\RoomOptions.cpp">
+      <Filter>ExitGames</Filter>
+    </ClCompile>
+    <ClCompile Include="LoadBalancing-cpp\src\Internal\RoomPropertiesCacher.cpp">
+      <Filter>ExitGames</Filter>
+    </ClCompile>
+    <ClCompile Include="NetPhoton.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="targetver.h" />
+    <ClInclude Include="NetEngine.h" />
+    <ClInclude Include="NetPch.h" />
+    <ClInclude Include="NetPhoton.h" />
+    <ClInclude Include="NetLogging.h" />
+  </ItemGroup>
+</Project>

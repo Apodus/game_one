@@ -2,6 +2,7 @@
 #include "session.hpp"
 #include "graphics/opengl/opengl.hpp"
 
+
 Session::Application::Session::Session() : fps_logic(Timer::time_now(), 60), fps_graphic(Timer::time_now(), 60), pCamera(new sa::Camera()), pShaders(new sa::Shaders()) {
 	window = std::make_shared<sa::Window>();
 	window->createWindow(1280, 720);
@@ -39,6 +40,7 @@ bool Session::Application::Session::tick() {
 
 	long long timeNow = Timer::time_now();
 
+	game->preTick();
 	if (fps_logic.canTick(timeNow))
 	{
 		float dt = fps_logic.tick(timeNow);
@@ -66,6 +68,7 @@ bool Session::Application::Session::tick() {
 		window->swap_buffers();
 	}
 
+	game->postTick();
 	window->pollEvents();
 	Timer::sleep(1);
 
