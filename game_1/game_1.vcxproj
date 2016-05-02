@@ -85,6 +85,9 @@
       <AdditionalLibraryDirectories>$(ProjectDir)\..\Base\lib\win32\libpng\lib\release;$(ProjectDir)\..\Base\lib\win32\GLFW-3.0.4\lib;$(ProjectDir)\..\Base\lib\win32\glew-1.10.0\lib;$(ProjectDir)\..\Base\lib\win32\assimp\lib;$(ProjectDir)\..\Base\lib\win32\SFML\lib\release;$(ProjectDir)\..\Box2D-master\Box2D\Build\vs2015\bin\x32\Release;$(ProjectDir)\..\Network\Common-cpp\lib;$(ProjectDir)\..\Network\Release;$(ProjectDir)\..\Network\Photon-cpp\lib</AdditionalLibraryDirectories>
       <SubSystem>Console</SubSystem>
     </Link>
+    <PreBuildEvent>
+      <Command>copy $(SolutionDir)$(Configuration)\libpng16.dll $(ProjectDir)\build\bin\</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\logic\ShapePrototype.cpp" />
