@@ -13,20 +13,26 @@
 #include "math/2d/polygonTesselator.hpp"
 #include "math/matrix/matrix4.hpp"
 
-#include "Box2D/Box2D.h"
 #include "NetEngine.h"
 
-#include "logic/SceneObject.hpp"
+#include "logic/World.h"
+#include "logic/Timeline.h"
+
 #include "input/userio.hpp"
 
 #include <cinttypes>
 #include <memory>
 #include <iterator>
 
-class Game {
+class Game : public World {
 
 public:
-	Game(std::shared_ptr<sa::UserIO>) : physicsWorld({ 0, 0 }) {
+	Game(std::shared_ptr<sa::UserIO>) : m_timeline(*this)	
+	{
+		m_timeline.AddEvent(3000, new SpawnEvent());
+		m_timeline.AddEvent(10000, new SpawnEvent());
+		m_timeline.AddEvent(5000, new SpawnEvent());
+
 		b2BodyDef bodyDef;
 		bodyDef.angularDamping = 5.0f;
 		bodyDef.linearDamping = 5.0f;
@@ -44,17 +50,6 @@ public:
 			auto heroBody = physicsWorld.CreateBody(&bodyDef);
 			heroBody->CreateFixture(&boxFixtureDef);
 
-			objs.emplace_back(
-				heroBody,
-				Shape::makeBox(1.0f),
-				"Hero"
-			);
-		}
-
-		{
-			auto heroBody = physicsWorld.CreateBody(&bodyDef);
-			heroBody->CreateFixture(&boxFixtureDef);
-			heroBody->SetTransform({ 5, 0 }, 0);
 			objs.emplace_back(
 				heroBody,
 				Shape::makeBox(1.0f),
@@ -138,14 +133,9 @@ public:
 			obj.update(*userio);
 	}
 
-	void tick(float dt)
+	void tick(long long timeMs)
 	{
-		physicsWorld.Step(dt, 2, 2);
-		for (auto&& obj : objs)
-			obj.tick(dt);
-
-		objs.insert(objs.end(), std::make_move_iterator(newObjs.begin()), std::make_move_iterator(newObjs.end()));
-		newObjs.clear();
+		m_timeline.Run(timeMs);
 	}
 
 	void draw(std::shared_ptr<sa::Graphics> pGraphics)
@@ -157,10 +147,7 @@ public:
 private:
 	Scripter m_scripter;
 	size_t m_tickID;
-
-	b2World physicsWorld;
-	std::vector<SceneObject> objs;
-	std::vector<SceneObject> newObjs;
+	Timeline m_timeline;
 
 	net::Engine netEngine;
 };

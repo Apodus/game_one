@@ -42,7 +42,6 @@
     <ClCompile Include="LoadBalancing-cpp\src\Internal\MutableRoomFactory.cpp">
       <Filter>ExitGames</Filter>
     </ClCompile>
-    <ClCompile Include="LoadBalancing-cpp\src\Internal\Utils.cpp" />
     <ClCompile Include="LoadBalancing-cpp\src\Internal\PlayerPropertiesUpdateInformant.cpp">
       <Filter>ExitGames</Filter>
     </ClCompile>
@@ -77,6 +76,10 @@
       <Filter>ExitGames</Filter>
     </ClCompile>
     <ClCompile Include="NetPhoton.cpp" />
+    <ClCompile Include="LoadBalancing-cpp\src\Internal\Utils.cpp">
+      <Filter>ExitGames</Filter>
+    </ClCompile>
+    <ClCompile Include="NetEventStore.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h" />
@@ -84,5 +87,6 @@
     <ClInclude Include="NetPch.h" />
     <ClInclude Include="NetPhoton.h" />
     <ClInclude Include="NetLogging.h" />
+    <ClInclude Include="NetEventStore.h" />
   </ItemGroup>
 </Project>

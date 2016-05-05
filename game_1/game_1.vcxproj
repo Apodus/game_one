@@ -90,15 +90,20 @@
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\logic\WorldEvent.cpp" />
     <ClCompile Include="src\logic\ShapePrototype.cpp" />
+    <ClCompile Include="src\logic\Timeline.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\session\application\session.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\logic\WorldEvent.h" />
     <ClInclude Include="src\logic\GraphicsPolygon.hpp" />
     <ClInclude Include="src\logic\SceneObject.hpp" />
     <ClInclude Include="src\logic\ShapePrototype.hpp" />
+    <ClInclude Include="src\logic\Timeline.h" />
     <ClInclude Include="src\logic\Transform.hpp" />
+    <ClInclude Include="src\logic\World.h" />
     <ClInclude Include="src\menu\gameline.hpp" />
     <ClInclude Include="src\session\application\session.hpp" />
     <ClInclude Include="src\session\game\game.hpp" />
