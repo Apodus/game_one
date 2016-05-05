@@ -16,6 +16,7 @@
 #include "Box2D/Box2D.h"
 #include "NetEngine.h"
 
+#include "session/game/collisionCallback.hpp"
 #include "logic/SceneObject.hpp"
 #include "input/userio.hpp"
 
@@ -27,6 +28,9 @@ class Game {
 
 public:
 	Game(std::shared_ptr<sa::UserIO>) : physicsWorld({ 0, 0 }) {
+
+		physicsWorld.SetContactListener(&contactListener);
+
 		b2BodyDef bodyDef;
 		bodyDef.angularDamping = 5.0f;
 		bodyDef.linearDamping = 5.0f;
@@ -158,7 +162,10 @@ private:
 	Scripter m_scripter;
 	size_t m_tickID;
 
+	GameContactListener contactListener;
 	b2World physicsWorld;
+
+
 	std::vector<SceneObject> objs;
 	std::vector<SceneObject> newObjs;
 
