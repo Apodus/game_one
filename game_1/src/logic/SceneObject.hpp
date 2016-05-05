@@ -57,6 +57,7 @@ public:
 		m_onTick = std::move(other.m_onTick);
 		m_onInput = std::move(other.m_onInput);
 		m_modelMatrix = other.m_modelMatrix;
+		transform.update();
 	}
 
 	SceneObject& operator = (SceneObject&& other)
@@ -81,6 +82,7 @@ public:
 		});
 
 		m_onInput = std::make_unique<OnInput>([](Transform& t, sa::UserIO& userio) {});
+		transform.update();
 	}
 
 	void inputHandler(std::unique_ptr<OnInput>&& input)

@@ -87,6 +87,38 @@ public:
 						true
 					);
 				}
+
+				if (userio.isKeyClicked(' '))
+				{
+					b2BodyDef bodyDef;
+					bodyDef.angularDamping = 0.0f;
+					bodyDef.linearDamping = 0.0f;
+					bodyDef.gravityScale = 0.0f;
+					bodyDef.type = b2BodyType::b2_dynamicBody;
+
+					b2PolygonShape boxShape;
+					boxShape.SetAsBox(0.25f / 2.0f, 0.25f / 2.0f);
+
+					b2FixtureDef boxFixtureDef;
+					boxFixtureDef.shape = &boxShape;
+					boxFixtureDef.density = 4;
+
+					auto world = t.m_body->GetWorld();
+					{
+						sa::vec2<float> forward = t.directionForward();
+						auto heroBody = world->CreateBody(&bodyDef);
+						heroBody->CreateFixture(&boxFixtureDef);
+						heroBody->SetLinearVelocity({ forward.x * 10, forward.y * 10});
+						heroBody->SetTransform({ t.position.x + forward.x, t.position.y + forward.y }, t.direction);
+						
+						newObjs.emplace_back(
+							heroBody,
+							Shape::makeBox(0.25f),
+							"Hero"
+						);
+					}
+				}
+
 				if (userio.isKeyClicked('F'))
 				{
 					b2BodyDef bodyDef;

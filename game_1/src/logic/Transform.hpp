@@ -56,7 +56,7 @@ public:
 		return sa::vec2<float>(
 			sa::math::sin(direction),
 			-sa::math::cos(direction)
-			);
+		);
 	}
 
 	sa::vec2<float> directionLeft() const
@@ -64,6 +64,6 @@ public:
 		return sa::vec2<float>(
 			sa::math::cos(direction),
 			sa::math::sin(direction)
-			);
+		);
 	}
 };
