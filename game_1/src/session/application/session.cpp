@@ -48,7 +48,7 @@ bool Session::Application::Session::tick() {
         // TODO: GAME TICK
         menuRoot->tick(dt);
 		game->update(userIO);
-		game->tick(dt);
+		game->tick(timeNow);
 		userIO->update();
 	}
 

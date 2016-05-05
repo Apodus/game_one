@@ -2,6 +2,8 @@
 #include "NetPhoton.h"
 #include "NetLogging.h"
 
+#include <vector>
+
 static const ExitGames::Common::JString appId = L"357c978b-3bfc-4f60-a2f0-143560e2bba8"; // set your app id here
 static const ExitGames::Common::JString appVersion = L"1.0";
 
@@ -160,25 +162,6 @@ void net::Photon::run(void)
 	LogMeasurements();
 }
 
-
-
-#include <vector>
-
-namespace net
-{
-	class BitDataObject : public ExitGames::Common::Object
-	{
-	public:
-		BitDataObject()
-		{
-
-
-		}
-	private:
-		std::vector<bool> bits;
-	};
-}
-
 void net::Photon::Service()
 {
 	const size_t OverheadBytesPerUpdateApprox = 40;
@@ -206,7 +189,8 @@ void net::Photon::Service()
 			data.put((nByte)33, &tmp[0], static_cast<int>(tmp.size()));
 
 			const nByte EventCode = 55;
-			myLoadBalancingClient.opRaiseEvent(false, data, EventCode);// ++count, 0);
+			bool isReliable = false;
+			myLoadBalancingClient.opRaiseEvent(isReliable, data, EventCode);// ++count, 0);
 			//static int8_t count = 0;
 			myPayloadBytesOut += tmp.size()+1 /* hastable type*/  +1 /*Event code*/;
 			// myLoadBalancingClient.opRaiseEvent(false, data, ++count, 0);
@@ -293,7 +277,8 @@ void net::Photon::serverErrorReturn(int errorCode)
 
 void net::Photon::joinRoomEventAction(int playerNr, const ExitGames::Common::JVector<int>& /*playernrs*/, const ExitGames::LoadBalancing::Player& player)
 {
-	NET_LOG("%ls joined the game", player.getName().cstr());
+	NET_LOG("%ls(%d) joined the game (%d players in game %d online)", 
+		player.getName().cstr(), playerNr, myLoadBalancingClient.getCountPlayersIngame(), myLoadBalancingClient.getCountPlayersOnline());
 }
 
 void net::Photon::leaveRoomEventAction(int playerNr, bool isInactive)
@@ -319,7 +304,8 @@ void net::Photon::customEventAction(int playerNr, nByte eventCode, const ExitGam
 				if (size > 0)
 				{
 					const nByte* data = *((ValueObject<nByte*>*)obj)->getDataAddress();
-					NET_LOG("Received from player %d code %dKey=%d Size=%d", playerNr, eventCode, keyId, size);
+					NET_LOG("Data player %d->%d code %dKey=%d Size=%d", playerNr, 
+						myLoadBalancingClient.getLocalPlayer().getNumber(), eventCode, keyId, size);
 				}
 				else
 				{

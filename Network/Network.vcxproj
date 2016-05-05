@@ -203,6 +203,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="NetEventStore.h" />
     <ClInclude Include="NetLogging.h" />
     <ClInclude Include="NetEngine.h" />
     <ClInclude Include="NetPch.h" />
@@ -233,6 +234,7 @@
     <ClCompile Include="LoadBalancing-cpp\src\Room.cpp" />
     <ClCompile Include="LoadBalancing-cpp\src\RoomOptions.cpp" />
     <ClCompile Include="NetEngine.cpp" />
+    <ClCompile Include="NetEventStore.cpp" />
     <ClCompile Include="NetPch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
