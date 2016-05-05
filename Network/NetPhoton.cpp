@@ -2,16 +2,19 @@
 #include "NetPhoton.h"
 #include "NetLogging.h"
 
-
 static const ExitGames::Common::JString appId = L"357c978b-3bfc-4f60-a2f0-143560e2bba8"; // set your app id here
 static const ExitGames::Common::JString appVersion = L"1.0";
 
 static const bool autoLobbbyStats = true;
 static const bool useDefaultRegion = false;
 
+using namespace ExitGames::Common;
 
 net::Photon::Photon()
-	: myLoadBalancingClient(*this, appId, appVersion, ExitGames::Photon::ConnectionProtocol::DEFAULT, autoLobbbyStats, useDefaultRegion)
+	: 
+	myLoadBalancingClient(*this, appId, appVersion, ExitGames::Photon::ConnectionProtocol::DEFAULT, autoLobbbyStats, useDefaultRegion),
+	myLastUpdateSentTime(std::chrono::high_resolution_clock::now())
+
 {
 	NET_LOG("Photon started");
 	char buffer[1024];
@@ -60,6 +63,14 @@ void net::Photon::opJoinOrCreateRoom(void)
 
 void net::Photon::run(void)
 {
+
+
+	// auto ms = std::chrono::time_point_cast<std::chrono::milliseconds>(total);
+
+
+	// auto ms = static_cast<long long>(1000.0*((total.count())));
+
+
 	State state = mStateAccessor.getState();
 	if (mLastInput == INPUT_EXIT && state != STATE_DISCONNECTING && state != STATE_DISCONNECTED)
 	{
@@ -112,7 +123,6 @@ void net::Photon::run(void)
 		case STATE_JOINING:
 			break; // wait for callback
 		case STATE_JOINED:
-			sendEvent();
 			switch (mLastInput)
 			{
 			case INPUT_1: // leave Game
@@ -145,16 +155,109 @@ void net::Photon::run(void)
 		}
 	}
 	mLastInput = INPUT_NON;
-	myLoadBalancingClient.service();
+
+	Service();
+	LogMeasurements();
 }
 
-void net::Photon::sendEvent(void)
+
+
+#include <vector>
+
+namespace net
 {
-	static int64 count = 0;
-	myLoadBalancingClient.opRaiseEvent(false, ++count, 0);
-	// mpOutputListener->write(ExitGames::Common::JString(L"s") + count + L" ");
-#if defined _EG_EMSCRIPTEN_PLATFORM
-	mpOutputListener->writeLine(L"");
+	class BitDataObject : public ExitGames::Common::Object
+	{
+	public:
+		BitDataObject()
+		{
+
+
+		}
+	private:
+		std::vector<bool> bits;
+	};
+}
+
+void net::Photon::Service()
+{
+	const size_t OverheadBytesPerUpdateApprox = 40;
+
+	auto now = std::chrono::high_resolution_clock::now();
+	const std::chrono::duration<double> duration = now - myLastUpdateSentTime;
+	if (duration.count() >= 0.015)
+	{
+		myLastUpdateSentTime = now;
+		/*NET_LOG("In: %d Out: %d  Rtt: %d byteCount:%d lastOp:%d state:%d delta:%f",
+			myLoadBalancingClient.getBytesIn(), myLoadBalancingClient.getBytesOut(), 
+			myLoadBalancingClient.getRoundTripTime(), myLoadBalancingClient.getByteCountCurrentDispatch(), myLoadBalancingClient.getByteCountLastOperation(),
+			mStateAccessor.getState(), duration.count());*/
+
+		// BitDataObject obj;
+
+		if (mStateAccessor.getState() == STATE_JOINED)
+		{
+			std::vector<nByte> tmp;
+			for (int i = 0; i < 5; i++)
+			{
+				tmp.emplace_back(i);
+			}
+			ExitGames::Common::Hashtable data;
+			data.put((nByte)33, &tmp[0], static_cast<int>(tmp.size()));
+
+			const nByte EventCode = 55;
+			myLoadBalancingClient.opRaiseEvent(false, data, EventCode);// ++count, 0);
+			//static int8_t count = 0;
+			myPayloadBytesOut += tmp.size()+1 /* hastable type*/  +1 /*Event code*/;
+			// myLoadBalancingClient.opRaiseEvent(false, data, ++count, 0);
+			// mpOutputListener->write(ExitGames::Common::JString(L"s") + count + L" ");
+		}
+		myLoadBalancingClient.service();
+		myUpdateSendCount++;
+	}
+}
+
+void net::Photon::LogMeasurements()
+{
+#if 0
+	auto now = std::chrono::high_resolution_clock::now();
+	const double MeasurementPeriod[3] = { 0.50, 1.00, 3.0 };
+	for (int i = 0; i < 3; i++)
+	{
+		const std::chrono::duration<double> duration = now - myMeasurements[i].myUpdateTime;
+		if (duration.count() >= MeasurementPeriod[i])
+		{
+			myMeasurements[i].myUpdateTime = now;
+			auto bytesInNow = myLoadBalancingClient.getBytesIn();
+			auto bytesOutNow = myLoadBalancingClient.getBytesOut();
+
+			double measuredOut = static_cast<double>(static_cast<uint32_t>(
+				bytesOutNow - myMeasurements[i].myMeasuredBytesOut)) / duration.count() / 1000.0;
+			double payloadOut = static_cast<double>(static_cast<uint32_t>(
+				myPayloadBytesOut - myMeasurements[i].myPayloadBytesOut)) / duration.count() / 1000.0;
+			double updatesPerSec = static_cast<double>(static_cast<uint32_t>(
+				myUpdateSendCount - myMeasurements[i].myUpdateSentCount)) / duration.count();
+
+			uint32_t overhead = static_cast<uint32_t>((measuredOut - payloadOut) / updatesPerSec * 1000.0);
+
+			NET_LOG("In: %f KB/s Out: %f KB/s PaylodOut: %f KB/s %f Updates/s Overhead %d bytes (%fs period)",
+				static_cast<double>(static_cast<uint32_t>(
+				bytesInNow - myMeasurements[i].myMeasuredBytesIn)) / duration.count() / 1000.0,
+				measuredOut,
+				payloadOut,
+				updatesPerSec,
+				overhead,
+				duration.count());
+
+			myMeasurements[i].myMeasuredBytesIn = bytesInNow;
+			myMeasurements[i].myMeasuredBytesOut = bytesOutNow;
+			myMeasurements[i].myPayloadBytesOut = myPayloadBytesOut;
+			myMeasurements[i].myUpdateSentCount = myUpdateSendCount;
+
+			// NET_LOG("Time %d", myLoadBalancingClient.getServerTime());
+			// myLoadBalancingClient.fetchServerTimestamp();
+		}
+	}
 #endif
 }
 
@@ -200,14 +303,39 @@ void net::Photon::leaveRoomEventAction(int playerNr, bool isInactive)
 	// mpOutputListener->writeLine(ExitGames::Common::JString(L"player ") + playerNr + L" has left the game");
 }
 
-void net::Photon::customEventAction(int /*playerNr*/, nByte /*eventCode*/, const ExitGames::Common::Object& eventContent)
+void net::Photon::customEventAction(int playerNr, nByte eventCode, const ExitGames::Common::Object& eventContent)
 {
-	// you do not receive your own events, unless you specify yourself as one of the receivers explicitly, so you must start 2 clients, to receive the events, which you have sent, as sendEvent() uses the default receivers of opRaiseEvent() (all players in same room like the sender, except the sender itself)
-	EGLOG(ExitGames::Common::DebugLevel::ALL, L"");
-	// mpOutputListener->write(ExitGames::Common::JString(L"r") + ExitGames::Common::ValueObject<long long>(eventContent).getDataCopy() + L" ");
-#if defined _EG_EMSCRIPTEN_PLATFORM
-	mpOutputListener->writeLine(L"");
-#endif
+	const auto hash = ExitGames::Common::ValueObject<ExitGames::Common::Hashtable>(eventContent);
+	if (hash.getDataAddress() != nullptr)
+	{
+		const auto evData = *hash.getDataAddress();
+		for (size_t i = 0; i < evData.getKeys().getSize(); i++)
+		{
+			const auto keyId = ExitGames::Common::ValueObject<nByte>(evData.getKeys().getElementAt(i)).getDataCopy();
+			const auto obj = evData.getValue(keyId);
+			if (obj && obj->getDimensions() == 1)
+			{
+				const auto size = obj->getSizes()[0];
+				if (size > 0)
+				{
+					const nByte* data = *((ValueObject<nByte*>*)obj)->getDataAddress();
+					NET_LOG("Received from player %d code %dKey=%d Size=%d", playerNr, eventCode, keyId, size);
+				}
+				else
+				{
+					NET_LOG("Zero data in key %d", keyId);
+				}
+			}
+			else
+			{
+				NET_LOG("Invalid data in key %d", keyId);
+			}
+		}
+	}
+	else
+	{
+		NET_LOG("Received invalid event content");
+	}
 }
 
 void net::Photon::connectReturn(int errorCode, const ExitGames::Common::JString& errorString)

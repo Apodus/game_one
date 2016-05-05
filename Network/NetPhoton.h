@@ -3,6 +3,8 @@
 #include "Photon-cpp/inc/PhotonPeer.h"
 #include "LoadBalancing-cpp/inc/Client.h"
 
+#include <chrono>
+#include <array>
 
 namespace net
 {
@@ -72,7 +74,7 @@ namespace net
 		void opJoinRandomRoom(void);
 		void opJoinOrCreateRoom(void);
 		void disconnect(void);
-		void sendEvent(void);
+		void Service(void);
 
 		// Input getLastInput(void) const;
 		// void setLastInput(Input newInput);
@@ -110,6 +112,7 @@ namespace net
 		virtual void leaveLobbyReturn(void);
 
 
+		void LogMeasurements();
 
 		ExitGames::LoadBalancing::Client myLoadBalancingClient;
 		ExitGames::Common::JString mLastJoinedRoom;
@@ -121,5 +124,23 @@ namespace net
 		bool mAutoJoinRoom;
 
 		ExitGames::Common::JString myClientName;
+
+		std::chrono::time_point<std::chrono::high_resolution_clock> myLastUpdateSentTime;
+
+		struct Measurement
+		{
+			std::chrono::time_point<std::chrono::high_resolution_clock> myUpdateTime;
+			uint32_t myUpdateSentCount = 0;
+			int myMeasuredBytesIn = 0;
+			int myPayloadBytesIn = 0;
+			int myMeasuredBytesOut = 0;
+			int myPayloadBytesOut = 0;
+		};
+
+		std::array<Measurement, 3> myMeasurements;
+
+		int myPayloadBytesIn = 0;
+		int myPayloadBytesOut = 0;
+		uint32_t myUpdateSendCount = 0;
 	};
 }
