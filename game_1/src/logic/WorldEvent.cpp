@@ -10,7 +10,6 @@
 SpawnEvent::SpawnEvent(Type t, float x, float y, float dir, float vx, float vy)
 	:
 	myType(t),
-	myBody(nullptr),
 	mySpawnPos(x, y),
 	mySpawnDir(dir),
 	mySpawnVelocity(vx, vy)
@@ -42,46 +41,46 @@ void SpawnEvent::Begin(World& aWorld)
 	boxFixtureDef.shape = &boxShape;
 	boxFixtureDef.density = 4;
 
-	myBody = aWorld.physicsWorld.CreateBody(&bodyDef);
+	auto body = aWorld.physicsWorld.CreateBody(&bodyDef);
 	if (myType == SpawnEvent::Type::Hero)
 	{
 		ShapePrototype sphereShape(Shape::makeCircle(0.5f, 32));
-		sphereShape.attach(myBody, 4);
+		sphereShape.attach(body, 4);
 
 		aWorld.newObjs.emplace_back(
-			myBody,
+			body,
 			sphereShape,
 			"Hero"
 		);
 
 		// TODO: Don't add this to remote heroes.
 		aWorld.newObjs.back().inputHandler(
-			std::make_unique<OnInput>([this, &aWorld](Transform& t, sa::UserIO& userio) {
+			std::make_unique<OnInput>([this, &aWorld](ObjectController& o, sa::UserIO& userio) {
+
 			if (userio.isKeyDown('A'))
 			{
-				t.m_body->ApplyTorque(10.0f, false);
+				o.setTurning(1.0f);
 			}
-			if (userio.isKeyDown('D'))
+			else if (userio.isKeyDown('D'))
 			{
-				t.m_body->ApplyTorque(-10.0f, false);
+				o.setTurning(-1.0f);
 			}
+			else
+			{
+				o.setTurning(0);
+			}
+
 			if (userio.isKeyDown('W'))
 			{
-				t.m_body->ApplyForceToCenter({
-					+sa::math::sin(t.direction) * 200.1f,
-					-sa::math::cos(t.direction) * 200.1f
-				},
-					true
-				);
+				o.setForwardSpeed(1.0f);
 			}
-			if (userio.isKeyDown('S'))
+			else if (userio.isKeyDown('S'))
 			{
-				t.m_body->ApplyForceToCenter({
-					-sa::math::sin(t.direction) * 20.0f,
-					+sa::math::cos(t.direction) * 20.0f
-				},
-					true
-				);
+				o.setForwardSpeed(-1.0f);
+			}
+			else
+			{
+				o.setForwardSpeed(0);
 			}
 			
 			if (userio.isKeyClicked(' '))
@@ -89,10 +88,10 @@ void SpawnEvent::Begin(World& aWorld)
 				// TODO: Probably should replace spawn event with trigger event. 
 				// I.e. instead of replicating object spawn, replicate user key press
 				const int DelayMs = 0;
-				sa::vec2<float> forward = t.directionForward();			
+				sa::vec2<float> forward = o.getTransform().directionForward();			
 				aWorld.AddEvent(new SpawnEvent(SpawnEvent::Type::Bullet,
-					t.position.x + forward.x, t.position.y + forward.y, // Position
-					t.direction, // Direction
+					o.getTransform().position.x + forward.x, o.getTransform().position.y + forward.y, // Position
+					o.getTransform().direction, // Direction
 					forward.x * 10, forward.y * 10),
 					DelayMs); // Velocity
 			}
@@ -105,20 +104,19 @@ void SpawnEvent::Begin(World& aWorld)
 	}
 	else
 	{
-		myBody->CreateFixture(&boxFixtureDef);
+		body->CreateFixture(&boxFixtureDef);
 
 		aWorld.newObjs.emplace_back(
-			myBody,
+			body,
 			Shape::makeBox(myType == SpawnEvent::Type::Bullet ? 0.25f : 1.0f),
 			"Hero"
 		);
 	}
-	myBody->SetTransform({ mySpawnPos.x, mySpawnPos.y }, mySpawnDir);
-	myBody->SetLinearVelocity({ mySpawnVelocity.x, mySpawnVelocity.y });
+	body->SetTransform({ mySpawnPos.x, mySpawnPos.y }, mySpawnDir);
+	body->SetLinearVelocity({ mySpawnVelocity.x, mySpawnVelocity.y });
 }
 
 void SpawnEvent::End(World& world)
 {
-	world.physicsWorld.DestroyBody(myBody);
-	myBody = nullptr;
+	world.physicsWorld.DestroyBody(myObj->getTransform().m_body);
 }

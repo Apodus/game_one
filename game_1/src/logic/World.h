@@ -10,14 +10,20 @@
 class World
 {
 public:
+	friend class Timeline;
+
 	World() : physicsWorld({ 0, 0 }), m_timeline(*this)
 	{
 		physicsWorld.SetContactListener(&contactListener);
 	}
 
+	virtual ~World()
+	{
+	}
+
 	void AddEvent(WorldEvent* record, int adjustment = 0)
 	{
-		m_timeline.AddEvent(record, m_timeline.GetTime() + adjustment);
+		AddEventAt(record, m_timeline.GetTime() + adjustment);
 	}
 
 	void AddEventAt(WorldEvent* record, uint64_t time)
@@ -32,13 +38,15 @@ public:
 
 	// TODO: Reduce visibility
 	GameContactListener contactListener;
-	b2World physicsWorld;
-	std::vector<SceneObject> objs;
+	b2World physicsWorld;	
 	std::vector<SceneObject> newObjs;
+
+	std::vector<SceneObject>& GetObjects() { return objs; }
 
 protected:
 
 private:
+	std::vector<SceneObject> objs;
 	Timeline m_timeline;
 
 };

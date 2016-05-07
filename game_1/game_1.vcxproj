@@ -90,6 +90,7 @@
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\logic\ObjectController.hpp" />
     <ClCompile Include="src\logic\WorldEvent.cpp" />
     <ClCompile Include="src\logic\ShapePrototype.cpp" />
     <ClCompile Include="src\logic\Timeline.cpp" />
@@ -105,6 +106,7 @@
     <ClInclude Include="src\logic\Transform.hpp" />
     <ClInclude Include="src\logic\World.h" />
     <ClInclude Include="src\menu\gameline.hpp" />
+    <ClInclude Include="src\multiplayer\MultiplayerProxy.h" />
     <ClInclude Include="src\session\application\session.hpp" />
     <ClInclude Include="src\session\game\game.hpp" />
     <ClInclude Include="src\menu\mainmenu.hpp" />

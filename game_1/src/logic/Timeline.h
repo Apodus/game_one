@@ -12,6 +12,7 @@ class Timeline
 {
 public:
 	Timeline(World& world);
+	virtual ~Timeline();
 	void Run(uint64_t time);
 	void AddEvent(WorldEvent* record, uint64_t time);
 

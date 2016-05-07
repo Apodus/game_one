@@ -17,9 +17,10 @@ class WorldEvent
 public:
 	virtual void Begin(World& world) = 0;
 	virtual void End(World& world) = 0;
+	virtual ~WorldEvent() {};
 };
 
-class b2Body;
+class SceneObject;
 class World;
 class SpawnEvent : public WorldEvent
 {
@@ -38,7 +39,7 @@ public:
 private:
 	Type myType;
 	UniqueId id;
-	b2Body* myBody;
+	SceneObject* myObj;
 	sa::vec2<float> mySpawnPos;
 	float mySpawnDir;
 	sa::vec2<float> mySpawnVelocity;

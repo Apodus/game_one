@@ -18,6 +18,12 @@ Timeline::Timeline(World& world)
 	myRecords.push_back(gameBeginEvent);
 }
 
+
+Timeline::~Timeline()
+{
+	// TODO: Leaking lots of memory here, properly clear timeline
+}
+
 void Timeline::AddEvent(WorldEvent* nextEvent, uint64_t time)
 {
 	assert(nextEvent != nullptr);

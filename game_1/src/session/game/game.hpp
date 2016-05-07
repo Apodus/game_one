@@ -22,15 +22,20 @@
 #include <memory>
 #include <iterator>
 
-class Game : public World {
+class Game {
 
 public:
 	Game(std::shared_ptr<sa::UserIO>)
 	{
-		AddEventAt(new SpawnEvent(SpawnEvent::Type::Thug), 3000);
-		AddEventAt(new SpawnEvent(SpawnEvent::Type::Thug), 10000);
-		AddEventAt(new SpawnEvent(SpawnEvent::Type::Thug), 5000);
-		AddEventAt(new SpawnEvent(SpawnEvent::Type::Hero), 1);
+		m_world.AddEventAt(new SpawnEvent(SpawnEvent::Type::Thug), 3000);
+		m_world.AddEventAt(new SpawnEvent(SpawnEvent::Type::Thug), 10000);
+		m_world.AddEventAt(new SpawnEvent(SpawnEvent::Type::Thug), 5000);
+		addLocalPlayer();
+	}
+
+	void addLocalPlayer()
+	{
+		m_world.AddEventAt(new SpawnEvent(SpawnEvent::Type::Hero), 1);
 	}
 
 	void preTick()
@@ -43,14 +48,21 @@ public:
 		// TODO: Send local to remote
 	}
 
+	void tick(long long timeMs)
+	{
+		m_world.tick(timeMs);
+	}
+
 	void update(std::shared_ptr<sa::UserIO> userio)
 	{
+		auto& objs = m_world.GetObjects();
 		for (auto&& obj : objs)
 			obj.update(*userio);
 	}
 
 	void draw(std::shared_ptr<sa::Graphics> pGraphics)
 	{
+		auto& objs = m_world.GetObjects();
 		for(auto&& obj : objs)
 			obj.draw(pGraphics);
 	}
@@ -58,5 +70,6 @@ public:
 private:
 	Scripter m_scripter;
 	size_t m_tickID;
+	World m_world;
 	net::Engine netEngine;
 };
