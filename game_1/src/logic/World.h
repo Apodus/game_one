@@ -4,6 +4,7 @@
 #include "logic/SceneObject.hpp"
 #include "session/game/collisionCallback.hpp"
 #include "logic/Timeline.h"
+#include "multiplayer\MultiplayerProxy.h"
 
 #include <vector>
 
@@ -12,7 +13,11 @@ class World
 public:
 	friend class Timeline;
 
-	World() : physicsWorld({ 0, 0 }), m_timeline(*this)
+	World(MultiplayerProxy& proxy) 
+		: 
+		physicsWorld({ 0, 0 }), 
+		m_proxy(proxy),
+		m_timeline(*this)		
 	{
 		physicsWorld.SetContactListener(&contactListener);
 	}
@@ -23,12 +28,14 @@ public:
 
 	void AddEvent(WorldEvent* record, int adjustment = 0)
 	{
-		AddEventAt(record, m_timeline.GetTime() + adjustment);
+		auto time = m_timeline.GetTime() + adjustment;
+		AddEventAt(record, time);
 	}
 
 	void AddEventAt(WorldEvent* record, uint64_t time)
 	{
 		m_timeline.AddEvent(record, time);
+		m_proxy.OnEvent(record, time);
 	}
 
 	void tick(long long timeMs)
@@ -43,10 +50,12 @@ public:
 
 	std::vector<SceneObject>& GetObjects() { return objs; }
 
+
 protected:
 
 private:
 	std::vector<SceneObject> objs;
-	Timeline m_timeline;
+	MultiplayerProxy& m_proxy;
+	Timeline m_timeline;	
 
 };

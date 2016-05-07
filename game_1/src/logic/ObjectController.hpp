@@ -53,7 +53,7 @@ public:
 	{
 		if (turnSpeed != 0)
 		{
-			transform.m_body->ApplyTorque(10.0f * turnSpeed, false);
+			transform.m_body->ApplyTorque(10.0f * turnSpeed, true);
 		}
 
 		if (forwardSpeed > 0)

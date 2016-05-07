@@ -88,5 +88,6 @@
     <ClInclude Include="NetPhoton.h" />
     <ClInclude Include="NetLogging.h" />
     <ClInclude Include="NetEventStore.h" />
+    <ClInclude Include="NetDataProxy.h" />
   </ItemGroup>
 </Project>

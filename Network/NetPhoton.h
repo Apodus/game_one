@@ -5,6 +5,7 @@
 
 #include <chrono>
 #include <array>
+#include <vector>
 
 namespace net
 {
@@ -74,7 +75,8 @@ namespace net
 		void opJoinRandomRoom(void);
 		void opJoinOrCreateRoom(void);
 		void disconnect(void);
-		void Service(void);
+		bool IsServiceScheduled() const;
+		void Service(std::vector<unsigned char>& data);
 
 		// Input getLastInput(void) const;
 		// void setLastInput(Input newInput);

@@ -26,6 +26,9 @@ class Game {
 
 public:
 	Game(std::shared_ptr<sa::UserIO>)
+		:
+		m_world(m_proxy)
+		
 	{
 		m_world.AddEventAt(new SpawnEvent(SpawnEvent::Type::Thug), 3000);
 		m_world.AddEventAt(new SpawnEvent(SpawnEvent::Type::Thug), 10000);
@@ -40,12 +43,12 @@ public:
 
 	void preTick()
 	{
-		netEngine.Tick();
+		m_netEngine.PreTick();
 	}
 
 	void postTick()
 	{
-		// TODO: Send local to remote
+		m_netEngine.PostTick(m_proxy);
 	}
 
 	void tick(long long timeMs)
@@ -70,6 +73,7 @@ public:
 private:
 	Scripter m_scripter;
 	size_t m_tickID;
+	net::Engine m_netEngine;
+	MultiplayerProxy m_proxy;
 	World m_world;
-	net::Engine netEngine;
 };

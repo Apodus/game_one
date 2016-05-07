@@ -6,7 +6,6 @@
 #include "math/2d/shape.hpp"
 #include "logic/ShapePrototype.hpp"
 
-
 SpawnEvent::SpawnEvent(Type t, float x, float y, float dir, float vx, float vy)
 	:
 	myType(t),
@@ -15,6 +14,22 @@ SpawnEvent::SpawnEvent(Type t, float x, float y, float dir, float vx, float vy)
 	mySpawnVelocity(vx, vy)
 {
 
+}
+
+void SpawnEvent::Serialize(std::vector<unsigned char>& data)
+{
+	data.emplace_back(static_cast<unsigned char>(myType));
+	/*data.emplace_back(mySpawnPos.x);
+	data.emplace_back(mySpawnPos.y);
+	data.emplace_back(mySpawnDir);
+	data.emplace_back(mySpawnVelocity.x);
+	data.emplace_back(mySpawnVelocity.y);*/
+}
+
+void SpawnEvent::Deserialize(const std::vector<uint8_t>& aData, size_t& pos)
+{
+	myType = static_cast<SpawnEvent::Type>(aData[pos]);
+	pos++;
 }
 
 void SpawnEvent::Begin(World& aWorld)
@@ -89,11 +104,11 @@ void SpawnEvent::Begin(World& aWorld)
 				// I.e. instead of replicating object spawn, replicate user key press
 				const int DelayMs = 0;
 				sa::vec2<float> forward = o.getTransform().directionForward();			
-				aWorld.AddEvent(new SpawnEvent(SpawnEvent::Type::Bullet,
+				auto se = new SpawnEvent(SpawnEvent::Type::Bullet,
 					o.getTransform().position.x + forward.x, o.getTransform().position.y + forward.y, // Position
 					o.getTransform().direction, // Direction
-					forward.x * 10, forward.y * 10),
-					DelayMs); // Velocity
+					forward.x * 10, forward.y * 10); // Velocity
+				aWorld.AddEvent(se, DelayMs);
 			}
 			if (userio.isKeyClicked('F'))
 			{

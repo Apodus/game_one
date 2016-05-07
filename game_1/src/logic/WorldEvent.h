@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <vector>
 
 #include  "util\vec2.hpp"
 
@@ -15,9 +16,19 @@ class World;
 class WorldEvent
 {
 public:
+	enum class Type : uint8_t
+	{
+		Game,
+		Spawn,
+		None
+	};
+
 	virtual void Begin(World& world) = 0;
 	virtual void End(World& world) = 0;
+	virtual void Serialize(std::vector<unsigned char>& data) {}
+	virtual void Deserialize(const std::vector<uint8_t>& aData, size_t& pos) {}
 	virtual ~WorldEvent() {};
+	virtual Type GetType() const = 0;
 };
 
 class SceneObject;
@@ -32,9 +43,16 @@ public:
 		Bullet
 	};
 
+	SpawnEvent() {}
 	SpawnEvent(Type t, float x = 0, float y = 0, float dir = 0, float vx = 0, float vy = 0);
 	void Begin(World& world);
 	void End(World& world);
+
+	virtual WorldEvent::Type GetType() const override final { return WorldEvent::Type::Spawn; }
+
+	virtual void Serialize(std::vector<unsigned char>& data) override final;
+
+	virtual void Deserialize(const std::vector<uint8_t>& aData, size_t& pos) override final;
 
 private:
 	Type myType;
@@ -49,4 +67,5 @@ class GameEvent : public WorldEvent
 {
 	void Begin(World& world) {}
 	void End(World& world) {}
+	virtual WorldEvent::Type GetType() const override final { return WorldEvent::Type::Game; }
 };

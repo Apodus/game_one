@@ -1,7 +1,7 @@
 ﻿#include "NetPch.h"
 #include "NetEngine.h"
-
 #include "NetPhoton.h"
+#include "NetDataProxy.h"
 
 net::Engine::Engine()
 {
@@ -12,7 +12,15 @@ net::Engine::~Engine()
 {
 }
 
-void net::Engine::Tick()
+void net::Engine::PreTick()
 {
 	myPhoton->run();
+}
+
+void net::Engine::PostTick(net::DataProxy& proxy)
+{
+	if (myPhoton->IsServiceScheduled())
+	{
+		myPhoton->Service(proxy.Serialize());		
+	}	
 }

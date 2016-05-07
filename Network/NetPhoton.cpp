@@ -157,48 +157,49 @@ void net::Photon::run(void)
 		}
 	}
 	mLastInput = INPUT_NON;
-
-	Service();
 	LogMeasurements();
 }
 
-void net::Photon::Service()
+bool net::Photon::IsServiceScheduled() const
+{
+	auto now = std::chrono::high_resolution_clock::now();
+	const std::chrono::duration<double> duration = now - myLastUpdateSentTime;
+	return (duration.count() >= 0.015);
+}
+
+void net::Photon::Service(std::vector<unsigned char>& data)
 {
 	const size_t OverheadBytesPerUpdateApprox = 40;
 
 	auto now = std::chrono::high_resolution_clock::now();
-	const std::chrono::duration<double> duration = now - myLastUpdateSentTime;
-	if (duration.count() >= 0.015)
-	{
-		myLastUpdateSentTime = now;
-		/*NET_LOG("In: %d Out: %d  Rtt: %d byteCount:%d lastOp:%d state:%d delta:%f",
-			myLoadBalancingClient.getBytesIn(), myLoadBalancingClient.getBytesOut(), 
-			myLoadBalancingClient.getRoundTripTime(), myLoadBalancingClient.getByteCountCurrentDispatch(), myLoadBalancingClient.getByteCountLastOperation(),
-			mStateAccessor.getState(), duration.count());*/
+
+	myLastUpdateSentTime = now;
+	/*NET_LOG("In: %d Out: %d  Rtt: %d byteCount:%d lastOp:%d state:%d delta:%f",
+		myLoadBalancingClient.getBytesIn(), myLoadBalancingClient.getBytesOut(),
+		myLoadBalancingClient.getRoundTripTime(), myLoadBalancingClient.getByteCountCurrentDispatch(), myLoadBalancingClient.getByteCountLastOperation(),
+		mStateAccessor.getState(), duration.count());*/
 
 		// BitDataObject obj;
 
-		if (mStateAccessor.getState() == STATE_JOINED)
+	if (mStateAccessor.getState() == STATE_JOINED)
+	{
+		if (data.size() > 0)
 		{
-			std::vector<nByte> tmp;
-			for (int i = 0; i < 5; i++)
-			{
-				tmp.emplace_back(i);
-			}
-			ExitGames::Common::Hashtable data;
-			data.put((nByte)33, &tmp[0], static_cast<int>(tmp.size()));
+			ExitGames::Common::Hashtable table;
+			table.put((nByte)33, &data[0], static_cast<int>(data.size()));
 
 			const nByte EventCode = 55;
 			bool isReliable = false;
-			myLoadBalancingClient.opRaiseEvent(isReliable, data, EventCode);// ++count, 0);
+			myLoadBalancingClient.opRaiseEvent(isReliable, table, EventCode);// ++count, 0);
 			//static int8_t count = 0;
-			myPayloadBytesOut += tmp.size()+1 /* hastable type*/  +1 /*Event code*/;
+			myPayloadBytesOut += data.size() + 1 /* hastable type*/ + 1 /*Event code*/;
 			// myLoadBalancingClient.opRaiseEvent(false, data, ++count, 0);
 			// mpOutputListener->write(ExitGames::Common::JString(L"s") + count + L" ");
 		}
-		myLoadBalancingClient.service();
-		myUpdateSendCount++;
 	}
+	myLoadBalancingClient.service();
+	myUpdateSendCount++;
+
 }
 
 void net::Photon::LogMeasurements()
