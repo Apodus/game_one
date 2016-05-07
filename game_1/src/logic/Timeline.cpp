@@ -7,7 +7,10 @@ static const uint32_t SimulationStepMs = 10;
 
 Timeline::Timeline(World& world)
 	:
-	myWorld(world)
+	myWorld(world),
+	myRecordPos(0),
+	myCurrentTime(1),
+	mySimulationAccumulator(0)	
 {
 	Record gameBeginEvent;
 	gameBeginEvent.time = 0;
@@ -15,7 +18,7 @@ Timeline::Timeline(World& world)
 	myRecords.push_back(gameBeginEvent);
 }
 
-void Timeline::AddEvent(uint64_t time, WorldEvent* nextEvent)
+void Timeline::AddEvent(WorldEvent* nextEvent, uint64_t time)
 {
 	assert(nextEvent != nullptr);
 	auto pos = myRecordPos;

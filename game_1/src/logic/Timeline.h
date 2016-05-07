@@ -13,13 +13,15 @@ class Timeline
 public:
 	Timeline(World& world);
 	void Run(uint64_t time);
-	void AddEvent(uint64_t time, WorldEvent* record);
+	void AddEvent(WorldEvent* record, uint64_t time);
 
 	struct Record
 	{
 		std::vector<WorldEvent*> events;
 		uint64_t time;
 	};
+
+	uint64_t GetTime() const { return myCurrentTime; }
 
 private:
 	void Simulate(uint64_t ttime);
@@ -30,5 +32,5 @@ private:
 	std::deque<Record> myRecords;
 	size_t myRecordPos;
 	uint64_t myCurrentTime;
-	uint32_t mySimulationAccumulator = 0;
+	uint32_t mySimulationAccumulator;
 };

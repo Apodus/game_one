@@ -2,6 +2,7 @@
 
 #include <cstdint>
 
+#include  "util\vec2.hpp"
 
 struct UniqueId
 {
@@ -23,13 +24,24 @@ class World;
 class SpawnEvent : public WorldEvent
 {
 public:
-	SpawnEvent() : myBody(nullptr) {}
+	enum class Type : uint8_t
+	{
+		Hero,
+		Thug,
+		Bullet
+	};
+
+	SpawnEvent(Type t, float x = 0, float y = 0, float dir = 0, float vx = 0, float vy = 0);
 	void Begin(World& world);
 	void End(World& world);
 
+private:
+	Type myType;
 	UniqueId id;
-
 	b2Body* myBody;
+	sa::vec2<float> mySpawnPos;
+	float mySpawnDir;
+	sa::vec2<float> mySpawnVelocity;
 };
 
 class GameEvent : public WorldEvent
