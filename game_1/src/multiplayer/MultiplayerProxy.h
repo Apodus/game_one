@@ -4,6 +4,7 @@
 #include "logic\WorldEvent.h"
 #include "NetDataProxy.h"
 #include "NetInputStream.h"
+#include "NetOutputStream.h"
 
 class MultiplayerProxy : public net::DataProxy
 {
@@ -65,17 +66,15 @@ public:
 		}
 	}
 
-	virtual std::vector<uint8_t> Serialize() override final
+	virtual void Serialize(net::OutputStream& aStream) override final
 	{
 		std::sort(myOutEvents.begin(), myOutEvents.end());
-		std::vector<uint8_t> data;
 		for (size_t i = 0; i < myOutEvents.size(); i++)
 		{
-			data.emplace_back(static_cast<uint8_t>(myOutEvents[i].serializable->GetType()));
-			myOutEvents[i].serializable->Serialize(data);
+			aStream.WriteU8(static_cast<uint8_t>(myOutEvents[i].serializable->GetType()));
+			myOutEvents[i].serializable->Serialize(aStream);
 		}
 		myOutEvents.clear();
-		return data;
 	}
 
 private:

@@ -5,6 +5,7 @@
 #include "World.h"
 #include "math/2d/shape.hpp"
 #include "logic/ShapePrototype.hpp"
+#include "NetOutputStream.h"
 
 SpawnEvent::SpawnEvent(Type t, float x, float y, float dir, float vx, float vy)
 	:
@@ -16,19 +17,24 @@ SpawnEvent::SpawnEvent(Type t, float x, float y, float dir, float vx, float vy)
 
 }
 
-void SpawnEvent::Serialize(std::vector<unsigned char>& data)
+void SpawnEvent::Serialize(net::OutputStream& aStream)
 {
-	data.emplace_back(static_cast<unsigned char>(myType));
-	/*data.emplace_back(mySpawnPos.x);
-	data.emplace_back(mySpawnPos.y);
-	data.emplace_back(mySpawnDir);
-	data.emplace_back(mySpawnVelocity.x);
-	data.emplace_back(mySpawnVelocity.y);*/
+	aStream.WriteU8(static_cast<uint8_t>(myType));
+	aStream.WriteU32(mySpawnPos.x);
+	aStream.WriteU32(mySpawnPos.y);
+	aStream.WriteU32(mySpawnDir);
+	aStream.WriteU32(mySpawnVelocity.x);
+	aStream.WriteU32(mySpawnVelocity.y);
 }
 
 void SpawnEvent::Deserialize(net::InputStream& aStream)
 {
 	myType = static_cast<SpawnEvent::Type>(aStream.ReadU8());
+	mySpawnPos.x = aStream.ReadU32<float>();
+	mySpawnPos.y = aStream.ReadU32<float>();
+	mySpawnDir = aStream.ReadU32<float>();
+	mySpawnVelocity.x = aStream.ReadU32<float>();
+	mySpawnVelocity.y = aStream.ReadU32<float>();
 }
 
 void SpawnEvent::Begin(World& aWorld)

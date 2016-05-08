@@ -2,6 +2,7 @@
 #include "NetPhoton.h"
 #include "NetLogging.h"
 #include "NetDataProxy.h"
+#include "NetOutputStream.h"
 
 #include <vector>
 
@@ -178,26 +179,26 @@ void net::Photon::Send()
 		mStateAccessor.getState(), duration.count());
 #endif
 
-	std::vector<unsigned char> data;
+	OutputStream outStream(64);
 	if (myDataProxy)
 	{
-		data = myDataProxy->Serialize();
+		myDataProxy->Serialize(outStream);
 	}
 
 	if (mStateAccessor.getState() == STATE_JOINED)
 	{
-		if (data.size() > 0)
+		if (outStream.GetSize() > 0)
 		{
 			myLastUpdateSentTime = now;
 
 			ExitGames::Common::Hashtable table;
 			const nByte KeyId = 33;
-			table.put(KeyId, &data[0], static_cast<int>(data.size()));
+			table.put(KeyId, outStream.GetData(), static_cast<int>(outStream.GetSize()));
 
 			const nByte EventCode = 55;
 			bool isReliable = false;
 			myLoadBalancingClient.opRaiseEvent(isReliable, table, EventCode);// ++count, 0);
-			myPayloadBytesOut += data.size() + 1 /* hastable type*/ + 1 /*Event code*/;
+			myPayloadBytesOut += outStream.GetSize() + 1 /* hastable type*/ + 1 /*Event code*/;
 		}
 	}
 	myLoadBalancingClient.service();

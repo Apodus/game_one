@@ -90,5 +90,6 @@
     <ClInclude Include="NetEventStore.h" />
     <ClInclude Include="NetDataProxy.h" />
     <ClInclude Include="NetInputStream.h" />
+    <ClInclude Include="NetOutputStream.h" />
   </ItemGroup>
 </Project>
