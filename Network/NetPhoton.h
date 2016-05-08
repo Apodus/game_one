@@ -9,6 +9,7 @@
 
 namespace net
 {
+	class DataProxy;
 	class Photon : private ExitGames::LoadBalancing::Listener
 	{
 	public:
@@ -69,14 +70,20 @@ namespace net
 		};
 
 		void registerForStateUpdates(Listener* listener);
-		void run(void);
+		void Update(void);
 		void connect(const ExitGames::LoadBalancing::AuthenticationValues& authenticationValues = ExitGames::LoadBalancing::AuthenticationValues());
 		void opCreateRoom(void);
 		void opJoinRandomRoom(void);
 		void opJoinOrCreateRoom(void);
 		void disconnect(void);
-		bool IsServiceScheduled() const;
-		void Service(std::vector<unsigned char>& data);
+		bool IsSendScheduled() const;
+		void Receive();
+		void Send();
+
+		void SetProxy(net::DataProxy& proxy)
+		{
+			myDataProxy = &proxy;
+		}
 
 		// Input getLastInput(void) const;
 		// void setLastInput(Input newInput);
@@ -144,5 +151,6 @@ namespace net
 		int myPayloadBytesIn = 0;
 		int myPayloadBytesOut = 0;
 		uint32_t myUpdateSendCount = 0;
+		net::DataProxy* myDataProxy;
 	};
 }

@@ -26,16 +26,19 @@ public:
 	{
 	}
 
-	void AddEvent(WorldEvent* record, int adjustment = 0)
+	void AddEvent(WorldEvent* record, int adjustment = 0, bool broadcast = true)
 	{
 		auto time = m_timeline.GetTime() + adjustment;
-		AddEventAt(record, time);
+		AddEventAt(record, time, broadcast);
 	}
 
-	void AddEventAt(WorldEvent* record, uint64_t time)
+	void AddEventAt(WorldEvent* record, uint64_t time, bool broadcast = true)
 	{
 		m_timeline.AddEvent(record, time);
-		m_proxy.OnEvent(record, time);
+		if (broadcast)
+		{
+			m_proxy.OnEvent(record, time);
+		}
 	}
 
 	void tick(long long timeMs)

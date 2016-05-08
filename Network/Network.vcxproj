@@ -204,6 +204,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="NetEventStore.h" />
+    <ClInclude Include="NetInputStream.h" />
     <ClInclude Include="NetLogging.h" />
     <ClInclude Include="NetEngine.h" />
     <ClInclude Include="NetPch.h" />

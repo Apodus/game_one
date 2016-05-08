@@ -30,6 +30,7 @@ public:
 		m_world(m_proxy)
 		
 	{
+		m_netEngine.SetProxy(m_proxy);
 		m_world.AddEventAt(new SpawnEvent(SpawnEvent::Type::Thug), 3000);
 		m_world.AddEventAt(new SpawnEvent(SpawnEvent::Type::Thug), 10000);
 		m_world.AddEventAt(new SpawnEvent(SpawnEvent::Type::Thug), 5000);
@@ -44,15 +45,21 @@ public:
 	void preTick()
 	{
 		m_netEngine.PreTick();
+		auto events = m_proxy.GetReceivedEvents();
+		for (size_t i = 0; i < events.size(); i++)
+		{
+			auto& e = events[i];
+			m_world.AddEvent(e.serializable, 0, false);
+		}
 	}
 
 	void postTick()
 	{
-		m_netEngine.PostTick(m_proxy);
+		m_netEngine.PostTick();
 	}
 
 	void tick(long long timeMs)
-	{
+	{		
 		m_world.tick(timeMs);
 	}
 

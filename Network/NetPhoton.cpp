@@ -1,6 +1,7 @@
 #include "NetPch.h"
 #include "NetPhoton.h"
 #include "NetLogging.h"
+#include "NetDataProxy.h"
 
 #include <vector>
 
@@ -15,8 +16,8 @@ using namespace ExitGames::Common;
 net::Photon::Photon()
 	: 
 	myLoadBalancingClient(*this, appId, appVersion, ExitGames::Photon::ConnectionProtocol::DEFAULT, autoLobbbyStats, useDefaultRegion),
-	myLastUpdateSentTime(std::chrono::high_resolution_clock::now())
-
+	myLastUpdateSentTime(std::chrono::high_resolution_clock::now()),
+	myDataProxy(nullptr)
 {
 	NET_LOG("Photon started");
 	char buffer[1024];
@@ -63,16 +64,8 @@ void net::Photon::opJoinOrCreateRoom(void)
 	// mpOutputListener->writeLine(ExitGames::Common::JString(L"joining or creating room ") + name + L"...");
 }
 
-void net::Photon::run(void)
+void net::Photon::Update(void)
 {
-
-
-	// auto ms = std::chrono::time_point_cast<std::chrono::milliseconds>(total);
-
-
-	// auto ms = static_cast<long long>(1000.0*((total.count())));
-
-
 	State state = mStateAccessor.getState();
 	if (mLastInput == INPUT_EXIT && state != STATE_DISCONNECTING && state != STATE_DISCONNECTED)
 	{
@@ -160,46 +153,55 @@ void net::Photon::run(void)
 	LogMeasurements();
 }
 
-bool net::Photon::IsServiceScheduled() const
+bool net::Photon::IsSendScheduled() const
 {
 	auto now = std::chrono::high_resolution_clock::now();
 	const std::chrono::duration<double> duration = now - myLastUpdateSentTime;
 	return (duration.count() >= 0.015);
 }
 
-void net::Photon::Service(std::vector<unsigned char>& data)
+void net::Photon::Receive()
+{
+	myLoadBalancingClient.service(false);
+}
+
+void net::Photon::Send()
 {
 	const size_t OverheadBytesPerUpdateApprox = 40;
 
 	auto now = std::chrono::high_resolution_clock::now();
 
-	myLastUpdateSentTime = now;
-	/*NET_LOG("In: %d Out: %d  Rtt: %d byteCount:%d lastOp:%d state:%d delta:%f",
+#if 0
+	NET_LOG("In: %d Out: %d  Rtt: %d byteCount:%d lastOp:%d state:%d delta:%f",
 		myLoadBalancingClient.getBytesIn(), myLoadBalancingClient.getBytesOut(),
 		myLoadBalancingClient.getRoundTripTime(), myLoadBalancingClient.getByteCountCurrentDispatch(), myLoadBalancingClient.getByteCountLastOperation(),
-		mStateAccessor.getState(), duration.count());*/
+		mStateAccessor.getState(), duration.count());
+#endif
 
-		// BitDataObject obj;
+	std::vector<unsigned char> data;
+	if (myDataProxy)
+	{
+		data = myDataProxy->Serialize();
+	}
 
 	if (mStateAccessor.getState() == STATE_JOINED)
 	{
 		if (data.size() > 0)
 		{
+			myLastUpdateSentTime = now;
+
 			ExitGames::Common::Hashtable table;
-			table.put((nByte)33, &data[0], static_cast<int>(data.size()));
+			const nByte KeyId = 33;
+			table.put(KeyId, &data[0], static_cast<int>(data.size()));
 
 			const nByte EventCode = 55;
 			bool isReliable = false;
 			myLoadBalancingClient.opRaiseEvent(isReliable, table, EventCode);// ++count, 0);
-			//static int8_t count = 0;
 			myPayloadBytesOut += data.size() + 1 /* hastable type*/ + 1 /*Event code*/;
-			// myLoadBalancingClient.opRaiseEvent(false, data, ++count, 0);
-			// mpOutputListener->write(ExitGames::Common::JString(L"s") + count + L" ");
 		}
 	}
 	myLoadBalancingClient.service();
 	myUpdateSendCount++;
-
 }
 
 void net::Photon::LogMeasurements()
@@ -304,9 +306,16 @@ void net::Photon::customEventAction(int playerNr, nByte eventCode, const ExitGam
 				const auto size = obj->getSizes()[0];
 				if (size > 0)
 				{
-					const nByte* data = *((ValueObject<nByte*>*)obj)->getDataAddress();
+ 					const nByte* data = *((ValueObject<nByte*>*)obj)->getDataAddress();
+#if 0
 					NET_LOG("Data player %d->%d code %dKey=%d Size=%d", playerNr, 
 						myLoadBalancingClient.getLocalPlayer().getNumber(), eventCode, keyId, size);
+#endif
+
+					if (myDataProxy)
+					{
+						myDataProxy->Deserialize(static_cast<const uint8_t*>(data), size);
+					}
 				}
 				else
 				{

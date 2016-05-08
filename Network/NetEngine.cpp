@@ -14,13 +14,20 @@ net::Engine::~Engine()
 
 void net::Engine::PreTick()
 {
-	myPhoton->run();
+	myPhoton->Receive();
+	myPhoton->Update();
 }
 
-void net::Engine::PostTick(net::DataProxy& proxy)
+void net::Engine::SetProxy(net::DataProxy& proxy)
 {
-	if (myPhoton->IsServiceScheduled())
+	myPhoton->SetProxy(proxy);
+}
+
+
+void net::Engine::PostTick()
+{
+	if (myPhoton->IsSendScheduled())
 	{
-		myPhoton->Service(proxy.Serialize());		
+		myPhoton->Send();
 	}	
 }

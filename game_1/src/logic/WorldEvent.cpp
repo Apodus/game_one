@@ -26,10 +26,9 @@ void SpawnEvent::Serialize(std::vector<unsigned char>& data)
 	data.emplace_back(mySpawnVelocity.y);*/
 }
 
-void SpawnEvent::Deserialize(const std::vector<uint8_t>& aData, size_t& pos)
+void SpawnEvent::Deserialize(net::InputStream& aStream)
 {
-	myType = static_cast<SpawnEvent::Type>(aData[pos]);
-	pos++;
+	myType = static_cast<SpawnEvent::Type>(aStream.ReadU8());
 }
 
 void SpawnEvent::Begin(World& aWorld)

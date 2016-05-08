@@ -14,8 +14,11 @@ namespace net
 		Engine();
 		~Engine();
 
+		// TODO: Add message Id -> Proxy mapping
+		void SetProxy(net::DataProxy& proxy);
+
 		void PreTick();
-		void PostTick(net::DataProxy& proxy);
+		void PostTick();
 
 	private:
 		std::unique_ptr<net::Photon> myPhoton;

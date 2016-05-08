@@ -12,6 +12,8 @@ struct UniqueId
 	uint8_t myClientId;
 };
 
+namespace net { class InputStream; }
+
 class World;
 class WorldEvent
 {
@@ -26,7 +28,7 @@ public:
 	virtual void Begin(World& world) = 0;
 	virtual void End(World& world) = 0;
 	virtual void Serialize(std::vector<unsigned char>& data) {}
-	virtual void Deserialize(const std::vector<uint8_t>& aData, size_t& pos) {}
+	virtual void Deserialize(net::InputStream& aStream) {}
 	virtual ~WorldEvent() {};
 	virtual Type GetType() const = 0;
 };
@@ -52,7 +54,7 @@ public:
 
 	virtual void Serialize(std::vector<unsigned char>& data) override final;
 
-	virtual void Deserialize(const std::vector<uint8_t>& aData, size_t& pos) override final;
+	virtual void Deserialize(net::InputStream& aStream) override final;
 
 private:
 	Type myType;
