@@ -209,7 +209,7 @@
     <ClInclude Include="NetEngine.h" />
     <ClInclude Include="NetPch.h" />
     <ClInclude Include="NetPhoton.h" />
-    <ClInclude Include="NetDataProxy.h" />
+    <ClInclude Include="NetDataAdapter.h" />
     <ClInclude Include="NetOutputStream.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>

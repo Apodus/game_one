@@ -9,7 +9,7 @@
 
 namespace net
 {
-	class DataProxy;
+	class DataAdapter;
 	class Photon : private ExitGames::LoadBalancing::Listener
 	{
 	public:
@@ -80,9 +80,23 @@ namespace net
 		void Receive();
 		void Send();
 
-		void SetProxy(net::DataProxy& proxy)
+		DataAdapter* FindAdapter(uint8_t eventId, uint8_t keyId);
+
+		void AddAdapter(uint8_t eventId, uint8_t keyId, net::DataAdapter& adapter)
 		{
-			myDataProxy = &proxy;
+			size_t i;
+			for (i = 0; i < myAdapterGroups.size(); i++)
+			{
+				if (myAdapterGroups[i].groupId == eventId)
+				{
+					break;
+				}
+			}
+			if (i == myAdapterGroups.size())
+			{
+				myAdapterGroups.emplace_back(eventId);
+			}
+			myAdapterGroups[i].adapters.emplace_back(keyId, &adapter);
 		}
 
 		// Input getLastInput(void) const;
@@ -151,6 +165,21 @@ namespace net
 		int myPayloadBytesIn = 0;
 		int myPayloadBytesOut = 0;
 		uint32_t myUpdateSendCount = 0;
-		net::DataProxy* myDataProxy;
+
+		struct Adapter
+		{
+			Adapter(uint8_t aKey, net::DataAdapter* anInstance) : instance(anInstance), keyId(aKey) {}
+			net::DataAdapter* instance;
+			uint8_t keyId;			
+		};
+
+		struct AdapterGroup
+		{
+			AdapterGroup(uint8_t anId) : groupId(anId) {}
+			uint8_t groupId;
+			std::vector<Adapter> adapters;
+		};
+
+		std::vector<AdapterGroup> myAdapterGroups;
 	};
 }

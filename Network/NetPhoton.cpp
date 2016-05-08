@@ -1,8 +1,9 @@
 #include "NetPch.h"
 #include "NetPhoton.h"
 #include "NetLogging.h"
-#include "NetDataProxy.h"
+#include "NetDataAdapter.h"
 #include "NetOutputStream.h"
+#include "NetInputStream.h"
 
 #include <vector>
 
@@ -17,8 +18,7 @@ using namespace ExitGames::Common;
 net::Photon::Photon()
 	: 
 	myLoadBalancingClient(*this, appId, appVersion, ExitGames::Photon::ConnectionProtocol::DEFAULT, autoLobbbyStats, useDefaultRegion),
-	myLastUpdateSentTime(std::chrono::high_resolution_clock::now()),
-	myDataProxy(nullptr)
+	myLastUpdateSentTime(std::chrono::high_resolution_clock::now())
 {
 	NET_LOG("Photon started");
 	char buffer[1024];
@@ -33,7 +33,6 @@ void net::Photon::registerForStateUpdates(Listener* listener)
 
 void net::Photon::connect(const ExitGames::LoadBalancing::AuthenticationValues& authenticationValues)
 {
-	// mpOutputListener->writeLine(ExitGames::Common::JString(L"connecting to Photon"));
 	myLoadBalancingClient.connect(authenticationValues, myClientName);
 	mStateAccessor.setState(STATE_CONNECTING);
 }
@@ -179,26 +178,34 @@ void net::Photon::Send()
 		mStateAccessor.getState(), duration.count());
 #endif
 
-	OutputStream outStream(64);
-	if (myDataProxy)
-	{
-		myDataProxy->Serialize(outStream);
-	}
 
 	if (mStateAccessor.getState() == STATE_JOINED)
 	{
-		if (outStream.GetSize() > 0)
+		size_t totalPayload = 0;
+		for (size_t i = 0; i < myAdapterGroups.size(); i++)
 		{
-			myLastUpdateSentTime = now;
-
 			ExitGames::Common::Hashtable table;
-			const nByte KeyId = 33;
-			table.put(KeyId, outStream.GetData(), static_cast<int>(outStream.GetSize()));
-
-			const nByte EventCode = 55;
 			bool isReliable = false;
-			myLoadBalancingClient.opRaiseEvent(isReliable, table, EventCode);// ++count, 0);
-			myPayloadBytesOut += outStream.GetSize() + 1 /* hastable type*/ + 1 /*Event code*/;
+			for (size_t j = 0; j < myAdapterGroups[i].adapters.size(); j++)
+			{
+				auto& adapter = myAdapterGroups[i].adapters[j];
+				OutputStream outStream(64);
+				adapter.instance->Serialize(outStream);
+				int dataLen = static_cast<int>(outStream.GetSize());
+				if (dataLen > 0)
+				{
+					table.put(adapter.keyId, outStream.GetData(), dataLen);
+					totalPayload += dataLen + 1 /* KeyId */;
+					isReliable = true;
+				}
+			}
+
+			if (totalPayload > 0)
+			{
+				myLoadBalancingClient.opRaiseEvent(isReliable, table, myAdapterGroups[i].groupId);
+				myLastUpdateSentTime = now;
+				myPayloadBytesOut += totalPayload + 1 /*Event code*/;
+			}
 		}
 	}
 	myLoadBalancingClient.service();
@@ -292,6 +299,24 @@ void net::Photon::leaveRoomEventAction(int playerNr, bool isInactive)
 	// mpOutputListener->writeLine(ExitGames::Common::JString(L"player ") + playerNr + L" has left the game");
 }
 
+net::DataAdapter* net::Photon::FindAdapter(uint8_t eventId, uint8_t keyId)
+{
+	for (size_t i = 0; i < myAdapterGroups.size(); i++)
+	{
+		if (myAdapterGroups[i].groupId == eventId)
+		{
+			for (size_t j = 0; j < myAdapterGroups[i].adapters.size(); j++)
+			{
+				if (myAdapterGroups[i].adapters[j].keyId == keyId)
+				{
+					return myAdapterGroups[i].adapters[j].instance;
+				}
+			}
+		}
+	}
+	return nullptr;
+}
+
 void net::Photon::customEventAction(int playerNr, nByte eventCode, const ExitGames::Common::Object& eventContent)
 {
 	const auto hash = ExitGames::Common::ValueObject<ExitGames::Common::Hashtable>(eventContent);
@@ -312,10 +337,11 @@ void net::Photon::customEventAction(int playerNr, nByte eventCode, const ExitGam
 					NET_LOG("Data player %d->%d code %dKey=%d Size=%d", playerNr, 
 						myLoadBalancingClient.getLocalPlayer().getNumber(), eventCode, keyId, size);
 #endif
-
-					if (myDataProxy)
+					DataAdapter* adapter = FindAdapter(eventCode, keyId);
+					if (adapter)
 					{
-						myDataProxy->Deserialize(static_cast<const uint8_t*>(data), size);
+						InputStream stream(data, size);
+						adapter->Deserialize(stream);
 					}
 				}
 				else

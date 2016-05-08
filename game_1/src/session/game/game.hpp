@@ -27,10 +27,10 @@ class Game {
 public:
 	Game(std::shared_ptr<sa::UserIO>)
 		:
-		m_world(m_proxy)
+		m_world(m_netEventAdapter)
 		
 	{
-		m_netEngine.SetProxy(m_proxy);
+		m_netEngine.AddAdapter(0, 33, m_netEventAdapter);
 		m_world.AddEventAt(new SpawnEvent(SpawnEvent::Type::Thug), 3000);
 		m_world.AddEventAt(new SpawnEvent(SpawnEvent::Type::Thug), 10000);
 		m_world.AddEventAt(new SpawnEvent(SpawnEvent::Type::Thug), 5000);
@@ -45,7 +45,7 @@ public:
 	void preTick()
 	{
 		m_netEngine.PreTick();
-		auto events = m_proxy.GetReceivedEvents();
+		auto events = m_netEventAdapter.GetReceivedEvents();
 		for (size_t i = 0; i < events.size(); i++)
 		{
 			auto& e = events[i];
@@ -78,9 +78,11 @@ public:
 	}
 
 private:
+	// Net
+	net::Engine m_netEngine;
+	MultiplayerProxy m_netEventAdapter;
+	
 	Scripter m_scripter;
 	size_t m_tickID;
-	net::Engine m_netEngine;
-	MultiplayerProxy m_proxy;
 	World m_world;
 };

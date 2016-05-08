@@ -1,7 +1,7 @@
 ﻿#include "NetPch.h"
 #include "NetEngine.h"
 #include "NetPhoton.h"
-#include "NetDataProxy.h"
+#include "NetDataAdapter.h"
 
 net::Engine::Engine()
 {
@@ -18,9 +18,9 @@ void net::Engine::PreTick()
 	myPhoton->Update();
 }
 
-void net::Engine::SetProxy(net::DataProxy& proxy)
+void net::Engine::AddAdapter(uint8_t eventId, uint8_t keyId, net::DataAdapter& adapter)
 {
-	myPhoton->SetProxy(proxy);
+	myPhoton->AddAdapter(eventId, keyId, adapter);
 }
 
 

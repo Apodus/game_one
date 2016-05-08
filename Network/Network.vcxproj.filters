@@ -88,8 +88,8 @@
     <ClInclude Include="NetPhoton.h" />
     <ClInclude Include="NetLogging.h" />
     <ClInclude Include="NetEventStore.h" />
-    <ClInclude Include="NetDataProxy.h" />
     <ClInclude Include="NetInputStream.h" />
     <ClInclude Include="NetOutputStream.h" />
+    <ClInclude Include="NetDataAdapter.h" />
   </ItemGroup>
 </Project>

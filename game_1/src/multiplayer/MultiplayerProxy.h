@@ -2,11 +2,11 @@
 
 #include "logic\World.h"
 #include "logic\WorldEvent.h"
-#include "NetDataProxy.h"
+#include "NetDataAdapter.h"
 #include "NetInputStream.h"
 #include "NetOutputStream.h"
 
-class MultiplayerProxy : public net::DataProxy
+class MultiplayerProxy : public net::DataAdapter
 {
 public:
 	MultiplayerProxy() 
@@ -40,10 +40,9 @@ public:
 		return events;
 	}
 
-	virtual void Deserialize(const uint8_t* aData, size_t size) override final
+	virtual void Deserialize(net::InputStream& inStream) override final
 	{
 		bool isHeader = true;
-		net::InputStream inStream(aData, size);
 		while (inStream.HasDataLeft())
 		{
 			if (isHeader)
@@ -68,13 +67,16 @@ public:
 
 	virtual void Serialize(net::OutputStream& aStream) override final
 	{
-		std::sort(myOutEvents.begin(), myOutEvents.end());
-		for (size_t i = 0; i < myOutEvents.size(); i++)
+		if (!myOutEvents.empty())
 		{
-			aStream.WriteU8(static_cast<uint8_t>(myOutEvents[i].serializable->GetType()));
-			myOutEvents[i].serializable->Serialize(aStream);
+			std::sort(myOutEvents.begin(), myOutEvents.end());
+			for (size_t i = 0; i < myOutEvents.size(); i++)
+			{
+				aStream.WriteU8(static_cast<uint8_t>(myOutEvents[i].serializable->GetType()));
+				myOutEvents[i].serializable->Serialize(aStream);
+			}
+			myOutEvents.clear();
 		}
-		myOutEvents.clear();
 	}
 
 private:

@@ -5,7 +5,7 @@
 namespace net
 {
 
-	class DataProxy;
+	class DataAdapter;
 	class Photon;
 
 	class Engine
@@ -14,8 +14,7 @@ namespace net
 		Engine();
 		~Engine();
 
-		// TODO: Add message Id -> Proxy mapping
-		void SetProxy(net::DataProxy& proxy);
+		void AddAdapter(uint8_t eventId, uint8_t keyId, net::DataAdapter& adapter);
 
 		void PreTick();
 		void PostTick();
