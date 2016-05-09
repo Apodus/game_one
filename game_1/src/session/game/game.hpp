@@ -65,15 +65,13 @@ public:
 
 	void update(std::shared_ptr<sa::UserIO> userio)
 	{
-		auto& objs = m_world.GetObjects();
-		for (auto&& obj : objs)
-			obj.update(*userio);
+		m_world.update(*userio);
 	}
 
 	void draw(std::shared_ptr<sa::Graphics> pGraphics)
 	{
-		auto& objs = m_world.GetObjects();
-		for(auto&& obj : objs)
+		const auto& objs = m_world.GetObjects();
+		for(const auto& obj : objs)
 			obj.draw(pGraphics);
 	}
 

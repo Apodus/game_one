@@ -43,38 +43,14 @@ void SpawnEvent::Begin(World& aWorld)
 	bodyDef.gravityScale = 0.0f;
 	bodyDef.type = b2BodyType::b2_dynamicBody;
 
-	b2PolygonShape boxShape;
-	if (myType == SpawnEvent::Type::Bullet)
-	{
-		boxShape.SetAsBox(0.25f / 2.0f, 0.25f / 2.0f);
-		bodyDef.angularDamping = 0.0f;
-		bodyDef.linearDamping = 0.0f;
-	}
-	else
-	{
-		boxShape.SetAsBox(1.0f / 2.0f, 1.0f / 2.0f);
-		bodyDef.angularDamping = 5.0f;
-		bodyDef.linearDamping = 5.0f;
-	}
-
-	b2FixtureDef boxFixtureDef;
-	boxFixtureDef.shape = &boxShape;
-	boxFixtureDef.density = 4;
-
-	auto body = aWorld.physicsWorld.CreateBody(&bodyDef);
 	if (myType == SpawnEvent::Type::Hero)
 	{
-		ShapePrototype sphereShape(Shape::makeCircle(0.5f, 32));
-		sphereShape.attach(body, 4);
+		auto& obj = aWorld.createObject(bodyDef, ShapePrototype(Shape::makeCircle(0.5f, 32)), "Hero")
+			.teleportTo(mySpawnPos)
+			.setVelocity(mySpawnVelocity);
 
-		aWorld.newObjs.emplace_back(
-			body,
-			sphereShape,
-			"Hero"
-		);
-
-		// TODO: Don't add this to remote heroes.
-		aWorld.newObjs.back().inputHandler(
+		// TODO, define input handling somewhere else
+		obj.inputHandler(
 			std::make_unique<OnInput>([this, &aWorld](ObjectController& o, sa::UserIO& userio) {
 
 			if (userio.isKeyDown('A'))
@@ -124,19 +100,20 @@ void SpawnEvent::Begin(World& aWorld)
 	}
 	else
 	{
-		body->CreateFixture(&boxFixtureDef);
+		float boxEdgeLength = 0;
+		if (myType == SpawnEvent::Type::Bullet)
+			boxEdgeLength = 0.25f;
+		else
+			boxEdgeLength = 1.0f;
 
-		aWorld.newObjs.emplace_back(
-			body,
-			Shape::makeBox(myType == SpawnEvent::Type::Bullet ? 0.25f : 1.0f),
-			"Hero"
-		);
+		aWorld.createObject(bodyDef, ShapePrototype(Shape::makeBox(boxEdgeLength)), "Hero")
+			.teleportTo(mySpawnPos)
+			.setVelocity(mySpawnVelocity);
 	}
-	body->SetTransform({ mySpawnPos.x, mySpawnPos.y }, mySpawnDir);
-	body->SetLinearVelocity({ mySpawnVelocity.x, mySpawnVelocity.y });
 }
 
 void SpawnEvent::End(World& world)
 {
-	world.physicsWorld.DestroyBody(myObj->getTransform().m_body);
+	if(myObj)
+		world.destroyObject(myObj);
 }

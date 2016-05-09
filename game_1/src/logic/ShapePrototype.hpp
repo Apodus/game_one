@@ -13,6 +13,6 @@ class ShapePrototype
 
 public:
 	ShapePrototype(const sa::Polygon<sa::vec3<float>>& poly);
-	void attach(b2Body* body, float density = 1.0f);
+	void attach(b2Body* body, float density = 1.0f) const;
 	operator const sa::Polygon<sa::vec3<float>>&() const;
 };

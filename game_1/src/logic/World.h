@@ -4,7 +4,8 @@
 #include "logic/SceneObject.hpp"
 #include "session/game/collisionCallback.hpp"
 #include "logic/Timeline.h"
-#include "multiplayer\MultiplayerProxy.h"
+#include "multiplayer/MultiplayerProxy.h"
+#include "logic/ShapePrototype.hpp"
 
 #include <vector>
 
@@ -41,23 +42,48 @@ public:
 		}
 	}
 
+	SceneObject& createObject(const b2BodyDef& bodyDef, const ShapePrototype& shape, const std::string& texture)
+	{
+		auto body = physicsWorld.CreateBody(&bodyDef);
+		shape.attach(body, 4);
+		newObjs.emplace_back(
+			body,
+			shape,
+			texture
+		);
+
+		return newObjs.back();
+	}
+
+	// TODO: Mark as dead, and remove at end of frame or something
+	void destroyObject(SceneObject* obj)
+	{
+		physicsWorld.DestroyBody(obj->getTransform().m_body);
+	}
+
 	void tick(long long timeMs)
 	{
 		m_timeline.Run(timeMs);
 	}
 
-	// TODO: Reduce visibility
-	GameContactListener contactListener;
-	b2World physicsWorld;	
-	std::vector<SceneObject> newObjs;
+	const std::vector<SceneObject>& GetObjects() const
+	{
+		return objs;
+	}
 
-	std::vector<SceneObject>& GetObjects() { return objs; }
-
-
-protected:
+	void update(sa::UserIO& io)
+	{
+		for (auto&& obj : objs)
+			obj.update(io);
+	}
 
 private:
 	std::vector<SceneObject> objs;
+	std::vector<SceneObject> newObjs;
+
+	GameContactListener contactListener;
+	b2World physicsWorld;
+
 	MultiplayerProxy& m_proxy;
 	Timeline m_timeline;	
 

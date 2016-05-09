@@ -7,14 +7,14 @@ class ObjectController
 public:
 	ObjectController(b2Body* body)
 		:
-		transform(body),
+		m_transform(body),
 		turnSpeed(0),
 		forwardSpeed(0)
 	{
 	}
 
 	ObjectController(ObjectController&& other)
-		: transform(std::move(other.transform))
+		: m_transform(std::move(other.m_transform))
 	{
 		forwardSpeed = other.forwardSpeed;
 		turnSpeed = other.turnSpeed;
@@ -22,21 +22,21 @@ public:
 
 	ObjectController& operator = (ObjectController&& other)
 	{
-		transform = std::move(other.transform);
-		transform.update();
+		m_transform = std::move(other.m_transform);
+		m_transform.update();
 		forwardSpeed = other.forwardSpeed;
 		turnSpeed = other.turnSpeed;
 		return *this;
 	}
 
-	Transform& ObjectController::getTransform()
+	const Transform& ObjectController::getTransform() const
 	{
-		return transform;
+		return m_transform;
 	}
 
 	void update()
 	{
-		transform.update();
+		m_transform.update();
 	}
 
 	void setTurning(float force)
@@ -53,31 +53,43 @@ public:
 	{
 		if (turnSpeed != 0)
 		{
-			transform.m_body->ApplyTorque(10.0f * turnSpeed, true);
+			m_transform.m_body->ApplyTorque(10.0f * turnSpeed, true);
 		}
 
 		if (forwardSpeed > 0)
 		{
-			transform.m_body->ApplyForceToCenter({
-				+sa::math::sin(transform.direction) * 100.1f * forwardSpeed,
-				-sa::math::cos(transform.direction) * 100.1f * forwardSpeed
+			m_transform.m_body->ApplyForceToCenter({
+				+sa::math::sin(m_transform.direction) * 100.1f * forwardSpeed,
+				-sa::math::cos(m_transform.direction) * 100.1f * forwardSpeed
 			},
 				true
 			);
 		}
 		else if (forwardSpeed < 0)
 		{
-			transform.m_body->ApplyForceToCenter({
-				+sa::math::sin(transform.direction) * 10.0f * forwardSpeed,
-				-sa::math::cos(transform.direction) * 10.0f * forwardSpeed
+			m_transform.m_body->ApplyForceToCenter({
+				+sa::math::sin(m_transform.direction) * 10.0f * forwardSpeed,
+				-sa::math::cos(m_transform.direction) * 10.0f * forwardSpeed
 			},
 				true
 			);
 		}
 	}
 
+	ObjectController& teleportTo(const sa::vec2<float>& pos)
+	{
+		m_transform.m_body->SetTransform({ pos.x, pos.y }, m_transform.direction);
+		return *this;
+	}
+
+	ObjectController& setVelocity(const sa::vec2<float>& vel)
+	{
+		m_transform.m_body->SetLinearVelocity({ vel.x, vel.y });
+		return *this;
+	}
+
 private:
-	Transform transform;
+	Transform m_transform;
 
 	float turnSpeed;
 	float forwardSpeed;

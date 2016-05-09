@@ -48,7 +48,7 @@ class SceneObject
 	std::unique_ptr<OnTick> m_onTick;
 	std::unique_ptr<OnInput> m_onInput;
 
-	sa::Matrix4 m_modelMatrix;
+	mutable sa::Matrix4 m_modelMatrix;
 
 public:
 	SceneObject(SceneObject&& other)
@@ -85,7 +85,19 @@ public:
 		controller.update();
 	}
 
-	Transform& getTransform() 
+	SceneObject& teleportTo(const sa::vec2<float>& pos)
+	{
+		this->controller.teleportTo(pos);
+		return *this;
+	}
+
+	SceneObject& setVelocity(const sa::vec2<float>& vel)
+	{
+		this->controller.setVelocity(vel);
+		return *this;
+	}
+
+	const Transform& getTransform() const
 	{
 		return controller.getTransform();
 	}
@@ -108,9 +120,10 @@ public:
 		
 	}
 
-	void draw(std::shared_ptr<sa::Graphics> pGraphics)
+	void draw(std::shared_ptr<sa::Graphics> pGraphics) const
 	{
-		m_modelMatrix.makeTranslationMatrix(controller.getTransform().position.x, controller.getTransform().position.y, 0);
+		const auto& transform = controller.getTransform();
+		m_modelMatrix.makeTranslationMatrix(transform.position.x, transform.position.y, 0);
 		m_modelMatrix.scale(1.0f, 1.0f, 0.0f);
 		m_modelMatrix.rotate(controller.getTransform().direction, 0, 0, 1);
 		pGraphics->m_pRenderer->drawMesh(shape.mesh(), m_modelMatrix, shape.texture(), Color::WHITE);

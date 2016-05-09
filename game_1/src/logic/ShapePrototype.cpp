@@ -30,10 +30,10 @@ ShapePrototype::ShapePrototype(const sa::Polygon<sa::vec3<float>>& givenPoly) {
 	}
 }
 
-void ShapePrototype::attach(b2Body* body, float density) {
-	for (auto&& fix : fixtureDefs)
+void ShapePrototype::attach(b2Body* body, float density) const {
+	for (const auto& fix : fixtureDefs)
 	{
-		fix.density = density;
+		const_cast<b2FixtureDef&>(fix).density = density;
 		body->CreateFixture(&fix);
 	}
 }
