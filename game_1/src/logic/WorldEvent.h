@@ -45,7 +45,7 @@ public:
 		Bullet
 	};
 
-	SpawnEvent() {}
+	SpawnEvent() : myObj(nullptr) {}
 	SpawnEvent(Type t, float x = 0, float y = 0, float dir = 0, float vx = 0, float vy = 0);
 	void Begin(World& world);
 	void End(World& world);

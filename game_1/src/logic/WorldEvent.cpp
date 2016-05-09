@@ -42,6 +42,8 @@ void SpawnEvent::Begin(World& aWorld)
 	b2BodyDef bodyDef;
 	bodyDef.gravityScale = 0.0f;
 	bodyDef.type = b2BodyType::b2_dynamicBody;
+	bodyDef.angularDamping = 5;
+	bodyDef.linearDamping = 5;
 
 	if (myType == SpawnEvent::Type::Hero)
 	{
@@ -102,7 +104,10 @@ void SpawnEvent::Begin(World& aWorld)
 	{
 		float boxEdgeLength = 0;
 		if (myType == SpawnEvent::Type::Bullet)
+		{
+			bodyDef.linearDamping = 0;
 			boxEdgeLength = 0.25f;
+		}
 		else
 			boxEdgeLength = 1.0f;
 
