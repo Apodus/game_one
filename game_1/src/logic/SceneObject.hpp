@@ -47,6 +47,7 @@ class SceneObject
 
 	std::unique_ptr<OnTick> m_onTick;
 	std::unique_ptr<OnInput> m_onInput;
+	uint16_t m_id;
 
 	mutable sa::Matrix4 m_modelMatrix;
 
@@ -74,7 +75,8 @@ public:
 	SceneObject(
 		b2Body* body,
 		const sa::Polygon<sa::vec3<float>>& poly,
-		const std::string& texture
+		const std::string& texture,
+		uint16_t id
 	) : controller(body)
 		, shape(poly, texture)
 	{
@@ -116,8 +118,12 @@ public:
 	void tick(float dt)
 	{
 		m_onTick->tick(controller, dt);
-		controller.tick();
-		
+		controller.tick();		
+	}
+
+	void invalidate()
+	{
+		controller.invalidate();
 	}
 
 	void draw(std::shared_ptr<sa::Graphics> pGraphics) const
@@ -128,4 +134,6 @@ public:
 		m_modelMatrix.rotate(controller.getTransform().direction, 0, 0, 1);
 		pGraphics->m_pRenderer->drawMesh(shape.mesh(), m_modelMatrix, shape.texture(), Color::WHITE);
 	}
+
+	uint16_t getId() const { return m_id; }
 };

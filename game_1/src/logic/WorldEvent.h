@@ -45,7 +45,7 @@ public:
 		Bullet
 	};
 
-	SpawnEvent() : myObj(nullptr) {}
+	SpawnEvent() {}
 	SpawnEvent(Type t, float x = 0, float y = 0, float dir = 0, float vx = 0, float vy = 0);
 	void Begin(World& world);
 	void End(World& world);
@@ -58,8 +58,7 @@ public:
 
 private:
 	Type myType;
-	UniqueId id;
-	SceneObject* myObj;
+	uint16_t myObjId;
 	sa::vec2<float> mySpawnPos;
 	float mySpawnDir;
 	sa::vec2<float> mySpawnVelocity;

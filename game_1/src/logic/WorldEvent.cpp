@@ -12,7 +12,8 @@ SpawnEvent::SpawnEvent(Type t, float x, float y, float dir, float vx, float vy)
 	myType(t),
 	mySpawnPos(x, y),
 	mySpawnDir(dir),
-	mySpawnVelocity(vx, vy)
+	mySpawnVelocity(vx, vy),
+	myObjId(UINT16_MAX)
 {
 
 }
@@ -50,6 +51,7 @@ void SpawnEvent::Begin(World& aWorld)
 		auto& obj = aWorld.createObject(bodyDef, ShapePrototype(Shape::makeCircle(0.5f, 32)), "Hero")
 			.teleportTo(mySpawnPos)
 			.setVelocity(mySpawnVelocity);
+		myObjId = obj.getId();
 
 		// TODO, define input handling somewhere else
 		obj.inputHandler(
@@ -111,14 +113,18 @@ void SpawnEvent::Begin(World& aWorld)
 		else
 			boxEdgeLength = 1.0f;
 
-		aWorld.createObject(bodyDef, ShapePrototype(Shape::makeBox(boxEdgeLength)), "Hero")
+		myObjId = aWorld.createObject(bodyDef, ShapePrototype(Shape::makeBox(boxEdgeLength)), "Hero")
 			.teleportTo(mySpawnPos)
-			.setVelocity(mySpawnVelocity);
+			.setVelocity(mySpawnVelocity).getId();
 	}
 }
 
 void SpawnEvent::End(World& world)
 {
-	if(myObj)
-		world.destroyObject(myObj);
+	auto* obj = world.getObject(myObjId);
+	if (obj)
+	{
+		world.destroyObject(obj);
+		myObjId = UINT16_MAX;
+	}
 }

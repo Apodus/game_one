@@ -44,12 +44,14 @@ public:
 
 	SceneObject& createObject(const b2BodyDef& bodyDef, const ShapePrototype& shape, const std::string& texture)
 	{
+		static uint16_t id = 0;
 		auto body = physicsWorld.CreateBody(&bodyDef);
 		shape.attach(body, 4);
 		newObjs.emplace_back(
 			body,
 			shape,
-			texture
+			texture,
+			id++
 		);
 
 		return newObjs.back();
@@ -59,6 +61,7 @@ public:
 	void destroyObject(SceneObject* obj)
 	{
 		physicsWorld.DestroyBody(obj->getTransform().m_body);
+		obj->invalidate();
 	}
 
 	void tick(long long timeMs)
@@ -77,14 +80,18 @@ public:
 			obj.update(io);
 	}
 
-private:
-	std::vector<SceneObject> objs;
-	std::vector<SceneObject> newObjs;
+	// TODO: Need object store, at the moment assuming object is always at position [id], thus,
+	// you cannot remove objects from obj vector, you can only invalidate them
+	SceneObject* getObject(size_t id) { return (id < objs.size()) ? &objs.at(id) : nullptr; }
+	const SceneObject* getObject(size_t id) const { return (id < objs.size()) ? &objs.at(id) : nullptr; }
 
+private:
 	GameContactListener contactListener;
 	b2World physicsWorld;
 
 	MultiplayerProxy& m_proxy;
 	Timeline m_timeline;	
 
+	std::vector<SceneObject> objs;
+	std::vector<SceneObject> newObjs;
 };

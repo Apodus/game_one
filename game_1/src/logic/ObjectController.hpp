@@ -88,6 +88,11 @@ public:
 		return *this;
 	}
 
+	void invalidate()
+	{
+		m_transform.invalidate();
+	}
+
 private:
 	Transform m_transform;
 

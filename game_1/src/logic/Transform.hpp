@@ -39,6 +39,11 @@ public:
 		return *this;
 	}
 
+	void invalidate()
+	{
+		m_body = nullptr;
+	}
+
 	void update()
 	{
 		if (m_body)
