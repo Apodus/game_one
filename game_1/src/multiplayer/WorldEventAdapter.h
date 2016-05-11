@@ -65,12 +65,11 @@ public:
 		}
 	}
 
-	virtual bool Serialize(net::OutputStream& aStream,
-						   net::DataAdapter::Receivers& aReceiverList) override final
+	virtual bool Serialize(net::DataAdapter::OutputStream& aStream) override final
 	{
-		if (aReceiverList.empty())
+		if (!myOutEvents.empty())
 		{
-			if (!myOutEvents.empty())
+			if (aStream.GetReceivers().empty() && aStream.IsReliable())
 			{
 				std::sort(myOutEvents.begin(), myOutEvents.end());
 				for (size_t i = 0; i < myOutEvents.size(); i++)
@@ -80,9 +79,12 @@ public:
 				}
 				myOutEvents.clear();
 			}
-			return true;
+			else
+			{
+				return false;
+			}
 		}
-		return false;
+		return true;
 	}
 
 private:

@@ -15,8 +15,7 @@ public:
 
 	}
 
-	virtual bool Serialize(net::OutputStream& aStream, 
-						   net::DataAdapter::Receivers& aReceiverList) override final
+	virtual bool Serialize(net::DataAdapter::OutputStream& aStream) override final
 	{
 		return true;
 	}

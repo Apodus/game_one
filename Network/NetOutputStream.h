@@ -34,6 +34,10 @@ namespace net
 
 		size_t GetSize() const { return myBuffer.size(); }
 
+		bool IsEmpty() const { return myBuffer.empty(); }
+
+		void Clear() { myBuffer.clear(); }
+
 	private:
 		std::vector<uint8_t> myBuffer;
 	};

@@ -193,15 +193,14 @@ void net::Photon::Send()
 			hasDataLeft = false;
 			for (size_t i = 0; i < myAdapterGroups.size(); i++)
 			{
-				net::DataAdapter::Receivers receiverList;
+				net::DataAdapter::OutputStream outStream(64);
 				ExitGames::Common::Hashtable table;
-				bool isReliable = false;
 				for (size_t j = 0; j < myAdapterGroups[i].adapters.size(); j++)
 				{
 					auto& adapter = myAdapterGroups[i].adapters[j];
-					OutputStream outStream(64);
-					if (!adapter.instance->Serialize(outStream, receiverList))
+					if (!adapter.instance->Serialize(outStream))
 					{
+						assert(!outStream.CanConfigure());
 						hasDataLeft = true;
 					}
 					int dataLen = static_cast<int>(outStream.GetSize());
@@ -209,14 +208,14 @@ void net::Photon::Send()
 					{
 						table.put(adapter.keyId, outStream.GetData(), dataLen);
 						totalPayload += dataLen + 1 /* KeyId */;
-						isReliable = true;
+						outStream.Clear();
 					}
 				}
 
 				if (totalPayload > 0)
 				{
 					// TODO: Process receiver list
-					myLoadBalancingClient.opRaiseEvent(isReliable, table, myAdapterGroups[i].groupId);
+					myLoadBalancingClient.opRaiseEvent(outStream.IsReliable(), table, myAdapterGroups[i].groupId);
 					myPayloadBytesOut += totalPayload + 1 /*Event code*/;
 				}
 			}
