@@ -12,6 +12,8 @@ static const ExitGames::Common::JString appVersion = L"1.0";
 
 static const bool autoLobbbyStats = true;
 static const bool useDefaultRegion = false;
+static const float MinUpdatePeriod = 0.015f; // seconds
+static const float MaxUpdatePeriod = 0.2f; // seconds
 
 using namespace ExitGames::Common;
 
@@ -157,7 +159,7 @@ bool net::Photon::IsSendScheduled() const
 {
 	auto now = std::chrono::high_resolution_clock::now();
 	const std::chrono::duration<double> duration = now - myLastUpdateSentTime;
-	return (duration.count() >= 0.015);
+	return (duration.count() >= MinUpdatePeriod);
 }
 
 void net::Photon::Receive()
@@ -170,6 +172,7 @@ void net::Photon::Send()
 	const size_t OverheadBytesPerUpdateApprox = 40;
 
 	auto now = std::chrono::high_resolution_clock::now();
+	const std::chrono::duration<double> duration = now - myLastUpdateSentTime;
 
 #if 0
 	NET_LOG("In: %d Out: %d  Rtt: %d byteCount:%d lastOp:%d state:%d delta:%f",
@@ -178,10 +181,9 @@ void net::Photon::Send()
 		mStateAccessor.getState(), duration.count());
 #endif
 
-
+	size_t totalPayload = 0;
 	if (mStateAccessor.getState() == STATE_JOINED)
 	{
-		size_t totalPayload = 0;
 		for (size_t i = 0; i < myAdapterGroups.size(); i++)
 		{
 			ExitGames::Common::Hashtable table;
@@ -203,13 +205,17 @@ void net::Photon::Send()
 			if (totalPayload > 0)
 			{
 				myLoadBalancingClient.opRaiseEvent(isReliable, table, myAdapterGroups[i].groupId);
-				myLastUpdateSentTime = now;
 				myPayloadBytesOut += totalPayload + 1 /*Event code*/;
 			}
 		}
 	}
-	myLoadBalancingClient.service();
-	myUpdateSendCount++;
+
+	if (totalPayload > 0 || duration.count() > MaxUpdatePeriod)
+	{
+		myLoadBalancingClient.service();
+		myLastUpdateSentTime = now;
+		myUpdateSendCount++;
+	}
 }
 
 void net::Photon::LogMeasurements()

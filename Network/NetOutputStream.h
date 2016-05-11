@@ -10,8 +10,10 @@ namespace net
 	public:
 		OutputStream(size_t size)
 			:
-			myBuffer(size)
-		{}
+			myBuffer()
+		{
+			myBuffer.reserve(size);
+		}
 
 		void WriteU8(uint8_t val)
 		{
