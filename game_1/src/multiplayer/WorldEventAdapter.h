@@ -6,10 +6,10 @@
 #include "NetInputStream.h"
 #include "NetOutputStream.h"
 
-class MultiplayerProxy : public net::DataAdapter
+class WorldEventAdapter : public net::DataAdapter
 {
 public:
-	MultiplayerProxy() 
+	WorldEventAdapter()
 	{}
 
 	struct Event
@@ -65,18 +65,24 @@ public:
 		}
 	}
 
-	virtual void Serialize(net::OutputStream& aStream) override final
+	virtual bool Serialize(net::OutputStream& aStream,
+						   net::DataAdapter::Receivers& aReceiverList) override final
 	{
-		if (!myOutEvents.empty())
+		if (aReceiverList.empty())
 		{
-			std::sort(myOutEvents.begin(), myOutEvents.end());
-			for (size_t i = 0; i < myOutEvents.size(); i++)
+			if (!myOutEvents.empty())
 			{
-				aStream.WriteU8(static_cast<uint8_t>(myOutEvents[i].serializable->GetType()));
-				myOutEvents[i].serializable->Serialize(aStream);
+				std::sort(myOutEvents.begin(), myOutEvents.end());
+				for (size_t i = 0; i < myOutEvents.size(); i++)
+				{
+					aStream.WriteU8(static_cast<uint8_t>(myOutEvents[i].serializable->GetType()));
+					myOutEvents[i].serializable->Serialize(aStream);
+				}
+				myOutEvents.clear();
 			}
-			myOutEvents.clear();
+			return true;
 		}
+		return false;
 	}
 
 private:

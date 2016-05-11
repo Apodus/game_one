@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <vector>
+#include <array>
 
 #include  "util\vec2.hpp"
 
@@ -22,6 +23,7 @@ public:
 	{
 		Game,
 		Spawn,
+		ControlStick,
 		None
 	};
 
@@ -69,4 +71,17 @@ class GameEvent : public WorldEvent
 	void Begin(World& world) {}
 	void End(World& world) {}
 	virtual WorldEvent::Type GetType() const override final { return WorldEvent::Type::Game; }
+};
+
+// Control stick position changed
+class ControlStickEvent : public WorldEvent
+{
+public:
+	ControlStickEvent() {}
+	void Begin(World& world) {}
+	void End(World& world) {}
+	virtual WorldEvent::Type GetType() const override final { return WorldEvent::Type::ControlStick; }
+
+private:
+	std::array<float,2> myPos; // TODO: Store as quantized value
 };

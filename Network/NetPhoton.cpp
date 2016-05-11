@@ -12,6 +12,9 @@ static const ExitGames::Common::JString appVersion = L"1.0";
 
 static const bool autoLobbbyStats = true;
 static const bool useDefaultRegion = false;
+
+// How often send outgoing data
+// Minimum period should be less than logic tick period to allow always scheduling after logic update.
 static const float MinUpdatePeriod = 0.015f; // seconds
 static const float MaxUpdatePeriod = 0.2f; // seconds
 
@@ -184,30 +187,40 @@ void net::Photon::Send()
 	size_t totalPayload = 0;
 	if (mStateAccessor.getState() == STATE_JOINED)
 	{
-		for (size_t i = 0; i < myAdapterGroups.size(); i++)
+		bool hasDataLeft;
+		do
 		{
-			ExitGames::Common::Hashtable table;
-			bool isReliable = false;
-			for (size_t j = 0; j < myAdapterGroups[i].adapters.size(); j++)
+			hasDataLeft = false;
+			for (size_t i = 0; i < myAdapterGroups.size(); i++)
 			{
-				auto& adapter = myAdapterGroups[i].adapters[j];
-				OutputStream outStream(64);
-				adapter.instance->Serialize(outStream);
-				int dataLen = static_cast<int>(outStream.GetSize());
-				if (dataLen > 0)
+				net::DataAdapter::Receivers receiverList;
+				ExitGames::Common::Hashtable table;
+				bool isReliable = false;
+				for (size_t j = 0; j < myAdapterGroups[i].adapters.size(); j++)
 				{
-					table.put(adapter.keyId, outStream.GetData(), dataLen);
-					totalPayload += dataLen + 1 /* KeyId */;
-					isReliable = true;
+					auto& adapter = myAdapterGroups[i].adapters[j];
+					OutputStream outStream(64);
+					if (!adapter.instance->Serialize(outStream, receiverList))
+					{
+						hasDataLeft = true;
+					}
+					int dataLen = static_cast<int>(outStream.GetSize());
+					if (dataLen > 0)
+					{
+						table.put(adapter.keyId, outStream.GetData(), dataLen);
+						totalPayload += dataLen + 1 /* KeyId */;
+						isReliable = true;
+					}
+				}
+
+				if (totalPayload > 0)
+				{
+					// TODO: Process receiver list
+					myLoadBalancingClient.opRaiseEvent(isReliable, table, myAdapterGroups[i].groupId);
+					myPayloadBytesOut += totalPayload + 1 /*Event code*/;
 				}
 			}
-
-			if (totalPayload > 0)
-			{
-				myLoadBalancingClient.opRaiseEvent(isReliable, table, myAdapterGroups[i].groupId);
-				myPayloadBytesOut += totalPayload + 1 /*Event code*/;
-			}
-		}
+		} while (hasDataLeft);
 	}
 
 	if (totalPayload > 0 || duration.count() > MaxUpdatePeriod)

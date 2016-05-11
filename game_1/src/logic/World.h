@@ -4,7 +4,7 @@
 #include "logic/SceneObject.hpp"
 #include "session/game/collisionCallback.hpp"
 #include "logic/Timeline.h"
-#include "multiplayer/MultiplayerProxy.h"
+#include "multiplayer/WorldEventAdapter.h"
 #include "logic/ShapePrototype.hpp"
 
 #include <vector>
@@ -14,10 +14,10 @@ class World
 public:
 	friend class Timeline;
 
-	World(MultiplayerProxy& proxy) 
+	World(WorldEventAdapter& anAdapter)
 		: 
 		physicsWorld({ 0, 0 }), 
-		m_proxy(proxy),
+		m_netAdapter(anAdapter),
 		m_timeline(*this)		
 	{
 		physicsWorld.SetContactListener(&contactListener);
@@ -38,7 +38,7 @@ public:
 		m_timeline.AddEvent(record, time);
 		if (broadcast)
 		{
-			m_proxy.OnEvent(record, time);
+			m_netAdapter.OnEvent(record, time);
 		}
 	}
 
@@ -89,7 +89,7 @@ private:
 	GameContactListener contactListener;
 	b2World physicsWorld;
 
-	MultiplayerProxy& m_proxy;
+	WorldEventAdapter& m_netAdapter;
 	Timeline m_timeline;	
 
 	std::vector<SceneObject> objs;

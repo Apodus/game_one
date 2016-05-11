@@ -17,6 +17,7 @@
 
 #include "logic/World.h"
 #include "input/userio.hpp"
+#include "multiplayer/GameStateAdapter.h"
 
 #include <cinttypes>
 #include <memory>
@@ -27,10 +28,11 @@ class Game {
 public:
 	Game(std::shared_ptr<sa::UserIO>)
 		:
-		m_world(m_netEventAdapter)
+		m_world(m_netWorldEventAdapter)
 		
 	{
-		m_netEngine.AddAdapter(0, 33, m_netEventAdapter);
+		m_netEngine.AddAdapter(0, 33, m_netWorldEventAdapter);
+		m_netEngine.AddAdapter(0, 22, m_netGameStateAdapter);
 		m_world.AddEventAt(new SpawnEvent(SpawnEvent::Type::Thug), 3000);
 		m_world.AddEventAt(new SpawnEvent(SpawnEvent::Type::Thug), 10000);
 		m_world.AddEventAt(new SpawnEvent(SpawnEvent::Type::Thug), 5000);
@@ -45,7 +47,7 @@ public:
 	void preTick()
 	{
 		m_netEngine.PreTick();
-		auto events = m_netEventAdapter.GetReceivedEvents();
+		auto events = m_netWorldEventAdapter.GetReceivedEvents();
 		for (size_t i = 0; i < events.size(); i++)
 		{
 			auto& e = events[i];
@@ -78,7 +80,8 @@ public:
 private:
 	// Net
 	net::Engine m_netEngine;
-	MultiplayerProxy m_netEventAdapter;
+	WorldEventAdapter m_netWorldEventAdapter;
+	GameStateAdapter m_netGameStateAdapter;
 	
 	Scripter m_scripter;
 	size_t m_tickID;

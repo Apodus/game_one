@@ -74,7 +74,10 @@
     <ClInclude Include="src\logic\WorldEvent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\multiplayer\MultiplayerProxy.h">
+    <ClInclude Include="src\multiplayer\WorldEventAdapter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\multiplayer\GameStateAdapter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
