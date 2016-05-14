@@ -95,6 +95,7 @@
     <ClCompile Include="src\logic\ShapePrototype.cpp" />
     <ClCompile Include="src\logic\Timeline.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\multiplayer\SessionAdapter.cpp" />
     <ClCompile Include="src\session\application\session.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -106,7 +107,8 @@
     <ClInclude Include="src\logic\Transform.hpp" />
     <ClInclude Include="src\logic\World.h" />
     <ClInclude Include="src\menu\gameline.hpp" />
-    <ClInclude Include="src\multiplayer\GameStateAdapter.h" />
+    <ClInclude Include="src\multiplayer\GameSession.h" />
+    <ClInclude Include="src\multiplayer\SessionAdapter.h" />
     <ClInclude Include="src\multiplayer\WorldEventAdapter.h" />
     <ClInclude Include="src\session\application\session.hpp" />
     <ClInclude Include="src\session\game\game.hpp" />

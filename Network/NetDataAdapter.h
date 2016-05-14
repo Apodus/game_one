@@ -5,6 +5,7 @@
 #include <cassert>
 
 #include "NetOutputStream.h"
+#include "NetTypes.h"
 
 namespace net
 {
@@ -24,7 +25,7 @@ namespace net
 				myIsReliable(true)
 			{}
 			
-			void SetReceivers(std::vector<uint16_t>& receivers)
+			void SetReceivers(const std::vector<MemberIndex>& receivers)
 			{
 				assert(CanConfigure());
 				myReceivers = receivers;
@@ -37,15 +38,33 @@ namespace net
 				myIsReliable = false; 
 			}
 
-			const std::vector<uint16_t>& GetReceivers() const { return myReceivers; }
+			const std::vector<MemberIndex>& GetReceivers() const { return myReceivers; }
 
 			bool IsReliable() const { return myIsReliable; }
 
 			bool CanConfigure() const { return IsEmpty() && myIsReliable && myReceivers.empty(); }
 
+			std::vector<MemberIndex> FilterMatchingReceivers(const std::vector<MemberIndex>& theOthers) const
+			{
+				std::vector<MemberIndex> receivers;
+				for (size_t i = 0; i < myReceivers.size(); i++)
+				{
+					for (size_t j = 0; j < theOthers.size(); j++)
+					{
+						if (myReceivers[i] == theOthers[j])
+						{
+							receivers.emplace_back(myReceivers[i]);
+							break;
+						}
+					}
+
+				}
+				return receivers;
+			}
+
 		private:
 			// Data receivers. Empty, if data can be received by everyone.
-			std::vector<uint16_t> myReceivers;
+			std::vector<MemberIndex> myReceivers;
 			bool myIsReliable; // Is data reliable or unreliable
 		};
 

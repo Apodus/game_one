@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include <vector>
+#include "NetSession.h"
 
 namespace net
 {
@@ -10,17 +11,20 @@ namespace net
 
 	class Engine
 	{
+		friend class Session;
 	public:
 		Engine();
 		~Engine();
 
-		void AddAdapter(uint8_t eventId, uint8_t keyId, net::DataAdapter& adapter);
-
 		void PreTick();
+
 		void PostTick();
 
 	private:
-		std::unique_ptr<net::Photon> myPhoton;
+		void AddSession(Session* aSession);
 
+		void RemoveSession(Session* aSession);
+
+		std::vector<Session*> mySessions;
 	};
 }

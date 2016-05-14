@@ -5,29 +5,41 @@
 
 net::Engine::Engine()
 {
-	myPhoton = std::make_unique<net::Photon>();
-}
-
-net::Engine::~Engine()
-{
 }
 
 void net::Engine::PreTick()
 {
-	myPhoton->Receive();
-	myPhoton->Update();
+	for (size_t i = 0; i < mySessions.size(); i++)
+	{
+		mySessions[i]->PreTick();
+	}
 }
-
-void net::Engine::AddAdapter(uint8_t eventId, uint8_t keyId, net::DataAdapter& adapter)
-{
-	myPhoton->AddAdapter(eventId, keyId, adapter);
-}
-
 
 void net::Engine::PostTick()
 {
-	if (myPhoton->IsSendScheduled())
+	for (size_t i = 0; i < mySessions.size(); i++)
 	{
-		myPhoton->Send();
-	}	
+		mySessions[i]->PostTick();
+	}
+}
+
+void net::Engine::AddSession(Session* aSession)
+{
+	mySessions.emplace_back(aSession);
+}
+
+void net::Engine::RemoveSession(Session* aSession)
+{
+	for (size_t i = 0; i < mySessions.size(); i++)
+	{
+		if (mySessions[i] == aSession)
+		{
+			mySessions.erase(mySessions.begin() + i);
+			break;
+		}
+	}
+}
+
+net::Engine::~Engine()
+{
 }

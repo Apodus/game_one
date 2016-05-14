@@ -4,6 +4,7 @@
 #include "NetDataAdapter.h"
 #include "NetOutputStream.h"
 #include "NetInputStream.h"
+#include "NetSession.h"
 
 #include <vector>
 
@@ -20,8 +21,9 @@ static const float MaxUpdatePeriod = 0.2f; // seconds
 
 using namespace ExitGames::Common;
 
-net::Photon::Photon()
+net::Photon::Photon(Session& session)
 	: 
+	mySession(session),
 	myLoadBalancingClient(*this, appId, appVersion, ExitGames::Photon::ConnectionProtocol::DEFAULT, autoLobbbyStats, useDefaultRegion),
 	myLastUpdateSentTime(std::chrono::high_resolution_clock::now())
 {
@@ -304,17 +306,21 @@ void net::Photon::serverErrorReturn(int errorCode)
 	// mpOutputListener->writeLine(ExitGames::Common::JString(L"received error ") + errorCode + " from server");
 }
 
-void net::Photon::joinRoomEventAction(int playerNr, const ExitGames::Common::JVector<int>& /*playernrs*/, const ExitGames::LoadBalancing::Player& player)
+void net::Photon::joinRoomEventAction(int playerNr, const ExitGames::Common::JVector<int>& playernrs, const ExitGames::LoadBalancing::Player& player)
 {
-	NET_LOG("%ls(%d) joined the game (%d players in game %d online)", 
-		player.getName().cstr(), playerNr, myLoadBalancingClient.getCountPlayersIngame(), myLoadBalancingClient.getCountPlayersOnline());
+	NET_LOG("%ls(%d) joined the game (playernrs:%d) (%d players in game %d online)", 
+		player.getName().cstr(),
+		playerNr,
+		playernrs.getSize(),
+		myLoadBalancingClient.getCountPlayersIngame(), 
+		myLoadBalancingClient.getCountPlayersOnline());
+	mySession.AddMember(playerNr);
 }
 
 void net::Photon::leaveRoomEventAction(int playerNr, bool isInactive)
 {
-	EGLOG(ExitGames::Common::DebugLevel::INFO, L"");
-	// mpOutputListener->writeLine(L"");
-	// mpOutputListener->writeLine(ExitGames::Common::JString(L"player ") + playerNr + L" has left the game");
+	NET_LOG("Player %d left the game", playerNr);
+	mySession.RemoveMember(playerNr);	
 }
 
 net::DataAdapter* net::Photon::FindAdapter(uint8_t eventId, uint8_t keyId)
@@ -511,15 +517,13 @@ void net::Photon::onLobbyStatsResponse(const ExitGames::Common::JVector<ExitGame
 
 void net::Photon::onLobbyStatsUpdate(const ExitGames::Common::JVector<ExitGames::LoadBalancing::LobbyStatsResponse>& lobbyStats)
 {
-	EGLOG(ExitGames::Common::DebugLevel::INFO, L"%ls", lobbyStats.toString().cstr());
-	// mpOutputListener->writeLine(L"LobbyStats: " + lobbyStats.toString());
+	NET_LOG("Lobby stats: %s", lobbyStats.toString().cstr());
 }
 
 void net::Photon::onAvailableRegions(const ExitGames::Common::JVector<ExitGames::Common::JString>& availableRegions, const ExitGames::Common::JVector<ExitGames::Common::JString>& availableRegionServers)
 {
-	EGLOG(ExitGames::Common::DebugLevel::INFO, L"%ls / %ls", availableRegions.toString().cstr(), availableRegionServers.toString().cstr());
-	// mpOutputListener->writeLine(L"onAvailableRegions: " + availableRegions.toString() + L" / " + availableRegionServers.toString());
+	NET_LOG("Available regions: %s / %s", 
+		availableRegions.toString().cstr(), availableRegionServers.toString().cstr());
 	// select first region from list
-	// mpOutputListener->writeLine(L"selecting region: " + availableRegions[0]);
 	myLoadBalancingClient.selectRegion(availableRegions[0]);
 }

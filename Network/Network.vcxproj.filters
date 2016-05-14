@@ -80,6 +80,7 @@
       <Filter>ExitGames</Filter>
     </ClCompile>
     <ClCompile Include="NetEventStore.cpp" />
+    <ClCompile Include="NetSession.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h" />
@@ -91,5 +92,7 @@
     <ClInclude Include="NetInputStream.h" />
     <ClInclude Include="NetOutputStream.h" />
     <ClInclude Include="NetDataAdapter.h" />
+    <ClInclude Include="NetSession.h" />
+    <ClInclude Include="NetTypes.h" />
   </ItemGroup>
 </Project>

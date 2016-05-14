@@ -9,11 +9,12 @@
 
 namespace net
 {
+	class Session;
 	class DataAdapter;
 	class Photon : private ExitGames::LoadBalancing::Listener
 	{
 	public:
-		Photon();
+		Photon(Session& session);
 
 		enum State
 		{
@@ -39,10 +40,6 @@ namespace net
 		class Listener : public ExitGames::Common::ToString
 		{
 		public:
-
-
-
-
 			using ExitGames::Common::ToString::toString;
 			virtual void stateUpdate(State newState) = 0;
 			virtual ExitGames::Common::JString& toString(ExitGames::Common::JString& retStr, bool withTypes = false) const;
@@ -181,5 +178,6 @@ namespace net
 		};
 
 		std::vector<AdapterGroup> myAdapterGroups;
+		net::Session& mySession;
 	};
 }

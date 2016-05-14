@@ -42,25 +42,21 @@ public:
 
 	virtual void Deserialize(net::InputStream& inStream) override final
 	{
-		bool isHeader = true;
 		while (inStream.HasDataLeft())
 		{
-			if (isHeader)
+			WorldEvent::Type type = static_cast<WorldEvent::Type>(inStream.ReadU8());
+			WorldEvent* ev = nullptr;
+			if (inStream.HasDataLeft())
 			{
-				WorldEvent::Type type = static_cast<WorldEvent::Type>(inStream.ReadU8());
-				WorldEvent* ev = nullptr;
-				if (inStream.HasDataLeft())
+				if (type == WorldEvent::Type::Spawn)
 				{
-					if (type == WorldEvent::Type::Spawn)
-					{
-						ev = new SpawnEvent();
-						ev->Deserialize(inStream);
-					}
+					ev = new SpawnEvent();
+					ev->Deserialize(inStream);
 				}
-				if (ev != nullptr)
-				{
-					myInEvents.emplace_back(Event(ev, 0));
-				}
+			}
+			if (ev != nullptr)
+			{
+				myInEvents.emplace_back(Event(ev, 0));
 			}
 		}
 	}
