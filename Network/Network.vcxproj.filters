@@ -94,5 +94,7 @@
     <ClInclude Include="NetDataAdapter.h" />
     <ClInclude Include="NetSession.h" />
     <ClInclude Include="NetTypes.h" />
+    <ClInclude Include="NetAdapterInputStream.h" />
+    <ClInclude Include="NetAdapterOutputStream.h" />
   </ItemGroup>
 </Project>

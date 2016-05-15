@@ -11,14 +11,14 @@ class SessionAdapter : public net::DataAdapter
 public:
 	SessionAdapter(GameSession& aSession);
 
-	virtual void Deserialize(net::InputStream& inStream) override final;
+	virtual void Deserialize(net::AdapterInputStream& inStream) override final;
 
-	virtual bool Serialize(net::DataAdapter::OutputStream& aStream) override final;
+	virtual bool Serialize(net::AdapterOutputStream& aStream) override final;
 
 	void OnNewMember(net::MemberIndex member);
 
 private:
-	bool IsStreamSuitable(net::DataAdapter::OutputStream& aStream);
+	bool IsStreamSuitable(net::AdapterOutputStream& aStream);
 
 	// Send all player & level info to these players
 	std::vector<net::MemberIndex> myNewMembers;

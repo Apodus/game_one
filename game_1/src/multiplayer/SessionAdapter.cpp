@@ -1,8 +1,8 @@
 #include "multiplayer/SessionAdapter.h"
 
 #include "multiplayer/GameSession.h"
-#include "NetInputStream.h"
-#include "NetOutputStream.h"
+#include "NetAdapterInputStream.h"
+#include "NetAdapterOutputStream.h"
 
 SessionAdapter::SessionAdapter(GameSession& aSession)
 	:
@@ -10,12 +10,12 @@ SessionAdapter::SessionAdapter(GameSession& aSession)
 {}
 
 
-void SessionAdapter::Deserialize(net::InputStream& inStream)
+void SessionAdapter::Deserialize(net::AdapterInputStream& inStream)
 {
 
 }
 
-bool SessionAdapter::Serialize(net::DataAdapter::OutputStream& aStream)
+bool SessionAdapter::Serialize(net::AdapterOutputStream& aStream)
 {
 	if (!myNewMembers.empty() || !myUpdatedLevels.empty())
 	{
@@ -71,7 +71,7 @@ bool SessionAdapter::Serialize(net::DataAdapter::OutputStream& aStream)
 	return true;
 }
 
-bool SessionAdapter::IsStreamSuitable(net::DataAdapter::OutputStream& aStream)
+bool SessionAdapter::IsStreamSuitable(net::AdapterOutputStream& aStream)
 {
 	if (!aStream.IsReliable())
 	{

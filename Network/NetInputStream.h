@@ -36,10 +36,21 @@ namespace net
 		T ReadU32()
 		{
 			uint8_t value[4];
-			value[0] = ReadU8();
-			value[1] = ReadU8();
-			value[2] = ReadU8();
-			value[3] = ReadU8();
+			for (size_t i = 0; i < 4; i++)
+			{
+				value[i] = ReadU8();
+			}
+			return *reinterpret_cast<T const *>(value);
+		}
+
+		template<typename T>
+		T ReadU64()
+		{
+			uint8_t value[8];
+			for (size_t i = 0; i < 8; i++)
+			{
+				value[i] = ReadU8();
+			}
 			return *reinterpret_cast<T const *>(value);
 		}
 

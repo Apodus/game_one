@@ -2,7 +2,8 @@
 
 #include "NetSession.h"
 #include "multiplayer/SessionAdapter.h"
-#include "NetInputStream.h"
+#include "NetAdapterInputStream.h"
+#include "NetAdapterOutputStream.h"
 
 class GameSession : public net::Session
 {
@@ -16,27 +17,44 @@ public:
 
 	virtual void OnMemberJoined(net::MemberIndex i) final override
 	{
+		myAdapter.OnNewMember(i);
 	}
 
 	virtual void OnMemberLeft(net::MemberIndex i) final override
 	{
 	}
 
-	void Serialize(net::DataAdapter::OutputStream& aStream)
+	void Serialize(net::AdapterOutputStream& aStream)
 	{
+		// Local Id -> Global player Id Mapping
 		aStream.WriteU8(static_cast<uint8_t>(myPlayers.size()));
 		for (size_t i = 0; i < myPlayers.size(); i++)
 		{
 			aStream.WriteU64(GetMemberId(myPlayers[i].localMemberIndex));
 			aStream.WriteU8(myPlayers[i].localPlayerId);
-			aStream.WriteU64(GetMemberId(myPlayers[i].instance.localMemberIndex));
-			aStream.WriteU8(myPlayers[i].instance.instanceId);
+		}
+
+		if (!myPlayers.empty())
+		{
+			// Local player current instance
+			aStream.WriteU64(GetMemberId(myPlayers[0].instance.localMemberIndex));
+			aStream.WriteU8(myPlayers[0].instance.instanceId);
 		}
 	}
 
-	void Deserialize(net::InputStream& inStream)
+	void Deserialize(net::AdapterInputStream& aStream)
 	{
-		uint8_t numPlayers = inStream.ReadU8();
+		// Local Id -> Global player Id Mapping
+		uint8_t numPlayers = aStream.ReadU8();
+		for (size_t i = 0; i < numPlayers; i++)
+		{
+			auto memberId = aStream.ReadU64<uint64_t>();
+			auto mappedId = aStream.ReadU8();
+		}
+
+		// Remote player current instance
+		auto instanceOwner = aStream.ReadU64<uint64_t>();
+		auto instanceId = aStream.ReadU8();
 
 	}
 

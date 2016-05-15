@@ -3,8 +3,8 @@
 #include "logic\World.h"
 #include "logic\WorldEvent.h"
 #include "NetDataAdapter.h"
-#include "NetInputStream.h"
-#include "NetOutputStream.h"
+#include "NetAdapterInputStream.h"
+#include "NetAdapterOutputStream.h"
 
 class WorldEventAdapter : public net::DataAdapter
 {
@@ -40,7 +40,7 @@ public:
 		return events;
 	}
 
-	virtual void Deserialize(net::InputStream& inStream) override final
+	virtual void Deserialize(net::AdapterInputStream& inStream) override final
 	{
 		while (inStream.HasDataLeft())
 		{
@@ -61,7 +61,7 @@ public:
 		}
 	}
 
-	virtual bool Serialize(net::DataAdapter::OutputStream& aStream) override final
+	virtual bool Serialize(net::AdapterOutputStream& aStream) override final
 	{
 		if (!myOutEvents.empty())
 		{

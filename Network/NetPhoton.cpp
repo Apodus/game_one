@@ -2,8 +2,8 @@
 #include "NetPhoton.h"
 #include "NetLogging.h"
 #include "NetDataAdapter.h"
-#include "NetOutputStream.h"
-#include "NetInputStream.h"
+#include "NetAdapterOutputStream.h"
+#include "NetAdapterInputStream.h"
 #include "NetSession.h"
 
 #include <vector>
@@ -195,7 +195,7 @@ void net::Photon::Send()
 			hasDataLeft = false;
 			for (size_t i = 0; i < myAdapterGroups.size(); i++)
 			{
-				net::DataAdapter::OutputStream outStream(64);
+				net::AdapterOutputStream outStream(64);
 				ExitGames::Common::Hashtable table;
 				for (size_t j = 0; j < myAdapterGroups[i].adapters.size(); j++)
 				{
@@ -364,7 +364,7 @@ void net::Photon::customEventAction(int playerNr, nByte eventCode, const ExitGam
 					DataAdapter* adapter = FindAdapter(eventCode, keyId);
 					if (adapter)
 					{
-						InputStream stream(data, size);
+						AdapterInputStream stream(data, size, playerNr);
 						adapter->Deserialize(stream);
 					}
 				}

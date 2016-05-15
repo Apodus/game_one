@@ -203,6 +203,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="NetAdapterOutputStream.h" />
+    <ClInclude Include="NetAdapterInputStream.h" />
     <ClInclude Include="NetEventStore.h" />
     <ClInclude Include="NetInputStream.h" />
     <ClInclude Include="NetLogging.h" />

@@ -4,7 +4,6 @@
 
 namespace net
 {
-
 	class OutputStream
 	{
 	public:
