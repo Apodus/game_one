@@ -23,12 +23,13 @@ public:
     Value() {
         priority = 0;
     }
-    Value(const T& value) : t(value) {}
+    Value(const T& value) : t(value), priority(0) {}
     Value(const Value& value) {
         t = value.t;
         name = value.name;
         parent = value.parent;
         children = value.children;
+				priority = value.priority;
     }
 
     operator T&() {
@@ -568,16 +569,16 @@ private:
             commandStack.pop_back();
 			std::string operandType = getCurrentOperandType();
 			if (operandType == "int") {
-                int a;
-                int b;
+                int a = 0;
+                int b = 0;
                 fillParameterInt(a);
                 fillParameterInt(b);
                 tempInt.push_back(a + b);
 				tempInt.back().priority = ++currentPriority;
             }
 			else if (operandType == "float") {
-                float a;
-                float b;
+                float a = 0;
+                float b = 0;
                 fillParameterFloat(a);
                 fillParameterFloat(b);
                 tempFloat.push_back(a + b);
