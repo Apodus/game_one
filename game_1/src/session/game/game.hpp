@@ -27,36 +27,16 @@ class Game {
 
 public:
 	Game(std::shared_ptr<sa::UserIO>)
-		:
-		m_gameSession(m_netEngine),
-		m_world(m_netWorldEventAdapter)
+		: m_world()
 	{
-		m_gameSession.AddAdapter(0, 33, m_netWorldEventAdapter);
-		m_world.AddEventAt(new SpawnEvent(SpawnEvent::Type::Thug), 3000);
-		m_world.AddEventAt(new SpawnEvent(SpawnEvent::Type::Thug), 10000);
-		m_world.AddEventAt(new SpawnEvent(SpawnEvent::Type::Thug), 5000);
-		addLocalPlayer();
-	}
-
-	void addLocalPlayer()
-	{
-		m_world.AddEventAt(new SpawnEvent(SpawnEvent::Type::Hero), 1);
 	}
 
 	void preTick()
 	{
-		m_netEngine.PreTick();
-		auto events = m_netWorldEventAdapter.GetReceivedEvents();
-		for (size_t i = 0; i < events.size(); i++)
-		{
-			auto& e = events[i];
-			m_world.AddEvent(e.serializable, 0, false);
-		}
 	}
 
 	void postTick()
 	{
-		m_netEngine.PostTick();
 	}
 
 	void tick(long long timeMs)
@@ -77,13 +57,7 @@ public:
 	}
 
 private:
-	// Net
-	net::Engine m_netEngine;
-	GameSession m_gameSession;
-	WorldEventAdapter m_netWorldEventAdapter;
-	
 	Scripter m_scripter;
 	size_t m_tickID;
 	World m_world;
-
 };

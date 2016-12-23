@@ -33,7 +33,7 @@ int main(int argc, char** argv)
 		sa::math::fixedpoint::initialize();
 		auto session = std::make_unique<Session::Application::Session>();
 
-        while (session->tick());
+		while (session->tick());
 
         /*
 		thread::TaskMaster taskMaster;

@@ -97,6 +97,7 @@
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\multiplayer\SessionAdapter.cpp" />
     <ClCompile Include="src\session\application\session.cpp" />
+    <ClCompile Include="src\worldmap\ProvinceGraph.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\logic\WorldEvent.h" />
@@ -115,6 +116,7 @@
     <ClInclude Include="src\menu\mainmenu.hpp" />
     <ClInclude Include="src\menu\menuroot.hpp" />
     <ClInclude Include="src\menu\optionsmenu.hpp" />
+    <ClInclude Include="src\worldmap\ProvinceGraph.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Base\Base.vcxproj">

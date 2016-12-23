@@ -45,8 +45,8 @@ bool Session::Application::Session::tick() {
 	{
 		float dt = fps_logic.tick(timeNow);
 		
-        // TODO: GAME TICK
-        menuRoot->tick(dt);
+		// TODO: GAME TICK
+		menuRoot->tick(dt);
 		game->update(userIO);
 		game->tick(timeNow);
 		userIO->update();
