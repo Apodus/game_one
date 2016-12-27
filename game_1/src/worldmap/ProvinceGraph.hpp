@@ -9,6 +9,8 @@ class ProvinceGraph
 public:
 	class Province
 	{
+		// Todo: Would be nice if these were private.
+	public:
 		// graph properties
 		std::vector<int> m_connections;
 		sa::vec2<float> m_position;
@@ -17,14 +19,13 @@ public:
 		// province properties
 		size_t m_population = 1000;
 		size_t m_type = 0;
+		size_t m_area = 0;
 
 	public:
 		Province() = default;
 		Province(sa::vec2<float> pos) : m_position(pos)
 		{
 		}
-
-
 
 		size_t supplies() const
 		{
@@ -35,22 +36,40 @@ public:
 		{
 			return 1 * m_population;
 		}
+
+		size_t area() const
+		{
+			return m_area;
+		}
+
+		void area(size_t area)
+		{
+			m_area = area;
+		}
 	};
 
 	ProvinceGraph()
 	{
 	}
 
-	void random(size_t numProvinces = 10)
+	void random(size_t numProvinces = 30)
 	{
 		std::vector<float> radii;
 		std::vector<sa::vec2<float>> offsets;
-		sa::vec2<float> origin(0, numProvinces / 2);
+		sa::vec2<float> origin(0, 0);
 		
 		for (size_t i = 0; i < numProvinces; ++i)
 		{
-			m_provinces.emplace_back(Province(i, i));
+			m_provinces.emplace_back(
+				Province(
+					sa::vec2<float>(
+						static_cast<float>(i) - numProvinces / 2,
+						static_cast<float>(i)
+					)
+				)
+			);
 			radii.emplace_back(1.0f + (rand() % 256u) / 256.0f); // todo: nonlinear distribution?
+			m_provinces.back().area(radii.back() * 100);
 			offsets.emplace_back();
 		}
 		
@@ -63,7 +82,7 @@ public:
 			{
 				sa::vec2<float> direction = (origin - m_provinces[i].m_position);
 				direction.normalize();
-				offsets[i] = direction * 0.02f;
+				offsets[i] = direction * 0.005f;
 			}
 
 			// accumulate push forces
@@ -77,7 +96,7 @@ public:
 					if (sqrDist < allowedDistance * allowedDistance)
 					{
 						direction.normalize();
-						direction *= (allowedDistance / sqrDist) * 0.01f;
+						direction *= ((allowedDistance * allowedDistance / sqrDist) - 1.0f) * 0.05f;
 						offsets[i] += direction;
 						offsets[k] -= direction;
 					}
@@ -93,8 +112,24 @@ public:
 
 		// apply connections
 		{
-
+			for (size_t i = 0; i < m_provinces.size(); ++i)
+			{
+				for (size_t k = i + 1; k < m_provinces.size(); ++k)
+				{
+					float radius = radii[i] + radii[k];
+					if ((m_provinces[i].m_position - m_provinces[k].m_position).lengthSquared() < (radius * radius))
+					{
+						m_provinces[i].m_connections.emplace_back(k);
+						m_provinces[k].m_connections.emplace_back(i);
+					}
+				}
+			}
 		}
+	}
+
+	const std::vector<Province>& provinces() const
+	{
+		return m_provinces;
 	}
 
 private:

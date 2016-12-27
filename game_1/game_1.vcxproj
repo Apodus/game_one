@@ -45,7 +45,7 @@
     <TargetName>$(ProjectName)_$(Configuration)</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <OutDir>$(SolutionDir)\$(ProjectName)\build\bin</OutDir>
+    <OutDir>$(SolutionDir)\$(ProjectName)\build\bin\</OutDir>
     <IntDir>$(SolutionDir)\out\$(Configuration)\$(ProjectName)\</IntDir>
     <TargetName>$(ProjectName)_$(Configuration)</TargetName>
   </PropertyGroup>
@@ -59,7 +59,7 @@
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>Network.lib;Common-cpp_vc14_debug_windows_md_Win32.lib;Photon-cpp_vc14_debug_windows_Md_Win32.lib;assimp.lib;glew32.lib;opengl32.lib;glfw3dll.lib;libpng16.lib;zlib.lib;sfml-audio-d.lib;Box2D.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>assimp.lib;glew32.lib;opengl32.lib;glfw3dll.lib;libpng16.lib;zlib.lib;sfml-audio-d.lib;Box2D.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(ProjectDir)\..\Base\lib\win32\libpng\lib\debug;$(ProjectDir)\..\Base\lib\win32\GLFW-3.0.4\lib;$(ProjectDir)\..\Base\lib\win32\glew-1.10.0\lib;$(ProjectDir)\..\Base\lib\win32\assimp\lib;$(ProjectDir)\..\Base\lib\win32\SFML\lib\debug;$(ProjectDir)\..\Box2D-master\Box2D\Build\vs2015\bin\x32\Debug;$(ProjectDir)\..\Network\Common-cpp\lib;$(ProjectDir)\..\Network\Debug;$(ProjectDir)\..\Network\Photon-cpp\lib</AdditionalLibraryDirectories>
       <SubSystem>Console</SubSystem>
     </Link>
@@ -81,7 +81,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>Network.lib;Common-cpp_vc14_release_windows_md_Win32.lib;Photon-cpp_vc14_release_windows_Md_Win32.lib;assimp.lib;glew32.lib;opengl32.lib;glfw3dll.lib;libpng16.lib;sfml-audio.lib;Box2D.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>assimp.lib;glew32.lib;opengl32.lib;glfw3dll.lib;libpng16.lib;sfml-audio.lib;Box2D.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(ProjectDir)\..\Base\lib\win32\libpng\lib\release;$(ProjectDir)\..\Base\lib\win32\GLFW-3.0.4\lib;$(ProjectDir)\..\Base\lib\win32\glew-1.10.0\lib;$(ProjectDir)\..\Base\lib\win32\assimp\lib;$(ProjectDir)\..\Base\lib\win32\SFML\lib\release;$(ProjectDir)\..\Box2D-master\Box2D\Build\vs2015\bin\x32\Release;$(ProjectDir)\..\Network\Common-cpp\lib;$(ProjectDir)\..\Network\Release;$(ProjectDir)\..\Network\Photon-cpp\lib</AdditionalLibraryDirectories>
       <SubSystem>Console</SubSystem>
     </Link>
@@ -91,26 +91,18 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\logic\ObjectController.hpp" />
-    <ClCompile Include="src\logic\WorldEvent.cpp" />
     <ClCompile Include="src\logic\ShapePrototype.cpp" />
-    <ClCompile Include="src\logic\Timeline.cpp" />
     <ClCompile Include="src\main.cpp" />
-    <ClCompile Include="src\multiplayer\SessionAdapter.cpp" />
     <ClCompile Include="src\session\application\session.cpp" />
     <ClCompile Include="src\worldmap\ProvinceGraph.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\logic\WorldEvent.h" />
     <ClInclude Include="src\logic\GraphicsPolygon.hpp" />
     <ClInclude Include="src\logic\SceneObject.hpp" />
     <ClInclude Include="src\logic\ShapePrototype.hpp" />
-    <ClInclude Include="src\logic\Timeline.h" />
     <ClInclude Include="src\logic\Transform.hpp" />
     <ClInclude Include="src\logic\World.h" />
     <ClInclude Include="src\menu\gameline.hpp" />
-    <ClInclude Include="src\multiplayer\GameSession.h" />
-    <ClInclude Include="src\multiplayer\SessionAdapter.h" />
-    <ClInclude Include="src\multiplayer\WorldEventAdapter.h" />
     <ClInclude Include="src\session\application\session.hpp" />
     <ClInclude Include="src\session\game\game.hpp" />
     <ClInclude Include="src\menu\mainmenu.hpp" />

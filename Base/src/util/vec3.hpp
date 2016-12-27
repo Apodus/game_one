@@ -2,6 +2,7 @@
 #pragma once
 
 #include "math/2d/math.hpp"
+#include "util/vec2.hpp"
 #include <iostream>
 
 namespace sa {
@@ -13,7 +14,8 @@ public:
 	vec3();
 	vec3(const vec3<T>& other): x(other.x), y(other.y), z(other.z) {}
 	vec3(const T& a, const T& b, const T& c);
-	
+	vec3(const vec2<T>& other): x(other.x), y(other.y), z(0) {}
+
 	template<typename T>
 	explicit operator vec3<T>() const {
 		return vec3<T>(x, y, z);

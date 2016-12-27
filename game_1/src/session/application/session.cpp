@@ -58,7 +58,7 @@ bool Session::Application::Session::tick() {
 		float time_alpha = fps_logic.timeSince(Timer::time_now()) / fps_logic.frameLength();
 
 		pRenderer->clearScreen();
-		pCamera->setPosition(sa::vec3<float>(0, 0, 10));
+		pCamera->setPosition(sa::vec3<float>(0, 0, 20));
 		pRenderer->cameraToGPU();
 
         // todo: make use of time_alpha?

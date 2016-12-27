@@ -24,16 +24,7 @@
     <ClCompile Include="src\logic\ShapePrototype.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\logic\Timeline.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\logic\WorldEvent.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\logic\ObjectController.hpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\multiplayer\SessionAdapter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\worldmap\ProvinceGraph.cpp">
@@ -72,21 +63,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\logic\World.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\logic\Timeline.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\logic\WorldEvent.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\multiplayer\WorldEventAdapter.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\multiplayer\GameSession.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\multiplayer\SessionAdapter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\worldmap\ProvinceGraph.hpp">
