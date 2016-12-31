@@ -9,10 +9,10 @@
 #include <cassert>
 #include <istream>
 
-template<int FIXED_POINT_ONE = 1024 * 128>
+template<int64_t FIXED_POINT_ONE = 1024 * 128>
 class FixedPoint
 {
-	long long number;
+	int64_t number;
 
 public:
 	static const FixedPoint ZERO;
@@ -25,12 +25,12 @@ public:
 	{
 	}
 
-	explicit FixedPoint(int a, int b = 1) :
+	explicit FixedPoint(int32_t a, int32_t b = 1) :
 		number(a * FIXED_POINT_ONE / b)
 	{
 	}
 
-	explicit FixedPoint(long long a, long long b = 1) :
+	explicit FixedPoint(int64_t a, int64_t b = 1) :
 		number( a * FIXED_POINT_ONE / b )
 	{
 	}
@@ -44,7 +44,7 @@ public:
 		return number;
 	}
 
-	FixedPoint& setRawValue(long long val) {
+	FixedPoint& setRawValue(int64_t val) {
 		number = val;
 		return *this;
 	}
@@ -89,9 +89,9 @@ public:
 		return static_cast<int>(number / FIXED_POINT_ONE);
 	}
 	
-	int getDesimal() const
+	FixedPoint getDesimal() const
 	{
-		return number % FIXED_POINT_ONE;
+		return FixedPoint(number % FIXED_POINT_ONE, FIXED_POINT_ONE);
 	}
 	
 	FixedPoint abs()
@@ -338,7 +338,7 @@ namespace sa {
 template<int T>
 std::ostream& operator<<(std::ostream& out, const FixedPoint<T>& point)
 {
-	return out << point.getDesimal();
+	return out << point.getRawValue();
 }
 
 // Trigonometric functions for fixed points
@@ -355,8 +355,8 @@ namespace sa {
 	};
 
 	namespace math {
-		const FixedPoint<>& sin(const FixedPoint<>&);
-		const FixedPoint<>& cos(const FixedPoint<>&);
+		FixedPoint<> sin(const FixedPoint<>&);
+		FixedPoint<> cos(const FixedPoint<>&);
 
 		namespace fixedpoint {
 			void initialize();

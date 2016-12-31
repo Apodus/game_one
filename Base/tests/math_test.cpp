@@ -21,7 +21,18 @@ TEST(FixedPoint, TrigonometryCasual)
 
 			float fp_sin = sa::math::sin(fp_value);
 			float f_sin = sa::math::sin(f_value);
-			EXPECT_TRUE(sqr(fp_sin - f_sin) < 0.001f);
+			EXPECT_TRUE(sqr(fp_sin - f_sin) < 0.00001f);
+		}
+	}
+
+	{
+		for (int i = 0; i < 1000; ++i) {
+			FixedPoint<> fp_value(i, 100);
+			float f_value(i / 100.0f);
+
+			float fp_cos = sa::math::cos(fp_value);
+			float f_cos = sa::math::cos(f_value);
+			EXPECT_TRUE(sqr(fp_cos - f_cos) < 0.00001f);
 		}
 	}
 }

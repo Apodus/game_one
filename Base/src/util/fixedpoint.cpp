@@ -3,8 +3,8 @@
 #include "math/2d/math.hpp"
 #include <array>
 
-template<int I> const FixedPoint<I> FixedPoint<I>::ZERO = FixedPoint<I>(0);
-template<int I> const FixedPoint<I> FixedPoint<I>::PI = FixedPoint<I>(314159265359ll, 100000000000ll);
+template<int64_t I> const FixedPoint<I> FixedPoint<I>::ZERO = FixedPoint<I>(0);
+template<int64_t I> const FixedPoint<I> FixedPoint<I>::PI = FixedPoint<I>(314159265359ll, 100000000000ll);
 
 namespace sa {
 	namespace math {
@@ -71,17 +71,23 @@ void sa::math::fixedpoint::initialize() {
 	}
 }
 
-const FixedPoint<>& sa::math::sin(const FixedPoint<>& v) {
+FixedPoint<> sa::math::sin(const FixedPoint<>& v) {
 	FixedPoint<> tmp = (v + FixedPoint<>::PI) % (FixedPoint<1024 * 128>::PI * FixedPoint<1024 * 128>(2));
 	tmp *= FixedPoint<>(NUM_SINCOS_ENTRIES);
 	tmp /= (FixedPoint<>::PI * FixedPoint<>(2));
-	return g_FixedPoint_SinValues[static_cast<int>(tmp)];
+
+	int index = static_cast<int>(tmp);
+	auto modOne = tmp.getDesimal();
+	return g_FixedPoint_SinValues[index] * (FixedPoint<>(1) - modOne) + g_FixedPoint_SinValues[(index + 1) & (NUM_SINCOS_ENTRIES - 1)] * modOne;
 }
 
-const FixedPoint<>& sa::math::cos(const FixedPoint<>& v) {
+FixedPoint<> sa::math::cos(const FixedPoint<>& v) {
 	FixedPoint<> tmp = (v + FixedPoint<>::PI) % (FixedPoint<1024 * 128>::PI * FixedPoint<1024 * 128>(2));
 	tmp *= FixedPoint<>(NUM_SINCOS_ENTRIES);
 	tmp /= (FixedPoint<>::PI * FixedPoint<>(2));
-	return g_FixedPoint_CosValues[static_cast<int>(tmp)];
+
+	int index = static_cast<int>(tmp);
+	auto modOne = tmp.getDesimal();
+	return g_FixedPoint_CosValues[index] * (FixedPoint<>(1) - modOne) + g_FixedPoint_CosValues[(index + 1) & (NUM_SINCOS_ENTRIES - 1)] * modOne;
 }
 
