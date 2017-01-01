@@ -133,6 +133,7 @@
     <ClInclude Include="src\util\vec4.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\BattleSim\BattleSim.vcxproj" />
     <None Include="src\jsoncons\index.html" />
     <None Include="src\util\vec2.icc" />
     <None Include="src\util\vec3.icc" />

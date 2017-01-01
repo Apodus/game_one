@@ -338,6 +338,7 @@
     <None Include="src\jsoncons\index.html">
       <Filter>json</Filter>
     </None>
+    <None Include="..\BattleSim\BattleSim.vcxproj" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="json">
