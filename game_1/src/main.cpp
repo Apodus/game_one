@@ -13,6 +13,8 @@
 #include "util/fixedpoint.hpp"
 
 
+#include "BattleSim/BattleSim.hpp"
+
 int main(int argc, char** argv)
 {
     /*
@@ -31,6 +33,15 @@ int main(int argc, char** argv)
 	try
 	{
 		sa::math::fixedpoint::initialize();
+		
+		// Temporary for testing battle sim
+		if (argc >= 2 && strcmp(argv[1], "sim") == 0)
+		{
+			bs::BattleSim sim;
+			sim.Tick();
+			return EXIT_SUCCESS;
+		}
+
 		auto session = std::make_unique<Session::Application::Session>();
 
 		while (session->tick());
