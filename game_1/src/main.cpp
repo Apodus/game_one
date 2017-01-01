@@ -38,6 +38,7 @@ int main(int argc, char** argv)
 		if (argc >= 2 && strcmp(argv[1], "sim") == 0)
 		{
 			bs::BattleSim sim;
+			sim.TestSetup();
 			sim.Tick();
 			return EXIT_SUCCESS;
 		}

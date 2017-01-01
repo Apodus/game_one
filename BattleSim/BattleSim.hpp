@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Army.hpp"
+#include "Field.hpp"
 
 #ifdef BATTLESIM_DLL
 #define BATTLESIM_API __declspec(dllimport)
@@ -14,8 +16,13 @@ namespace bs
 	public:
 		BATTLESIM_API BattleSim();
 
+		void BATTLESIM_API TestSetup();
+
 		void BATTLESIM_API Tick();
 
 	private:
+
+		Vector<Army> myArmies;
+		Field myField;
 	};
 }
