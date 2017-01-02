@@ -14,7 +14,6 @@
 #include "math/2d/polygonTesselator.hpp"
 #include "math/matrix/matrix4.hpp"
 
-#include "logic/World.h"
 #include "input/userio.hpp"
 
 #include "worldmap/ProvinceGraph.hpp"
@@ -25,11 +24,56 @@
 
 class Game {
 
+	void castSpells()
+	{
+
+	}
+
+	void friendlyMovement()
+	{
+
+	}
+
+	void offensiveMovement()
+	{
+
+	}
+
+	void applyIncome()
+	{
+		const auto& provinces = graph.provinces();
+		for (const auto& province : provinces)
+		{
+			if (province.m_owner != ~0ull)
+			{
+				// income from province
+				players[province.m_owner].currency += province.income();
+
+				// upkeep of troops
+				for (const auto& commander : province.commanders)
+				{
+					players[province.m_owner].currency -= commander.upkeep;
+				}
+				for (const auto& troop : province.units)
+				{
+					players[province.m_owner].currency -= troop.upkeep;
+				}
+			}
+		}
+	}
+
 public:
 	Game(std::shared_ptr<sa::UserIO>)
-		: m_world()
 	{
 		graph.random();
+	}
+
+	void processTurn()
+	{
+		castSpells();
+		friendlyMovement();
+		offensiveMovement();
+		applyIncome();
 	}
 
 	void preTick()
@@ -41,23 +85,15 @@ public:
 	}
 
 	void tick(long long timeMs)
-	{		
-		m_world.tick(timeMs);
+	{
 	}
 
 	void update(std::shared_ptr<sa::UserIO> userio)
 	{
-		m_world.update(*userio);
 	}
 
 	void draw(std::shared_ptr<sa::Graphics> pGraphics)
 	{
-		/*
-		const auto& objs = m_world.GetObjects();
-		for(const auto& obj : objs)
-			obj.draw(pGraphics);
-		*/
-
 		const auto& provinces = graph.provinces();
 
 		sa::TextureHandler::getSingleton().bindTexture(0, "Empty");
@@ -91,7 +127,14 @@ public:
 private:
 	Scripter m_scripter;
 	size_t m_tickID;
-	World m_world;
+	
+	struct Faction
+	{
+		int64_t currency = 0; // can go to negative
+		std::vector<size_t> resources;
+	};
 
+	std::vector<TroopReference> troopReferences;
+	std::vector<Faction> players;
 	ProvinceGraph graph;
 };
