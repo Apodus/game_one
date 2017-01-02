@@ -144,7 +144,7 @@ public:
 	{
 	}
 
-	void random(size_t numProvinces = 30)
+	void random(size_t numProvinces = 60)
 	{
 		std::vector<float> radii;
 		std::vector<sa::vec2<float>> offsets;
@@ -165,9 +165,9 @@ public:
 			offsets.emplace_back();
 		}
 		
-		float volatility = 0;
+		float volatility = 2;
 
-		for(size_t iteration = 0; iteration < 10000u; ++iteration)
+		while(volatility > 0.00001f)
 		{
 			// initialize with pull force
 			for (size_t i = 0; i < m_provinces.size(); ++i)
@@ -195,10 +195,13 @@ public:
 				}
 			}
 
+			volatility = 0;
+
 			// apply forces
 			for (size_t i = 0; i < m_provinces.size(); ++i)
 			{
 				m_provinces[i].m_position += offsets[i];
+				volatility += offsets[i].lengthSquared();
 			}
 		}
 
