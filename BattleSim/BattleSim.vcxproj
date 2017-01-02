@@ -163,6 +163,7 @@
     <ClInclude Include="BattleSim.hpp" />
     <ClInclude Include="Field.hpp" />
     <ClInclude Include="Level.hpp" />
+    <ClInclude Include="LevelInline.hpp" />
     <ClInclude Include="Types.hpp" />
     <ClInclude Include="Unit.hpp" />
     <ClInclude Include="stdafx.h" />
@@ -185,6 +186,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
       </PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="Level.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
