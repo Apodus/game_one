@@ -9,24 +9,42 @@ bs::BattleSim::BattleSim()
 
 }
 
+void bs::BattleSim::SetArmyCount(size_t size)
+{
+	myArmies.resize(size);
+}
+
+void bs::BattleSim::AddUnitToArmy(Unit& unit, size_t armyIndex)
+{
+	auto id = myField.Add(unit);
+	myArmies[armyIndex].units.emplace_back(id);
+	
+}
+
 void bs::BattleSim::TestSetup()
 {
-	Army a;
+	SetArmyCount(2);
 	{
 		Unit u;
-		a.units.emplace_back(u);
+		u.pos.set(Real(50), Real(50), Real(0));
+		u.moveTarget.set(Real(100), Real(100), Real(0));
+		AddUnitToArmy(u, 0);
 	}
 
 	Army b;
 	{
 		Unit u;
-		b.units.emplace_back(u);
+		u.pos.set(Real(100), Real(100), Real(0));
+		u.moveTarget.set(Real(50), Real(50), Real(0));
+		AddUnitToArmy(u, 1);
 	}
-	myArmies.emplace_back(a);
-	myArmies.emplace_back(b);
 }
 
 void bs::BattleSim::Tick()
 {
-
+	// TODO: This looks like just a wrapper class, remove later
+	for (size_t i = 0; i < 1000; i++)
+	{
+		myField.Tick();
+	}
 }

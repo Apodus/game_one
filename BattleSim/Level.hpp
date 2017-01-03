@@ -1,6 +1,10 @@
 #pragma once
 
 #include "Unit.hpp"
+#include "Vector.hpp"
+#include "Array.hpp"
+
+#include <memory>
 
 namespace bs
 {
@@ -14,9 +18,9 @@ namespace bs
 		void AddUnit(Unit& unit);
 
 		// Map position to uniform grid
-		U32 POS(Real x) const
+		U32 POS(Real /*x*/) const
 		{
-			return static_cast<U32>(x.getRawValue() / GridSize);
+			return 0;//static_cast<U32>(x.getRawValue() / GridSize);
 		}
 
 
@@ -24,6 +28,10 @@ namespace bs
 		template<typename Function>
 		inline bool InternalScan(
 			Function&& function, float x1, float y1, const float x2, const float y2, void* data);
+
+	private:
+		typedef Vector<Unit::Id> UnitList;
+		Array<Array<std::unique_ptr<UnitList>, GridSize>, GridSize> myGrid;
 
 	};
 }

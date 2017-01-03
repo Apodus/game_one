@@ -21,6 +21,8 @@ namespace bs
 		void BATTLESIM_API Tick();
 
 	private:
+		void SetArmyCount(size_t size);
+		void AddUnitToArmy(Unit& unit, size_t armyIndex);
 
 		Vector<Army> myArmies;
 		Field myField;

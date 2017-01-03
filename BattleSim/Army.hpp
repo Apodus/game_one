@@ -8,6 +8,6 @@ namespace bs
 {
 	struct Army
 	{
-		Vector<Unit> units;
+		Vector<Unit::Id> units;
 	};
 }

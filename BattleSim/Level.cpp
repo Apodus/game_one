@@ -3,15 +3,34 @@
 
 static const bool field_scan_trace = true;
 
-void bs::Level::RemoveUnit(Unit& /*unit*/) 
+void bs::Level::RemoveUnit(Unit& unit) 
 {
+	U32 x = POS(unit.pos.x);
+	U32 y = POS(unit.pos.y);
+	ASSERT(myGrid[x][y] != nullptr, "No unit list found at [%u, %u]", x, y);
+	if (myGrid[x][y]->size() == 1)
+	{
+		myGrid[x][y] = nullptr;
+	}
+	else
+	{
+		auto& list = *myGrid[x][y];
+		for (size_t i = 0; i < list.size(); i++)
+		{
+			if (list.at(i) == unit.id)
+			{
+				list[i] = list.back();
+				list.pop_back();
+			}
+		}
+	}
+
+
 #if 0
-	int x;
-	int y;
-	for (x = POS(player->LocationGet()->x - 0.5f);
+	for (U32 x = POS(player->LocationGet()->x - 0.5f);
 		x <= POS(player->LocationGet()->x + 0.5f); x++)
 	{
-		for (y = POS(player->LocationGet()->y - 0.5f);
+		for (U32 y = POS(player->LocationGet()->y - 0.5f);
 			y <= POS(player->LocationGet()->y + 0.5f); y++)
 		{
 			// printf("player %i remove at %i %i\n", player->id, x, y );
@@ -24,19 +43,13 @@ void bs::Level::RemoveUnit(Unit& /*unit*/)
 #endif
 }
 
-void bs::Level::AddUnit(Unit& /*unit*/)
+void bs::Level::AddUnit(Unit& unit)
 {
-#if 0
-	int x;
-	int y;
-	for (x = POS(player->LocationGet()->x - 0.5f);
-		x <= POS(player->LocationGet()->x + 0.5f); x++)
+	U32 x = POS(unit.pos.x);
+	U32 y = POS(unit.pos.y);
+	if (myGrid[x][y] == nullptr)
 	{
-		for (y = POS(player->LocationGet()->y - 0.5f);
-			y <= POS(player->LocationGet()->y + 0.5f); y++)
-		{
-			block_add_player(&mBlocks[x][y], player);
-		}
+		myGrid[x][y] = std::make_unique<UnitList>(4);
 	}
-#endif
+	myGrid[x][y]->emplace_back(unit.id);
 }

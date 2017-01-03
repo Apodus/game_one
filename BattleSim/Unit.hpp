@@ -8,14 +8,23 @@ namespace bs
 	{
 	public:
 
+		typedef U32 Id;
+
 		// Attributes
-		U32 speed;
-		U32 agility;
-		U32 hitpoints;
+		U32 speed = 0;
+		U32 agility = 0;
+		U32 hitpoints = 0;
 
 		// Weapons, TODO: allow multiple weapons
-		U32 strength;
-		U32 range;
-		U32 weaponspeed;
+		U32 strength = 0;
+		U32 range = 0;
+		U32 weaponspeed = 0;
+
+		Vec moveTarget;
+
+		Vec pos;
+		Vec vel;
+		Vec acc;
+		Id id;
 	};
 }
