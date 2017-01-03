@@ -199,14 +199,27 @@ public:
 
 		for (const auto& province : provinces)
 		{
-			float scale = 0.2f * province.area() / 100.f;
+			float scale = 0.4f * province.area() / 100.f;
 
 			sa::Matrix4 model;
 			model.makeTranslationMatrix(province.m_position.x, province.m_position.y, 0);
 			model.rotate(0, 0, 0, 1);
 			model.scale(scale, scale, 1);
 			
-			pGraphics->m_pRenderer->drawRectangle(model, "Hero");
+			sa::vec4<float> color(0.3f, 0.3f, 0.3f, 1);
+			if (province.m_owner == 0)
+			{
+				color.r = 1;
+				color.g = 0;
+				color.b = 0;
+			}
+			if (province.m_owner == 1)
+			{
+				color.r = 1;
+				color.g = 1;
+				color.b = 1;
+			}
+			pGraphics->m_pRenderer->drawRectangle(model, "Frame", color);
 		}
 	}
 
