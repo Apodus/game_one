@@ -18,9 +18,12 @@
 
 #include "worldmap/ProvinceGraph.hpp"
 
+#include <atomic>
 #include <cinttypes>
 #include <memory>
 #include <iterator>
+#include <unordered_map>
+#include <string>
 
 class Game {
 
@@ -37,6 +40,26 @@ class Game {
 	void offensiveMovement()
 	{
 
+	}
+
+	void processRecruitments()
+	{
+		for (auto& player : players)
+		{
+			for (auto& recruitment : player.trainings)
+			{
+				auto& province = graph.provinces()[recruitment.provinceIndex];
+				for (size_t troopIndex : recruitment.unitsToTrainIndices)
+				{
+					auto it = troopReferences.find(province.troopsToRecruit[troopIndex]);
+					province.units.emplace_back(it->second, ++nextUnitId, province.m_owner);
+				}
+
+				player.currency -= recruitment.currencyCost;
+			}
+
+			player.trainings.clear();
+		}
 	}
 
 	void applyIncome()
@@ -63,13 +86,76 @@ class Game {
 	}
 
 public:
-	Game(std::shared_ptr<sa::UserIO>)
+	Game(std::shared_ptr<sa::UserIO>) : nextUnitId(1)
 	{
+
+		TroopReference militia;
+		militia.accuracy = 10;
+		militia.armor = 2;
+		militia.attack = 8;
+		militia.defence = 8;
+		militia.fitness = 1;
+		militia.hp = 8;
+		militia.leadership = 0;
+		militia.name = "militia";
+		militia.strength = 8;
+
+		TroopReference zealot;
+		zealot.accuracy = 10;
+		zealot.armor = 5;
+		zealot.attack = 11;
+		zealot.defence = 11;
+		zealot.fitness = 3;
+		zealot.hp = 10;
+		zealot.leadership = 30; // if promoted to commander by some means, this would take effect.
+		zealot.name = "zealot";
+		zealot.strength = 10;
+
+		TroopReference marksman;
+		marksman.accuracy = 13;
+		marksman.armor = 1;
+		marksman.attack = 8;
+		marksman.defence = 8;
+		marksman.fitness = 3;
+		marksman.hp = 10;
+		marksman.leadership = 10;
+		marksman.name = "marksman";
+		marksman.strength = 9;
+
+		TroopReference rider;
+		rider.accuracy = 10;
+		rider.armor = 3;
+		rider.attack = 12;
+		rider.defence = 9;
+		rider.fitness = 3;
+		rider.hp = 10;
+		rider.leadership = 30;
+		rider.name = "rider";
+		rider.strength = 10;
+
+		troopReferences.insert(std::make_pair(militia.name, militia));
+		troopReferences.insert(std::make_pair(zealot.name, zealot));
+		troopReferences.insert(std::make_pair(marksman.name, marksman));
+		troopReferences.insert(std::make_pair(rider.name, rider));
+
 		graph.random();
+		auto& provinces = graph.provinces();
+
+		for (auto& province : provinces)
+		{
+			province.troopsToRecruit.emplace_back(militia.name);
+		}
+
+		provinces.front().m_owner = 0;
+		provinces.back().m_owner = 1;
+
+		players.emplace_back();
+		players.emplace_back();
 	}
 
 	void processTurn()
 	{
+		processRecruitments();
 		castSpells();
 		friendlyMovement();
 		offensiveMovement();
@@ -127,14 +213,31 @@ public:
 private:
 	Scripter m_scripter;
 	size_t m_tickID;
-	
+
 	struct Faction
 	{
+		Faction() = default;
+		Faction(std::string name) : name(std::move(name))
+		{
+		}
+
 		int64_t currency = 0; // can go to negative
-		std::vector<size_t> resources;
+		std::vector<size_t> scienceResources;
+		std::string name;
+
+		struct TrainTroopOrder
+		{
+			size_t provinceIndex = 0;
+			size_t resourceCost = 0; // keep track of total resource costs, not allowed to surpass province output.
+			size_t currencyCost = 0; // keep track of currency costs.
+			std::vector<size_t> unitsToTrainIndices;
+		};
+
+		std::vector<TrainTroopOrder> trainings;
 	};
 
-	std::vector<TroopReference> troopReferences;
+	std::atomic<size_t> nextUnitId; // starts at 1, zero is reserved for invalid id.
+	std::unordered_map<std::string, TroopReference> troopReferences;
 	std::vector<Faction> players;
 	ProvinceGraph graph;
 };

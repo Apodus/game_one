@@ -25,12 +25,22 @@ struct TroopReference
 
 struct Troop
 {
+	Troop() = default;
+	Troop(const TroopReference& prototype, size_t id, size_t owner)
+		: id(id)
+		, owner(owner)
+		, commanderId(0)
+		, upkeep(0) // TODO
+		, reference(prototype)
+	{
+	}
+
 	size_t id = 0;
 	size_t owner = 0;
 	size_t commanderId = 0; // follows this commander. this is kind of redundant - but makes life easier.
 	size_t upkeep = 0;
 
-	size_t troopReferenceIndex = 0;
+	const TroopReference& reference;
 	
 	// TODO: Afflictions
 };
@@ -112,6 +122,7 @@ public:
 		std::vector<Troop> units;
 		std::vector<Building> buildings;
 		std::vector<NaturalResource> resources;
+		std::vector<std::string> troopsToRecruit; // names of available troops.
 
 	public:
 		Province() = default;
@@ -223,6 +234,11 @@ public:
 	}
 
 	const std::vector<Province>& provinces() const
+	{
+		return m_provinces;
+	}
+
+	std::vector<Province>& provinces()
 	{
 		return m_provinces;
 	}
