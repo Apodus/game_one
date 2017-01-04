@@ -149,8 +149,8 @@ public:
 		provinces.front().m_owner = 0;
 		provinces.back().m_owner = 1;
 
-		players.emplace_back();
-		players.emplace_back();
+		players.emplace_back("Mestari");
+		players.emplace_back("Nubu");
 	}
 
 	void processTurn()

@@ -14,6 +14,13 @@ namespace bs
 		static const U32 Size = 1000;
 		static const U32 GridSize = 500;
 		
+		Level()
+		{
+			myGrid.resize(GridSize);
+			for (auto& line : myGrid)
+				line.resize(GridSize);
+		}
+
 		void RemoveUnit(Unit& unit);
 		void AddUnit(Unit& unit);
 
@@ -31,7 +38,7 @@ namespace bs
 
 	private:
 		typedef Vector<Unit::Id> UnitList;
-		Array<Array<std::unique_ptr<UnitList>, GridSize>, GridSize> myGrid;
+		Vector<Vector<std::unique_ptr<UnitList>>> myGrid;
 
 	};
 }
