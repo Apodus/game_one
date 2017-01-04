@@ -68,38 +68,38 @@ void sa::MatrixUtils::frustumM(Matrix4& result,
                 float bottom, float top,
                 float near, float far)
 {
-    ASSERT(left != right, "illegal arguments");
+	ASSERT(left != right, "illegal arguments");
 	ASSERT(bottom != top, "illegal arguments");
 	ASSERT(near != far, "illegal arguments");
 	ASSERT(near > 0, "illegal arguments");
 	ASSERT(far > 0, "illegal arguments");
         
-    float r_width = 1.0f / (right - left);
-    float r_height = 1.0f / (top - bottom);
-    float r_depth = 1.0f / (near - far);
-    float x = 2.0f * (near * r_width);
-    float y = 2.0f * (near * r_height);
-//        float A = 2.0f * ((right + left) * r_width);
-    float A = (right + left) * r_width;
-    float B = (top + bottom) * r_height;
-    float C = (far + near) * r_depth;
-    float D = 2.0f * (far * near * r_depth);
-    result[0] = x;
-    result[5] = y;
-    result[8] = A;
-    result[9] = B;
-    result[10] = C;
-    result[14] = D;
-    result[11] = -1.0f;
-    result[1] = 0.0f;
-    result[2] = 0.0f;
-    result[3] = 0.0f;
-    result[4] = 0.0f;
-    result[6] = 0.0f;
-    result[7] = 0.0f;
-    result[12] = 0.0f;
-    result[13] = 0.0f;
-    result[15] = 0.0f;
+	float r_width = 1.0f / (right - left);
+	float r_height = 1.0f / (top - bottom);
+	float r_depth = 1.0f / (near - far);
+	float x = 2.0f * (near * r_width);
+	float y = 2.0f * (near * r_height);
+	// float A = 2.0f * ((right + left) * r_width);
+	float A = (right + left) * r_width;
+	float B = (top + bottom) * r_height;
+	float C = (far + near) * r_depth;
+	float D = 2.0f * (far * near * r_depth);
+	result[0] = x;
+	result[5] = y;
+	result[8] = A;
+	result[9] = B;
+	result[10] = C;
+	result[14] = D;
+	result[11] = -1.0f;
+	result[1] = 0.0f;
+	result[2] = 0.0f;
+	result[3] = 0.0f;
+	result[4] = 0.0f;
+	result[6] = 0.0f;
+	result[7] = 0.0f;
+	result[12] = 0.0f;
+	result[13] = 0.0f;
+	result[15] = 0.0f;
 }
 
 void sa::MatrixUtils::setIdentityM(sa::Matrix4& result) {

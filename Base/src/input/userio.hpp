@@ -39,14 +39,19 @@ public:
 	UserIO(std::shared_ptr<Window> window);
 	~UserIO();
 
-	inline int getMouseKeyCode(int mouseButton) {
+	inline int getMouseKeyCode(int mouseButton) const {
 		return mouseButton + 256;
 	}
 
 	template<class T>
-	inline void getCursorPosition(T& t) {
+	inline void getCursorPosition(T& t) const {
 		t.x = m_mousePosition.x;
 		t.y = m_mousePosition.y;
+	}
+
+	sa::vec3<float> getCursorPosition() const
+	{
+		return m_mousePosition;
 	}
 
 	bool isKeyClicked(int key);

@@ -17,6 +17,7 @@
 #include "input/userio.hpp"
 
 #include "worldmap/ProvinceGraph.hpp"
+#include "session/game/hud.hpp"
 
 #include <atomic>
 #include <cinttypes>
@@ -86,9 +87,14 @@ class Game {
 	}
 
 public:
-	Game(std::shared_ptr<sa::UserIO>) : nextUnitId(1)
+	Game(
+		std::shared_ptr<sa::MenuRoot> menuRootNode,
+		std::shared_ptr<sa::UserIO>
+	)
+		: nextUnitId(1)
+		, menuRootNode(menuRootNode)
+		, hud(menuRootNode.get(), "GameHud", sa::vec3<float>(), sa::vec3<float>(1, 1, 1))
 	{
-
 		TroopReference militia;
 		militia.accuracy = 10;
 		militia.armor = 2;
@@ -174,8 +180,27 @@ public:
 	{
 	}
 
-	void update(std::shared_ptr<sa::UserIO> userio)
+	void update(std::shared_ptr<sa::UserIO> userio, float aspectRatio)
 	{
+		this->aspectRatio = aspectRatio;
+
+		mousePos = userio->getCursorPosition();
+		{
+			int mouseKeyCode = userio->getMouseKeyCode(0);
+			if (userio->isKeyClicked(mouseKeyCode))
+			{
+				LOG("clicked mouse 0, %f %f", mousePos.x, mousePos.y);
+				
+			}
+		}
+
+		{
+			int mouseKeyCode = userio->getMouseKeyCode(1);
+			if (userio->isKeyClicked(mouseKeyCode))
+			{
+				LOG("clicked mouse 1");
+			}
+		}
 	}
 
 	void draw(std::shared_ptr<sa::Graphics> pGraphics)
@@ -221,6 +246,12 @@ public:
 			}
 			pGraphics->m_pRenderer->drawRectangle(model, "Frame", color);
 		}
+
+		sa::Matrix4 model;
+		model.makeTranslationMatrix(mousePos.x * 20 * 0.985f, mousePos.y * 20 * 0.985f / aspectRatio, 0);
+		model.rotate(0, 0, 0, 1);
+		model.scale(0.1f, 0.1f, 1);
+		pGraphics->m_pRenderer->drawRectangle(model, "Hero");
 	}
 
 private:
@@ -249,7 +280,12 @@ private:
 		std::vector<TrainTroopOrder> trainings;
 	};
 
+	sa::vec3<float> mousePos;
+	float aspectRatio = 16.0f / 9.0f;
+
 	std::atomic<size_t> nextUnitId; // starts at 1, zero is reserved for invalid id.
+	std::shared_ptr<sa::MenuRoot> menuRootNode;
+	Hud hud;
 	std::unordered_map<std::string, TroopReference> troopReferences;
 	std::vector<Faction> players;
 	ProvinceGraph graph;

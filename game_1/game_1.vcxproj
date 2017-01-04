@@ -108,6 +108,7 @@
     <ClInclude Include="src\menu\mainmenu.hpp" />
     <ClInclude Include="src\menu\menuroot.hpp" />
     <ClInclude Include="src\menu\optionsmenu.hpp" />
+    <ClInclude Include="src\session\game\hud.hpp" />
     <ClInclude Include="src\worldmap\ProvinceGraph.hpp" />
   </ItemGroup>
   <ItemGroup>

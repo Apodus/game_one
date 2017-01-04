@@ -28,8 +28,8 @@ namespace Session {
 		class Session {
 			struct CameraAspectRatioUpdater : public TypedMessage<AspectRatioChanged> {
 				CameraAspectRatioUpdater(std::shared_ptr<sa::Camera> pCamera) : m_pCamera(pCamera) {}
-
 				std::shared_ptr<sa::Camera> m_pCamera;
+
 				virtual void handle(const AspectRatioChanged& msg) override {
 					m_pCamera->setProjection(0.02f, 200.f, msg.value);
 				}

@@ -51,6 +51,7 @@ void sa::Window::onResize(int width, int height)
 	m_aspectRatio = static_cast<float>(width) / static_cast<float>(height);
 	LOG("aspectRatio: %f", m_aspectRatio);
 
+	glViewport(0, 0, width, height);
 	sendMessage(AspectRatioChanged(m_aspectRatio));
 }
 

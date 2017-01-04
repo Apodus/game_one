@@ -31,7 +31,8 @@ private:
 	virtual void draw(std::shared_ptr<Graphics>) const override {
 	}
 
-	virtual void update(float) override {
+	virtual void update(float) override
+	{
 	}
 };
 

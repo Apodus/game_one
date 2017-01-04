@@ -18,6 +18,15 @@ void sa::Camera::setProjection(float zNear, float zFar, float aspect) {
 	);
 }
 
+void sa::Camera::setOrtho(float width, float height, float zNear, float zFar)
+{
+	projection.makeOrthoMatrix(
+		-width * 0.5f, +width * 0.5f,
+		-height * 0.5f, +height * 0.5f,
+		zNear, zFar
+	);
+}
+
 void sa::Camera::setPosition(const sa::vec3<float>& cameraPosition) {
 	this->cameraPosition = cameraPosition;
 	sa::vec3<float> center(cameraPosition);
