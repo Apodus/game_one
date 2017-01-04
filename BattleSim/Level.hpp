@@ -25,9 +25,9 @@ namespace bs
 		void AddUnit(Unit& unit);
 
 		// Map position to uniform grid
-		U32 POS(Real /*x*/) const
+		U32 POS(Real x) const
 		{
-			return 0;//static_cast<U32>(x.getRawValue() / GridSize);
+			return static_cast<int>(x);
 		}
 
 
