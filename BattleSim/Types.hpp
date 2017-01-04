@@ -21,7 +21,7 @@ namespace sa
 		// http://stackoverflow.com/questions/1100090/looking-for-an-efficient-integer-square-root-algorithm-for-arm-thumb2
 		inline bs::Real sqrt(const bs::Real& val)
 		{
-#if 1
+#if 0
 			int64_t op = val.getRawValue();
 			int64_t res = 0;
 			int64_t one = bs::Real::s_fpOne; // The second-to-top bit is set: use 1u << 14 for uint16_t type; use 1uL<<30 for uint32_t type

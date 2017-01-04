@@ -163,7 +163,6 @@
     <ClInclude Include="BattleSim.hpp" />
     <ClInclude Include="Field.hpp" />
     <ClInclude Include="Level.hpp" />
-    <ClInclude Include="LevelInline.hpp" />
     <ClInclude Include="Types.hpp" />
     <ClInclude Include="Unit.hpp" />
     <ClInclude Include="stdafx.h" />

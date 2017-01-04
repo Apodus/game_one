@@ -16,7 +16,9 @@ namespace bs
 		double RToF(const Real& real);
 
 
-		void Tick();
+		void Update();
+
+		static const Real TimePerUpdate;
 
 	private:
 		// Field is divided into levels in depth-axis. 

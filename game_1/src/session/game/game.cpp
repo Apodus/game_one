@@ -153,7 +153,7 @@ void Game::tick(long long timeMs)
 {
 	if (m_sim)
 	{
-		m_sim->Tick();
+		m_sim->Simulate(static_cast<size_t>(timeMs));
 	}
 }
 

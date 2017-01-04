@@ -24,27 +24,34 @@ void bs::BattleSim::AddUnitToArmy(Unit& unit, size_t armyIndex)
 void bs::BattleSim::TestSetup()
 {
 	SetArmyCount(2);
+	for (size_t i = 0; i < 1; i++)
 	{
-		Unit u;
-		u.pos.set(Real(50), Real(50), Real(0));
-		u.moveTarget.set(Real(100), Real(100), Real(0));
-		AddUnitToArmy(u, 0);
-	}
+		{
+			Unit u;
+			u.pos.set(Real(50), Real(50), Real(0));
+			u.moveTarget.set(Real(100), Real(100), Real(0));
+			AddUnitToArmy(u, 0);
+		}
 
-	Army b;
-	{
-		Unit u;
-		u.pos.set(Real(100), Real(100), Real(0));
-		u.moveTarget.set(Real(50), Real(50), Real(0));
-		AddUnitToArmy(u, 1);
+		{
+			Unit u;
+			u.pos.set(Real(100), Real(100), Real(0));
+			u.moveTarget.set(Real(50), Real(50), Real(0));
+			AddUnitToArmy(u, 1);
+		}
 	}
 }
 
-void bs::BattleSim::Tick()
+void bs::BattleSim::Simulate(size_t milliSeconds)
 {
 	// TODO: This looks like just a wrapper class, remove later
-	for (size_t i = 0; i < 1000; i++)
+	double endTime = myTimeAccu + myTotalTime + static_cast<double>(milliSeconds) / 1000.0;
+	double step = static_cast<double>(Field::TimePerUpdate.getRawValue()) / Real::s_fpOne;
+	while (myTotalTime + step < endTime)
 	{
-		myField.Tick();
-	}
+		myField.Update();		
+		myTotalTime += step;
+	};
+	myTimeAccu += endTime - myTotalTime;
+	LOG("Total time simulated = %f;in accu=%f", myTotalTime, myTimeAccu);
 }

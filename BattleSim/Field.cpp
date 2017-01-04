@@ -1,12 +1,12 @@
 #include "stdafx.h"
 #include "Field.hpp"
 
-static const bs::Real MilliSecondsPerTick(1, 100);
+const bs::Real bs::Field::TimePerUpdate = bs::Real(10, 1000);
 
 bs::Unit::Id bs::Field::Add(Unit& unit)
 {
+	unit.id = myUnits.size();
 	myUnits.emplace_back(unit);
-	unit.id = myUnits.size() - 1;
 	myLevels[0].AddUnit(unit);
 	myActiveUnits.emplace_back(unit.id);
 	return unit.id;
@@ -18,7 +18,7 @@ double bs::Field::RToF(const Real& real)
 	return static_cast<double>(real.getRawValue()) / real.s_fpOne;
 }
 
-void bs::Field::Tick()
+void bs::Field::Update()
 {
 	// Movement
 	for (size_t i = 0; i < myActiveUnits.size(); i++)
@@ -32,7 +32,7 @@ void bs::Field::Tick()
 		const bs::Real SlowDown(1, 2);
 		unit.acc = targetDir * Agility;
 
-		Vec newVel = unit.acc * MilliSecondsPerTick + unit.vel;
+		Vec newVel = unit.acc * TimePerUpdate + unit.vel;
 		auto speed = newVel.length();
 		if (speed > Speed)
 		{
@@ -42,7 +42,13 @@ void bs::Field::Tick()
 			newVel *= (Speed + excessSpeed);
 		}
 
-		Vec newPos = unit.vel * MilliSecondsPerTick + unit.pos;
+		Vec newPos = unit.vel * TimePerUpdate + unit.pos;
+		myLevels[0].InternalScan(unit.pos, newPos, nullptr, [](int x, int y, void* /*data*/) -> bool
+		{
+			// TODO
+			LOG("FIELD SCAN at %i, %i", x, y);
+			return true;
+		});
 
 		unit.vel = newVel;
 		unit.pos = newPos;

@@ -18,7 +18,7 @@ namespace bs
 
 		void BATTLESIM_API TestSetup();
 
-		void BATTLESIM_API Tick();
+		void BATTLESIM_API Simulate(size_t milliSeconds);
 
 	private:
 		void SetArmyCount(size_t size);
@@ -26,5 +26,8 @@ namespace bs
 
 		Vector<Army> myArmies;
 		Field myField;
+
+		double myTotalTime = 0; // Total time simulated
+		double myTimeAccu = 0; // Time requested to be simulated, but could not fit in time step
 	};
 }

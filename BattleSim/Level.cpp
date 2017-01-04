@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "Level.hpp"
 
-static const bool field_scan_trace = true;
+const bs::Real bs::Level::GridScale(2, 1);
 
 void bs::Level::RemoveUnit(Unit& unit) 
 {
