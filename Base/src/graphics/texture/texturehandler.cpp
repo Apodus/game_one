@@ -13,7 +13,7 @@ sa::TextureHandler::TextureHandler()
 {
 	int max_texture_units = 0;
 #if PLATFORM_WIN
-	glGetIntegerv(GL_MAX_TEXTURE_UNITS, &max_texture_units);
+	glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS_ARB, &max_texture_units);
 	LOG("Max texture units: %d", max_texture_units);
 	if(max_texture_units == 0)
 		max_texture_units = 4; // pray
