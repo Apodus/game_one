@@ -19,7 +19,7 @@ struct Image {
 	
 	unsigned long sizeX;
 	unsigned long sizeY;
-	char *data;
+	char *data = nullptr;
 	bool hasAlpha;
 };
 

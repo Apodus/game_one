@@ -86,6 +86,7 @@ unsigned sa::TextureHandler::createTexture(const std::string& name, const std::s
 	ASSERT(!name.empty(), "create texture called with empty name");
 
 	Image img;
+	LOG("Loading texture '%s' from file '%s'", name.c_str(), filename.c_str());
 	img.loadImage(filename);
 	
 	if((img.sizeX == 0) || (img.sizeY == 0))
@@ -94,7 +95,7 @@ unsigned sa::TextureHandler::createTexture(const std::string& name, const std::s
 		return 0;
 	}
 	
-	LOG("Loading %dx%d texture '%s' from file '%s'", static_cast<int>(img.sizeX), static_cast<int>(img.sizeY), name.c_str(), filename.c_str());
+	LOG("Creating %dx%d texture '%s'", static_cast<int>(img.sizeX), static_cast<int>(img.sizeY), name.c_str());
 	return createTexture(name, img);
 }
 
