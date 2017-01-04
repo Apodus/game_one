@@ -30,6 +30,9 @@
     <ClCompile Include="src\worldmap\ProvinceGraph.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\session\game\game.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\session\game\game.hpp">

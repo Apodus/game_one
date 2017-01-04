@@ -94,6 +94,7 @@
     <ClCompile Include="src\logic\ShapePrototype.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\session\application\session.cpp" />
+    <ClCompile Include="src\session\game\game.cpp" />
     <ClCompile Include="src\worldmap\ProvinceGraph.cpp" />
   </ItemGroup>
   <ItemGroup>
