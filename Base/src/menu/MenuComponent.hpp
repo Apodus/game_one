@@ -12,56 +12,56 @@
 #include <vector>
 
 namespace sa {
-  class MeshRenderer;
+	class MeshRenderer;
 
-  class MenuComponent {
+	class MenuComponent {
 
-  protected:
-    MenuComponent* m_pParent;
-    std::shared_ptr<UserIO> m_pUserIO;
-    std::shared_ptr<Window> m_pWindow;
+	protected:
+		MenuComponent* m_pParent;
+		std::shared_ptr<UserIO> m_pUserIO;
+		std::shared_ptr<Window> m_pWindow;
 
-    std::string m_name;
-    bool m_focus;
+		std::string m_name;
+		bool m_focus;
 
-    std::vector<std::shared_ptr<MenuComponent>> m_children;
+		std::vector<std::shared_ptr<MenuComponent>> m_children;
 
-  protected:
-    sa::vec3<float> m_currentPosition;
-    sa::vec3<float> m_worldPosition;
-    sa::vec3<float> m_targetPosition;
+	protected:
+		sa::vec3<float> m_currentPosition;
+		sa::vec3<float> m_worldPosition;
+		std::function<sa::vec3<float>()> m_targetPosition;
 
-    sa::vec3<float> m_currentScale;
-    sa::vec3<float> m_worldScale;
-    sa::vec3<float> m_targetScale;
+		sa::vec3<float> m_currentScale;
+		sa::vec3<float> m_worldScale;
+		sa::vec3<float> m_targetScale;
 
-    sa::vec3<float> m_defaultPosition;
-    sa::vec3<float> m_defaultScale;
+		std::function<sa::vec3<float>()> m_defaultPosition;
+		sa::vec3<float> m_defaultScale;
 
-  private:
-    void updatePosition() {
-      if(m_pParent == nullptr) {
-        m_worldPosition = m_currentPosition;
-      }
-      else {
+	private:
+		void updatePosition() {
+			if (m_pParent == nullptr) {
+				m_worldPosition = m_currentPosition;
+			}
+			else {
 				m_worldPosition = m_pParent->getPosition() + m_currentPosition * m_pParent->getScale();
-      }
-    }
+			}
+		}
 
-    void updateScale() {
-      if(m_pParent == nullptr) {
-        m_worldScale = m_currentScale;
-      }
-      else {
-        m_worldScale = m_pParent->getScale() * m_currentScale;
-      }
-    }
+		void updateScale() {
+			if (m_pParent == nullptr) {
+				m_worldScale = m_currentScale;
+			}
+			else {
+				m_worldScale = m_pParent->getScale() * m_currentScale;
+			}
+		}
 
-    virtual void childComponentCall(const std::string& who, const std::string& what, int value = 0) = 0;
-    virtual void draw(std::shared_ptr<sa::Graphics> graphics) const = 0;
-    virtual void update(float dt) = 0;
+		virtual void childComponentCall(const std::string& who, const std::string& what, int value = 0) = 0;
+		virtual void draw(std::shared_ptr<sa::Graphics> graphics) const = 0;
+		virtual void update(float dt) = 0;
 
-  public:
+	public:
 		enum PositionAlign
 		{
 			LEFT = 1,
@@ -73,55 +73,88 @@ namespace sa {
 		// defaults to middle x middle
 		int positionAlign = 0;
 
-    MenuComponent(std::shared_ptr<Window> window, std::shared_ptr<UserIO> input, const std::string& name, const sa::vec3<float>& position, const sa::vec3<float>& scale) {
-      this->m_pParent = nullptr;
-      this->m_pUserIO = input;
-      this->m_pWindow = window;
-      this->m_name = name;
+		MenuComponent(
+			std::shared_ptr<Window> window,
+			std::shared_ptr<UserIO> input,
+			const std::string& name,
+			const sa::vec3<float>& position,
+			const sa::vec3<float>& scale
+		) {
+			this->m_pParent = nullptr;
+			this->m_pUserIO = input;
+			this->m_pWindow = window;
+			this->m_name = name;
 
-      m_currentScale = scale;
-      m_targetScale = scale;
-      m_defaultScale = scale;
+			m_currentScale = scale;
+			m_targetScale = scale;
+			m_defaultScale = scale;
 
-      m_currentPosition = position;
-      m_targetPosition = position;
-      m_defaultPosition = position;
+			m_currentPosition = position;
+			m_targetPosition = [position]() { return position; };
+			m_defaultPosition = [position]() { return position; };
 
-      m_focus = true;
-    }
+			m_focus = true;
+		}
 
-    MenuComponent(MenuComponent* parent, const std::string& name, const sa::vec3<float>& position, const sa::vec3<float>& scale) {
-      this->m_pParent = parent;
-      this->m_pUserIO = parent->m_pUserIO;
-      this->m_pWindow = parent->m_pWindow;
-      this->m_name = name;
+		MenuComponent(
+			MenuComponent* parent,
+			const std::string& name,
+			std::function<sa::vec3<float>()> position,
+			const sa::vec3<float>& scale
+		) {
+			this->m_pParent = parent;
+			this->m_pUserIO = parent->m_pUserIO;
+			this->m_pWindow = parent->m_pWindow;
+			this->m_name = name;
 
-      m_currentScale = scale;
-      m_targetScale = scale;
-      m_defaultScale = scale;
+			m_currentScale = scale;
+			m_targetScale = scale;
+			m_defaultScale = scale;
 
-      m_currentPosition = position;
-      m_targetPosition = position;
-      m_defaultPosition = position;
+			m_currentPosition = position();
+			m_targetPosition = position;
+			m_defaultPosition = position;
 
-      m_focus = true;
-    }
+			m_focus = true;
+		}
 
-    virtual ~MenuComponent() {
-    }
+		MenuComponent(
+			MenuComponent* parent,
+			const std::string& name,
+			const sa::vec3<float>& position,
+			const sa::vec3<float>& scale
+		) {
+			this->m_pParent = parent;
+			this->m_pUserIO = parent->m_pUserIO;
+			this->m_pWindow = parent->m_pWindow;
+			this->m_name = name;
 
-    void addChild(std::shared_ptr<MenuComponent> child) {
-      m_children.push_back(child);
-    }
+			m_currentScale = scale;
+			m_targetScale = scale;
+			m_defaultScale = scale;
 
-    void tick(float dt) {
+			m_currentPosition = position;
+			m_targetPosition = [position]() { return position; };
+			m_defaultPosition = [position]() { return position; };
+
+			m_focus = true;
+		}
+
+		virtual ~MenuComponent() {
+		}
+
+		void addChild(std::shared_ptr<MenuComponent> child) {
+			m_children.push_back(child);
+		}
+
+		void tick(float dt) {
 			float inverseAR = 1.0f / m_pWindow->getAspectRatio();
 			vec3<float> aspectFix = vec3<float>(1, inverseAR, 1);
-      m_currentPosition += (m_targetPosition * aspectFix - m_currentPosition) * dt * 2;
-      m_currentScale += (m_targetScale - m_currentScale) * dt * 2;
+			m_currentPosition += (m_targetPosition() * aspectFix - m_currentPosition) * dt * 2;
+			m_currentScale += (m_targetScale - m_currentScale) * dt * 2;
 
-      updatePosition();
-      updateScale();
+			updatePosition();
+			updateScale();
 
 			if (positionAlign & LEFT)
 				m_worldPosition.x += m_worldScale.x * 0.5f;
@@ -132,74 +165,74 @@ namespace sa {
 			if (positionAlign & BOTTOM)
 				m_worldPosition.y += m_worldScale.y * 0.5f;
 
-      update(dt);
+			update(dt);
 
-      if(inScreen()) {
-        for(auto child : m_children) {
-          child->tick(dt);
-        }
-      }
-    }
+			if (inScreen()) {
+				for (auto child : m_children) {
+					child->tick(dt);
+				}
+			}
+		}
 
-    void visualise(std::shared_ptr<Graphics> graphics) const {
-      if(inScreen()) {
-        draw(graphics);
-        for(auto child : m_children) {
-          child->visualise(graphics);
-        }
-      }
-    }
+		void visualise(std::shared_ptr<Graphics> graphics) const {
+			if (inScreen()) {
+				draw(graphics);
+				for (auto child : m_children) {
+					child->visualise(graphics);
+				}
+			}
+		}
 
-    void callParent(const std::string& eventName, int value = 0) const {
-      getParent()->childComponentCall(m_name, eventName, value);
-    }
+		void callParent(const std::string& eventName, int value = 0) const {
+			getParent()->childComponentCall(m_name, eventName, value);
+		}
 
-    bool hasFocus() const {
-      return m_focus;
-    }
+		bool hasFocus() const {
+			return m_focus;
+		}
 
-    // only true for axis aligned rectangles!!
-    // If you need more accurate checks, implement them for your component.
-    bool inComponent(float x, float y) const {
-      float halfWidth = m_worldScale.x * 0.5f;
-      float halfHeight = m_worldScale.y * 0.5f;
-      bool x_inComponent = !(x < m_worldPosition.x - halfWidth || x > m_worldPosition.x + halfWidth);
-      bool y_inComponent = !(y < m_worldPosition.y - halfHeight || y > m_worldPosition.y + halfHeight);
-      return x_inComponent && y_inComponent;
-    }
+		// only true for axis aligned rectangles!!
+		// If you need more accurate checks, implement them for your component.
+		bool inComponent(float x, float y) const {
+			float halfWidth = m_worldScale.x * 0.5f;
+			float halfHeight = m_worldScale.y * 0.5f;
+			bool x_inComponent = !(x < m_worldPosition.x - halfWidth || x > m_worldPosition.x + halfWidth);
+			bool y_inComponent = !(y < m_worldPosition.y - halfHeight || y > m_worldPosition.y + halfHeight);
+			return x_inComponent && y_inComponent;
+		}
 
-    bool isMouseOver() const {
-      sa::vec3<float> mousePos;
-      m_pUserIO->getCursorPosition(mousePos);
-      mousePos.y /= m_pWindow->getAspectRatio();
-      return inComponent(mousePos.x, mousePos.y);
-    }
+		bool isMouseOver() const {
+			sa::vec3<float> mousePos;
+			m_pUserIO->getCursorPosition(mousePos);
+			mousePos.y /= m_pWindow->getAspectRatio();
+			return inComponent(mousePos.x, mousePos.y);
+		}
 
-    bool inScreen() const {
-      bool out = false;
+		bool inScreen() const {
+			bool out = false;
 			float inverseAR = 1.0f / m_pWindow->getAspectRatio();
-      out |= m_worldPosition.x + m_worldScale.x * 0.5f < -1.0f;
-      out |= m_worldPosition.x - m_worldScale.x * 0.5f > +1.0f;
-      out |= (m_worldPosition.y + m_worldScale.y * 0.5f) < -1.0f * inverseAR;
-      out |= (m_worldPosition.y - m_worldScale.y * 0.5f) > +1.0f * inverseAR;
-      return !out;
-    }
+			out |= m_worldPosition.x + m_worldScale.x * 0.5f < -1.0f;
+			out |= m_worldPosition.x - m_worldScale.x * 0.5f > +1.0f;
+			out |= (m_worldPosition.y + m_worldScale.y * 0.5f) < -1.0f * inverseAR;
+			out |= (m_worldPosition.y - m_worldScale.y * 0.5f) > +1.0f * inverseAR;
+			return !out;
+		}
 
-    MenuComponent* getParent() const {
-      return m_pParent;
-    }
+		MenuComponent* getParent() const {
+			return m_pParent;
+		}
 
-    const sa::vec3<float>& getRelativePosition() const {
-      return m_currentPosition;
-    }
+		const sa::vec3<float>& getRelativePosition() const {
+			return m_currentPosition;
+		}
 
-    const sa::vec3<float>& getPosition() const {
-      return m_worldPosition;
-    }
+		const sa::vec3<float>& getPosition() const {
+			return m_worldPosition;
+		}
 
-    const sa::vec3<float>& getScale() const {
-      return m_worldScale;
-    }
+		const sa::vec3<float>& getScale() const {
+			return m_worldScale;
+		}
 
 		void setPosition(const sa::vec3<float>& pos) {
 			m_worldPosition = pos;
@@ -209,34 +242,34 @@ namespace sa {
 			m_worldScale = scale;
 		}
 
-    void show() {
-      m_focus = true;
-      m_targetPosition = m_defaultPosition;
-      m_targetScale = m_defaultScale;
-    }
+		void show() {
+			m_focus = true;
+			m_targetPosition = m_defaultPosition;
+			m_targetScale = m_defaultScale;
+		}
 
-    void hide() {
-      m_focus = false;
-      m_targetPosition.x = -3.0f;
-      m_targetScale = sa::vec3<float>(0, 0, 0);
-    }
+		void hide() {
+			m_focus = false;
+			m_targetPosition = [this]() { auto value = m_defaultPosition(); value.x = -3.0f; return value; };
+			m_targetScale = sa::vec3<float>(0, 0, 0);
+		}
 
 		sa::vec3<float>& getTargetScale() {
 			return m_targetScale;
 		}
 
-		sa::vec3<float>& getTargetPosition() {
-			return m_targetPosition;
+		sa::vec3<float> getTargetPosition() {
+			return m_targetPosition();
 		}
 
-    void setTargetPosition(const sa::vec3<float>& pos) {
-      m_targetPosition = pos;
-    }
+		void setTargetPosition(std::function<sa::vec3<float>()> posFun) {
+			m_targetPosition = std::move(posFun);
+		}
 
-    void setTargetScale(const sa::vec3<float>& scale) {
-      m_targetScale = scale;
-    }
+		void setTargetScale(const sa::vec3<float>& scale) {
+			m_targetScale = scale;
+		}
 
-  };
+	};
 
 }

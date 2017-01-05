@@ -75,7 +75,7 @@ public:
 	}
 
 	virtual void setTargetInternal() override {
-		this->setTargetPosition(sa::vec3<float>(posx + getTargetScale().x / 2.0f, targetY, 0));
+		this->setTargetPosition([=]() {return sa::vec3<float>(posx + getTargetScale().x / 2.0f, targetY, 0); });
 	}
 
 	virtual bool gameContentInScreen() const {
@@ -203,7 +203,7 @@ public:
     }
 
 	virtual void setTargetInternal() override {
-		this->setTargetPosition(sa::vec3<float>(posx + getTargetScale().x / 2.0f, targetY, 0));
+		this->setTargetPosition([=]() {return sa::vec3<float>(posx + getTargetScale().x / 2.0f, targetY, 0); });
 	}
 
 	virtual bool gameContentInScreen() const {
