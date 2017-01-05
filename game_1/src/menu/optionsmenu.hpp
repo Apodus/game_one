@@ -14,7 +14,7 @@
 namespace sa {
 
 class OptionsMenu : public MenuComponent {
-
+	/*
 	void addMenuButton(const std::string& name, const std::string& texture, const std::string& text) {
 		addChild(
 			std::shared_ptr<MenuComponent>(new MenuButton(
@@ -43,11 +43,11 @@ class OptionsMenu : public MenuComponent {
 			))
 		);
 	}
-
+*/
 public:
 	OptionsMenu(MenuComponent* parent, const std::string& name, const vec3<float>& position, const vec3<float>& scale) : MenuComponent(parent, name, position, scale) {
-		addMenuSlider("TestSlider", "ButtonBase");
-		addMenuButton("Back", "ButtonBase", sa::localization::get("Back"));
+		// addMenuSlider("TestSlider", "ButtonBase");
+		// addMenuButton("Back", "ButtonBase", sa::localization::get("Back"));
 	}
 
 private:

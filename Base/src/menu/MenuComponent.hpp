@@ -10,6 +10,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <functional>
 
 namespace sa {
 	class MeshRenderer;
@@ -64,6 +65,7 @@ namespace sa {
 	public:
 		enum PositionAlign
 		{
+			NONE = 0,
 			LEFT = 1,
 			RIGHT = 2,
 			TOP = 4,
@@ -254,6 +256,24 @@ namespace sa {
 			m_targetScale = sa::vec3<float>(0, 0, 0);
 		}
 
+		sa::vec3<float> getExteriorPosition(PositionAlign positionAlign) {
+			sa::vec3<float> result = m_worldPosition;
+			float aspectRatio = m_pWindow->getAspectRatio();
+			if (positionAlign & LEFT)
+				result.x -= m_worldScale.x * 0.5f;
+			if (positionAlign & RIGHT)
+				result.x += m_worldScale.x * 0.5f;
+			if (positionAlign & TOP)
+				result.y += m_worldScale.y * 0.5f;
+			if (positionAlign & BOTTOM)
+				result.y -= m_worldScale.y * 0.5f;
+			
+			// since aspect ratio is fixed automatically in destination,
+			// we have to break this final value with aspect ratio.
+			result.y *= aspectRatio;
+			return result;
+		}
+
 		sa::vec3<float>& getTargetScale() {
 			return m_targetScale;
 		}
@@ -264,6 +284,7 @@ namespace sa {
 
 		void setTargetPosition(std::function<sa::vec3<float>()> posFun) {
 			m_targetPosition = std::move(posFun);
+			m_defaultPosition = m_targetPosition;
 		}
 
 		void setTargetScale(const sa::vec3<float>& scale) {
@@ -272,4 +293,8 @@ namespace sa {
 
 	};
 
+}
+
+inline sa::MenuComponent::PositionAlign operator | (sa::MenuComponent::PositionAlign a, sa::MenuComponent::PositionAlign b) {
+	return static_cast<sa::MenuComponent::PositionAlign>(static_cast<int>(a) | static_cast<int>(b));
 }

@@ -35,22 +35,53 @@ public:
 	MenuButton(
 		MenuComponent* parent,
 		const std::string& name,
+		std::function<vec3<float>()> position,
+		const vec3<float>& scale,
+		const std::string& texture,
+		const std::string& text,
+		PositionAlign positionAlign = NONE,
+		TextRenderer::Align textAlign = TextRenderer::CENTER,
+		const vec4<float>& color = Color::WHITE,
+		const vec4<float>& textColor = Color::GOLDEN
+	) : MenuComponent(parent, name, position, scale)
+		, m_frame(this, "BG", texture)
+	{
+		initialize(texture, text, color, textColor, positionAlign, textAlign);
+	}
+
+	MenuButton(
+		MenuComponent* parent,
+		const std::string& name,
 		const vec3<float>& position,
 		const vec3<float>& scale,
 		const std::string& texture,
 		const std::string& text,
+		PositionAlign positionAlign = NONE,
+		TextRenderer::Align textAlign = TextRenderer::CENTER,
 		const vec4<float>& color = Color::WHITE,
-		const vec4<float>& textColor = Color::GOLDEN,
-		const TextRenderer::Align& align = TextRenderer::CENTER
+		const vec4<float>& textColor = Color::GOLDEN
 	) : MenuComponent(parent, name, position, scale)
 		, m_frame(this, "BG", texture)
+	{
+		initialize(texture, text, color, textColor, positionAlign, textAlign);
+	}
+
+	void initialize(
+		const std::string& texture,
+		const std::string& text,
+		const vec4<float>& color,
+		const vec4<float>& textColor,
+		PositionAlign positionAlign,
+		TextRenderer::Align align
+	)
 	{
 		this->m_texture = texture;
 		this->m_text = text;
 		this->m_color = color;
 		this->m_textColor = textColor;
 		this->m_align = align;
-		
+		this->positionAlign = positionAlign;
+
 		vec4<float> uvLimits = sa::TextureHandler::getSingleton().textureLimits(texture, vec4<float>(0.5f, 0.5f, 1.0f, 1.0f));
 		m_mesh = PolygonTesselator<vec3<float>>().tesselate(Shape::makeBox(1.f), uvLimits);
 		m_mesh->build();

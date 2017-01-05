@@ -54,7 +54,8 @@ public:
 class GameOption : public sa::MenuButton, public GameContent {
 	std::string targetScript;
 public:
-	GameOption(sa::MenuComponent* parent, const std::string& text, const std::string& targetScript) : sa::MenuButton(parent, targetScript, sa::vec3<float>(0.0f, -1.0f, 0.0f), sa::vec3<float>(1, 0.1f, 1), "ButtonBase", text, Color::WHITE, Color::GOLDEN, sa::TextRenderer::Align::CENTER) {
+	GameOption(sa::MenuComponent* parent, const std::string& text, const std::string& targetScript)
+		: sa::MenuButton(parent, targetScript, sa::vec3<float>(0.0f, -1.0f, 0.0f), sa::vec3<float>(1, 0.1f, 1), "ButtonBase", text, sa::MenuComponent::PositionAlign::NONE, sa::TextRenderer::Align::CENTER, Color::WHITE, Color::GOLDEN) {
 		this->targetScript = targetScript;
 		targetY = -1;
 		height = 0.1f;

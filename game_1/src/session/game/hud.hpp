@@ -29,10 +29,33 @@ public:
 			sa::vec3<float>(0.99f, -0.99f, 0),
 			sa::vec3<float>(0.4f, 0.15f, 0),
 			"ButtonBase",
-			"Battle Test"
+			"Battle Test",
+			sa::MenuComponent::BOTTOM | sa::MenuComponent::RIGHT
 		);
-		button->positionAlign = sa::MenuComponent::BOTTOM | sa::MenuComponent::RIGHT;
+
+		auto demoButton = std::make_shared<sa::MenuButton>(
+			this,
+			"PositionFunctionDemo",
+			[button]() { return button->getExteriorPosition(sa::MenuComponent::TOP | sa::MenuComponent::RIGHT); },
+			sa::vec3<float>(0.4f, 0.15f, 0),
+			"ButtonBase",
+			"^gH^ye^bl^wl^co ^w:)",
+			sa::MenuComponent::BOTTOM | sa::MenuComponent::RIGHT
+		);
+
+		auto demoButton2 = std::make_shared<sa::MenuButton>(
+			this,
+			"PositionFunctionDemo",
+			[demoButton]() { return demoButton->getExteriorPosition(sa::MenuComponent::TOP | sa::MenuComponent::RIGHT); },
+			sa::vec3<float>(0.4f, 0.15f, 0),
+			"ButtonBase",
+			"^gH^ye^bl^wl^co ^w:)",
+			sa::MenuComponent::BOTTOM | sa::MenuComponent::RIGHT
+		);
+
 		addChild(button);
+		addChild(demoButton);
+		addChild(demoButton2);
 	}
 private:
 

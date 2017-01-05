@@ -23,6 +23,8 @@ class MainMenu : public MenuComponent {
 				vec3<float>(0.75f, 0.10f, 1),
 				texture,
 				text,
+				NONE,
+				TextRenderer::Align::CENTER,
 				Color::WHITE,
 				Color::GOLDEN
 			)
