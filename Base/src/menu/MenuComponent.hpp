@@ -44,8 +44,7 @@ namespace sa {
         m_worldPosition = m_currentPosition;
       }
       else {
-        m_worldPosition.x = m_pParent->getPosition().x + m_currentPosition.x * m_pParent->getScale().x;
-        m_worldPosition.y = m_pParent->getPosition().y + m_currentPosition.y * m_pParent->getScale().y;
+				m_worldPosition = m_pParent->getPosition() + m_currentPosition * m_pParent->getScale();
       }
     }
 
@@ -63,6 +62,16 @@ namespace sa {
     virtual void update(float dt) = 0;
 
   public:
+		enum PositionAlign
+		{
+			LEFT = 1,
+			RIGHT = 2,
+			TOP = 4,
+			BOTTOM = 8
+		};
+
+		// defaults to middle x middle
+		int positionAlign = 0;
 
     MenuComponent(std::shared_ptr<Window> window, std::shared_ptr<UserIO> input, const std::string& name, const sa::vec3<float>& position, const sa::vec3<float>& scale) {
       this->m_pParent = nullptr;
@@ -106,11 +115,23 @@ namespace sa {
     }
 
     void tick(float dt) {
-      m_currentPosition += (m_targetPosition - m_currentPosition) * dt * 2;
+			float inverseAR = 1.0f / m_pWindow->getAspectRatio();
+			vec3<float> aspectFix = vec3<float>(1, inverseAR, 1);
+      m_currentPosition += (m_targetPosition * aspectFix - m_currentPosition) * dt * 2;
       m_currentScale += (m_targetScale - m_currentScale) * dt * 2;
 
       updatePosition();
       updateScale();
+
+			if (positionAlign & LEFT)
+				m_worldPosition.x += m_worldScale.x * 0.5f;
+			if (positionAlign & RIGHT)
+				m_worldPosition.x -= m_worldScale.x * 0.5f;
+			if (positionAlign & TOP)
+				m_worldPosition.y -= m_worldScale.y * 0.5f * inverseAR;
+			if (positionAlign & BOTTOM)
+				m_worldPosition.y += m_worldScale.y * 0.5f * inverseAR;
+
       update(dt);
 
       if(inScreen()) {
@@ -150,7 +171,7 @@ namespace sa {
     bool isMouseOver() const {
       sa::vec3<float> mousePos;
       m_pUserIO->getCursorPosition(mousePos);
-      mousePos.y /= m_pWindow->getAspectRatio();
+      // mousePos.y /= m_pWindow->getAspectRatio();
       return inComponent(mousePos.x, mousePos.y);
     }
 
@@ -159,8 +180,8 @@ namespace sa {
       float aspectRatio = m_pWindow->getAspectRatio();
       out |= m_worldPosition.x + m_worldScale.x * 0.5f < -1.0f;
       out |= m_worldPosition.x - m_worldScale.x * 0.5f > +1.0f;
-      out |= (m_worldPosition.y + m_worldScale.y * 0.5f) * aspectRatio < -1.0f;
-      out |= (m_worldPosition.y - m_worldScale.y * 0.5f) * aspectRatio > +1.0f;
+      out |= (m_worldPosition.y + m_worldScale.y * 0.5f) < -1.0f;
+      out |= (m_worldPosition.y - m_worldScale.y * 0.5f) > +1.0f;
       return !out;
     }
 

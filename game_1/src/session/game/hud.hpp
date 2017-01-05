@@ -23,16 +23,16 @@ public:
 	) : MenuComponent(parent, name, position, scale)
 		, game(game)
 	{
-		addChild(
-			std::make_shared<sa::MenuButton>(
-				this,
-				"RunBattleTest",
-				sa::vec3<float>(0.8f, 0, 0),
-				sa::vec3<float>(0.2f, 0.075f, 0),
-				"ButtonBase",
-				"Battle Test"
-			)
+		auto button = std::make_shared<sa::MenuButton>(
+			this,
+			"RunBattleTest",
+			sa::vec3<float>(0.99f, -0.99f * m_pWindow->getAspectRatio(), 0),
+			sa::vec3<float>(0.4f, 0.15f, 0),
+			"ButtonBase",
+			"Battle Test"
 		);
+		button->positionAlign = sa::MenuComponent::BOTTOM | sa::MenuComponent::RIGHT;
+		addChild(button);
 	}
 private:
 
