@@ -5,6 +5,7 @@
 #include "util/vec3.hpp"
 #include "input/userio.hpp"
 #include "graphics/window/window.hpp"
+#include "graphics/graphics.hpp"
 
 #include <memory>
 #include <string>
@@ -58,7 +59,7 @@ namespace sa {
     }
 
     virtual void childComponentCall(const std::string& who, const std::string& what, int value = 0) = 0;
-    virtual void draw(std::shared_ptr<Graphics> graphics) const = 0;
+    virtual void draw(std::shared_ptr<sa::Graphics> graphics) const = 0;
     virtual void update(float dt) = 0;
 
   public:

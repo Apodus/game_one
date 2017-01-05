@@ -32,9 +32,18 @@ class MenuButton : public MenuComponent {
 	TextRenderer::Align m_align;
 
 public:
-	MenuButton(MenuComponent* parent, const std::string& name, const vec3<float>& position, const vec3<float>& scale, const std::string& texture, const std::string& text, const vec4<float>& color = Color::WHITE, const vec4<float>& textColor = Color::GOLDEN, const TextRenderer::Align& align = TextRenderer::CENTER) :
-		MenuComponent(parent, name, position, scale),
-		m_frame(this, "BG", texture)
+	MenuButton(
+		MenuComponent* parent,
+		const std::string& name,
+		const vec3<float>& position,
+		const vec3<float>& scale,
+		const std::string& texture,
+		const std::string& text,
+		const vec4<float>& color = Color::WHITE,
+		const vec4<float>& textColor = Color::GOLDEN,
+		const TextRenderer::Align& align = TextRenderer::CENTER
+	) : MenuComponent(parent, name, position, scale)
+		, m_frame(this, "BG", texture)
 	{
 		this->m_texture = texture;
 		this->m_text = text;

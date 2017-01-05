@@ -118,6 +118,12 @@ public:
 
 	void tick(long long timeMs);
 
+	void debugMenuRequestBattle()
+	{
+		// Debug battle init here
+		LOG("Debug battle button was clicked :)");
+	}
+
 	void update(std::shared_ptr<sa::UserIO> userio, float aspectRatio)
 	{
 		this->aspectRatio = aspectRatio;
@@ -177,7 +183,8 @@ private:
 
 	std::atomic<size_t> nextUnitId; // starts at 1, zero is reserved for invalid id.
 	std::shared_ptr<sa::MenuRoot> menuRootNode;
-	Hud hud;
+	std::shared_ptr<Hud> hud;
+	
 	std::unordered_map<std::string, TroopReference> troopReferences;
 	std::vector<Faction> players;
 	ProvinceGraph graph;

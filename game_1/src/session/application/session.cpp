@@ -56,12 +56,16 @@ bool Session::Application::Session::tick() {
 		float time_alpha = fps_logic.timeSince(Timer::time_now()) / fps_logic.frameLength();
 
 		pRenderer->clearScreen();
+
+		// todo: make use of time_alpha?
+		pCamera->setProjection(0.02f, 200.0f, 1);
+		pCamera->setPosition(sa::vec3<float>(0, 0, 1));
+		pRenderer->cameraToGPU();
+		menuRoot->visualise(pGraphics);
+
 		pCamera->setProjection(0.02f, 200.0f, window->getAspectRatio());
 		pCamera->setPosition(sa::vec3<float>(0, 0, 20));
 		pRenderer->cameraToGPU();
-
-		// todo: make use of time_alpha?
-		menuRoot->visualise(pGraphics);
 		game->draw(pGraphics);
 
 		window->swap_buffers();

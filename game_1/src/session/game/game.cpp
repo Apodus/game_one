@@ -8,8 +8,10 @@ Game::Game(
 	std::shared_ptr<sa::UserIO>)
 	: nextUnitId(1)
 	, menuRootNode(menuRootNode)
-	, hud(menuRootNode.get(), "GameHud", sa::vec3<float>(), sa::vec3<float>(1, 1, 1))
 {
+	hud = std::make_shared<Hud>(*this, menuRootNode.get(), "GameHud", sa::vec3<float>(), sa::vec3<float>(1, 1, 1));
+	menuRootNode->addChild(hud);
+
 	TroopReference militia;
 	militia.accuracy = 10;
 	militia.armor = 2;
@@ -59,7 +61,12 @@ Game::Game(
 	troopReferences.insert(std::make_pair(marksman.name, marksman));
 	troopReferences.insert(std::make_pair(rider.name, rider));
 
+#ifdef _DEBUG
+	graph.random(5);
+#else
 	graph.random();
+#endif
+
 	auto& provinces = graph.provinces();
 
 	for (auto& province : provinces)
