@@ -118,12 +118,6 @@ public:
 
 	void tick(long long timeMs);
 
-	void debugMenuRequestBattle()
-	{
-		// Debug battle init here
-		LOG("Debug battle button was clicked :)");
-	}
-
 	void update(std::shared_ptr<sa::UserIO> userio, float aspectRatio)
 	{
 		this->aspectRatio = aspectRatio;
