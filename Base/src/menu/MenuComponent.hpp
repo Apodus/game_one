@@ -128,9 +128,9 @@ namespace sa {
 			if (positionAlign & RIGHT)
 				m_worldPosition.x -= m_worldScale.x * 0.5f;
 			if (positionAlign & TOP)
-				m_worldPosition.y -= m_worldScale.y * 0.5f * inverseAR;
+				m_worldPosition.y -= m_worldScale.y * 0.5f;
 			if (positionAlign & BOTTOM)
-				m_worldPosition.y += m_worldScale.y * 0.5f * inverseAR;
+				m_worldPosition.y += m_worldScale.y * 0.5f;
 
       update(dt);
 
@@ -171,17 +171,17 @@ namespace sa {
     bool isMouseOver() const {
       sa::vec3<float> mousePos;
       m_pUserIO->getCursorPosition(mousePos);
-      // mousePos.y /= m_pWindow->getAspectRatio();
+      mousePos.y /= m_pWindow->getAspectRatio();
       return inComponent(mousePos.x, mousePos.y);
     }
 
     bool inScreen() const {
       bool out = false;
-      float aspectRatio = m_pWindow->getAspectRatio();
+			float inverseAR = 1.0f / m_pWindow->getAspectRatio();
       out |= m_worldPosition.x + m_worldScale.x * 0.5f < -1.0f;
       out |= m_worldPosition.x - m_worldScale.x * 0.5f > +1.0f;
-      out |= (m_worldPosition.y + m_worldScale.y * 0.5f) < -1.0f;
-      out |= (m_worldPosition.y - m_worldScale.y * 0.5f) > +1.0f;
+      out |= (m_worldPosition.y + m_worldScale.y * 0.5f) < -1.0f * inverseAR;
+      out |= (m_worldPosition.y - m_worldScale.y * 0.5f) > +1.0f * inverseAR;
       return !out;
     }
 
@@ -201,12 +201,13 @@ namespace sa {
       return m_worldScale;
     }
 
-	void setPosition(const sa::vec3<float>& pos) {
-		m_worldPosition = pos;
-	}
-	void setScale(const sa::vec3<float>& scale) {
-		m_worldScale = scale;
-	}
+		void setPosition(const sa::vec3<float>& pos) {
+			m_worldPosition = pos;
+		}
+
+		void setScale(const sa::vec3<float>& scale) {
+			m_worldScale = scale;
+		}
 
     void show() {
       m_focus = true;
@@ -220,13 +221,13 @@ namespace sa {
       m_targetScale = sa::vec3<float>(0, 0, 0);
     }
 
-	sa::vec3<float>& getTargetScale() {
-		return m_targetScale;
-	}
+		sa::vec3<float>& getTargetScale() {
+			return m_targetScale;
+		}
 
-	sa::vec3<float>& getTargetPosition() {
-		return m_targetPosition;
-	}
+		sa::vec3<float>& getTargetPosition() {
+			return m_targetPosition;
+		}
 
     void setTargetPosition(const sa::vec3<float>& pos) {
       m_targetPosition = pos;

@@ -58,7 +58,7 @@ bool Session::Application::Session::tick() {
 		pRenderer->clearScreen();
 
 		// todo: make use of time_alpha?
-		pCamera->setProjection(0.02f, 200.0f, 1);
+		pCamera->setProjection(0.02f, 200.0f, window->getAspectRatio());
 		pCamera->setPosition(sa::vec3<float>(0, 0, 1));
 		pRenderer->cameraToGPU();
 		menuRoot->visualise(pGraphics);
