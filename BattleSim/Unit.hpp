@@ -27,6 +27,7 @@ namespace bs
 		Vec vel;
 		Vec acc;
 		Id id;
+		U8 team;
 		U32 updatePriority = 0;
 
 		BoundingBox bb;

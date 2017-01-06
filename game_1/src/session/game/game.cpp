@@ -174,7 +174,7 @@ void Game::drawBattle(std::shared_ptr<sa::Graphics> pGraphics)
 		model.rotate(0, 0, 0, 1);
 		model.scale(size, size, 1);
 
-		pGraphics->m_pRenderer->drawRectangle(model, "Hero");
+		pGraphics->m_pRenderer->drawRectangle(model, "Hero", unit.team == 1 ? Color::RED : Color::BLUE);
 	}
 }
 
