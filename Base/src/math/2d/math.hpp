@@ -25,6 +25,14 @@ namespace math {
 		enum { value = 1 };
 	};
 
+	// xorshift32 - feed the result as the next parameter to get next random number.
+	inline uint32_t rand(uint32_t x) {
+		x ^= x << 13;
+		x ^= x >> 17;
+		x ^= x << 5;
+		return x;
+	}
+
 	inline float sin(const float& f) {
 		return ::sin(f);
 	}
