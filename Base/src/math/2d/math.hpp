@@ -26,11 +26,21 @@ namespace math {
 	};
 
 	// xorshift32 - feed the result as the next parameter to get next random number.
+	//              must start with nonzero value.
 	inline uint32_t rand(uint32_t x) {
 		x ^= x << 13;
 		x ^= x >> 17;
 		x ^= x << 5;
 		return x;
+	}
+
+	// xorshift64 - feed the result as the next parameter to get next random number.
+	//              must start with nonzero value.
+	uint64_t rand(uint64_t x) {
+		x ^= x >> 12; // a
+		x ^= x << 25; // b
+		x ^= x >> 27; // c
+		return x * 0x2545F4914F6CDD1D;
 	}
 
 	inline float sin(const float& f) {
