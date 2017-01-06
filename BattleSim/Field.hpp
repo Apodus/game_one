@@ -27,7 +27,7 @@ namespace bs
 
 		BATTLESIM_API const Frame& GetFrame()
 		{
-			if (myFrames.size() > 1)
+			while (myFrames.size() > 1)
 			{
 				myFrames.pop_front();
 			}
