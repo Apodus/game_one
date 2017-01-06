@@ -77,7 +77,6 @@ void bs::Field::Update()
 			newVel.x = (Real(0,1) - unit.vel.x) / Real(2, 1);
 			newVel.y = (Real(0,1) - unit.vel.y) / Real(2, 1);
 			newVel.z = (Real(0, 1));
-
 		}
 
 		if (myLevels[0].IsGridMove(unit, newPos))
@@ -114,44 +113,25 @@ bool bs::Field::CollisionCheck(const Unit& a, const Unit& b, const Vec& endPos, 
 	/* movement vector */
 	Vec N = endPos - b.pos;
 	Real length_N = N.length(); // TODO 2d vec
-	if (length_N <= Real(0, 1))
+
+	Vec C = a.pos - b.pos;
+	C.z = Real(0, 1); /* Ignore Z: used for sphere collision */
+	Real length_C = C.length(); // TODO 2d vec
+
+	if (length_N == Real(0, 1))
 	{
 		// Not moving
 		return false;
 	}
 
-	/*    if ( id == 6 && radii != 0.8f)
+	if (length_C == Real(0,1))
 	{
-	printf("player hit check at %f,%f\n",
-	pos.x, pos.y );
-	printf("Projectile: %f,%f -> %f,%f (rad:%f)\n",
-	info->start.x, info->start.y,
-	info->end.x, info->end.y, radii );
-	} */
-
-	Vec C = a.pos - b.pos;
-	/*C.x = mLocation.x - info->start.x;
-	C.y = mLocation.y - info->start.y;
-	C.z = 0;*/
-	C.z = Real(0, 1); /* Ignore Z: used for sphere collision */
-
-
-	/* N.x = info->end.x - info->start.x;
-	N.y = info->end.y - info->start.y;
-	N.z = info->end.z - info->start.z;*/
-
-	Real length_C = C.length(); // TODO 2d vec
-
-	/* if ( length_C < radii )
-	{
-	printf("Already inside target!\n");
-	info->end = info->start;
-	info->hit_id = id;
-	return;
-	} */
+		// Inside each other, don't consider collision though
+		return false;
+	}
 
 	Real radii = a.radius + b.radius;
-	if (length_N < (length_C - radii))
+	if (length_N + radii < length_C)
 	{
 		return false;
 	}
@@ -161,12 +141,15 @@ bool bs::Field::CollisionCheck(const Unit& a, const Unit& b, const Vec& endPos, 
 	* towards B! If the dot product between the N and C
 	* is less that or equal to 0, A isn't isn't moving towards B
 	*/
-	N.normalize();
-	// vect_normalize3d(&N);
-	C.normalize();
-	// vect_normalize3d(&C);
+	N.x /= length_N;
+	N.y /= length_N;
+	N.z = Real(0, 1);
+	
+	C.x /= length_C;
+	C.y /= length_C;
+	C.z = Real(0,1);
+
 	Real D = C.dotProduct(N);
-	// float D = dot_product2d(&C, &N);
 	if (D <= Real(0, 1))
 	{
 		return false;
@@ -204,77 +187,4 @@ bool bs::Field::CollisionCheck(const Unit& a, const Unit& b, const Vec& endPos, 
 	N.z = N.z*(dist)+b.pos.z;
 	hitPos = N;
 	return true;
-#if 0
-	if (
-#ifdef _DEBUG
-		NULL == bounds ||
-#endif /* _DEBUG */
-		(N.x >= bounds->x_min) &&
-		(N.y >= bounds->y_min) &&
-		(N.x < bounds->x_max) &&
-		(N.x < bounds->x_max))
-	{
-		if (bouncing)
-		{
-			assert(info->source_id != this->id);
-			{
-				if (visitor == info->friendlyTeamId && tagged == PLAYER_ID_UNDEFINED)
-				{
-					if (vect_dist(&info->originalStart, &this->mLocation) < PLAYER_FRIEND_VISIBLE_RADIUS)
-					{
-						// printf("own shooting from close range\n");
-						return;
-					}
-				}
-
-				float speed;
-				if (info->isPartialTick)
-				{
-					speed = vect_dist3d(&info->realEnd, &info->start) / TICK;
-				}
-				else
-				{
-					speed = vect_dist3d(&info->end, &info->start) / TICK;
-				}
-
-#ifdef _DEBUG
-				if (speed <= 20.0f)
-				{
-					printf("SIMERROR: radii: %f speed: %f <= 25.0f\n", radii, speed);
-					PBSimEnv::PBSimVideoGet()->video_record_debug(
-						SimEnv::SimEnvGet()->TimeGet(),
-						(uint16)(100 * (info->start.x - VIDEO_FIELD_OFFSET_X)),
-						(uint16)(100 * (info->start.y - VIDEO_FIELD_OFFSET_Y)),
-						(uint16)(100 * (info->end.x - VIDEO_FIELD_OFFSET_X)),
-						(uint16)(100 * (info->end.y - VIDEO_FIELD_OFFSET_Y)));
-				}
-#endif /* _DEBUG */
-
-				if (speed < BOUNCE_OFF_SPEED_LIMIT)
-				{
-					if ((rand_uint16() % 1001) <=
-						static_cast<long int>(100.0f*(1.0f - (speed / BOUNCE_OFF_SPEED_LIMIT))))
-					{
-						// printf("bounced off\n");
-						/*
-						printf("bounce: %f vect_dist: %f\n", radii, speed );
-						PBSimEnv::PBSimVideoGet()->video_record_debug(
-						SimEnv::SimEnvGet()->TimeGet(),
-						(uint16)(100*(info->start.x-VIDEO_FIELD_OFFSET_X)),
-						(uint16)(100*(info->start.y-VIDEO_FIELD_OFFSET_Y)),
-						(uint16)(100*(info->end.x-VIDEO_FIELD_OFFSET_X)),
-						(uint16)(100*(info->end.y-VIDEO_FIELD_OFFSET_Y)) );*/
-						info->end = N;
-						info->end.z = 0.0f;
-						return;
-					}
-				}
-			}
-		}
-		info->end = N;
-		info->hit_id = id;
-	}
-
-	return;
-#endif
 }

@@ -11,7 +11,7 @@
 
 namespace bs
 {
-	typedef ::FixedPoint<1024 * 64> Real;
+	typedef ::FixedPoint<1 << 18> Real;
 	typedef ::sa::vec3<Real> Vec;
 	typedef uint64_t U64;
 	typedef uint32_t U32;

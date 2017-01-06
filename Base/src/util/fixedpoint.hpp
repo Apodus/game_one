@@ -17,7 +17,7 @@ class FixedPoint
 public:
 	static const FixedPoint ZERO;
 	static const FixedPoint PI;
-	static const int s_fpOne = FIXED_POINT_ONE;
+	static const int64_t s_fpOne = FIXED_POINT_ONE;
 
 	template<int T>
 	explicit FixedPoint(const FixedPoint<T>& a) :
