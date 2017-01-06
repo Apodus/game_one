@@ -27,5 +27,7 @@ namespace bs
 		Vec vel;
 		Vec acc;
 		Id id;
+
+		BoundingBox bb;
 	};
 }

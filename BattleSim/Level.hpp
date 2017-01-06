@@ -10,30 +10,24 @@ namespace bs
 {
 	class Level
 	{
-	public:		
-		static const U32 UniformGridBits = 20;
+	public:
+		static const U32 UniformGridBits = 16;
 		static const U32 UniformGridLists = 1 << UniformGridBits;
 		static const Real UniformGridScale;
-		
+
 		Level()
 		{
 		}
 
 		void RemoveUnit(Unit& unit);
-		void AddUnit(const Unit& unit);
+		void AddUnit(Unit& unit);
 		void FindCollisions(const Unit& unit, const Vec& newPos, std::vector<Unit::Id>& collisions) const;
-		
+
 		bool IsGridMove(const Unit& unit, const Vec& newPos) const
-		{
-			U32 x = POS(unit.pos.x);
-			U32 xb = POS(newPos.x);
-			if (x != xb)
-			{
-				return true;
-			}
-			U32 y = POS(unit.pos.y);
-			U32 yb = POS(newPos.y);
-			return y != yb;
+		{			
+			BoundingBox bb;
+			FindBoundingBox(newPos, unit.radius, bb);
+			return bb != unit.bb;
 		}
 
 		// Map position to uniform grid
@@ -41,27 +35,57 @@ namespace bs
 		{
 			return static_cast<int>(x / UniformGridScale);
 		}
-		// Scan from x1,y1 to x2,y2 and calls function when hit
-		template<typename Callback>
-		inline bool InternalScan(const Vec& start, const Vec& end, void* data, Callback&& callback);
 
 	private:
 		U32 HashGrid(U32 x, U32 y) const
 		{
-			return (y * 4096 + x) & (UniformGridLists-1);
+			return (y * 4096 + x) & (UniformGridLists - 1);
 		}
 
-		struct BoundingBox
+		void FindBoundingBox(const Vec& pos, const Real& radius, BoundingBox& bb) const
 		{
-			U32 left;
-			U32 top;
-			U32 right;
-			U32 bottom;
-		};
+			bb.left = POS(pos.x - radius);
+			bb.right = POS(pos.x + radius);
+			bb.top = POS(pos.y - radius);
+			bb.bottom = POS(pos.y + radius);
+		}
 
-		void FindBoundingBox(const Unit& unit, BoundingBox& bb);
-		
 		typedef Vector<Unit::Id> UnitList;
 		Array<UnitList, UniformGridLists> myGrid;
 	};
+}
+
+inline void bs::Level::FindCollisions(
+	const Unit& unit, const Vec& newPos, std::vector<Unit::Id>& collisions) const
+{
+	BoundingBox start;
+	FindBoundingBox(unit.pos, unit.radius, start);
+
+	BoundingBox end;
+	FindBoundingBox(newPos, unit.radius, end);
+
+	BoundingBox bb;
+	bb.left = start.left < end.left ? start.left : end.left;
+	bb.right = start.right > end.right ? start.right : end.right;
+	bb.top = start.top < end.top ? start.top : end.top;
+	bb.bottom = start.bottom > end.bottom ? start.bottom : end.bottom;
+
+	for (U32 y = bb.top; y <= bb.bottom; y++)
+	{
+		for (U32 x = bb.left; x <= bb.right; x++)
+		{
+			U32 hash = HashGrid(x, y);
+			auto& list = myGrid[hash];
+			for (size_t i = 0; i < list.size(); i++)
+			{
+				if (list.at(i) != unit.id)
+				{
+					if (std::find(collisions.begin(), collisions.end(), unit.id) == collisions.end())
+					{
+						collisions.emplace_back(list.at(i));
+					}
+				}
+			}
+		}
+	}
 }

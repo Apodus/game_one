@@ -21,6 +21,8 @@ namespace bs
 		static const Real TimePerUpdate;
 
 	private:
+		bool CollisionCheck(const Unit& a, const Unit& b, const Vec& endPos, Vec& hitPos);
+
 		// Field is divided into levels in depth-axis. 
 		// E.g. level 0 has underground units, level 1 has ground units and level 2 has flying units
 		Array<Level, 1> myLevels;

@@ -12,6 +12,17 @@ namespace bs
 	typedef uint16_t U16;
 
 
+	struct BoundingBox
+	{
+		U32 left;
+		U32 top;
+		U32 right;
+		U32 bottom;
+		bool operator!=(const BoundingBox& other)
+		{
+			return left != other.left || right != other.right || top != other.top || bottom != other.bottom;
+		}
+	};
 }
 
 namespace sa

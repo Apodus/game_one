@@ -39,7 +39,7 @@ int main(int argc, char** argv)
 		{
 			bs::BattleSim* sim = new bs::BattleSim();
 			sim->TestSetup();
-			sim->Simulate(1000);
+			sim->Simulate(30*1000);
 			delete sim;
 			return EXIT_SUCCESS;
 		}
