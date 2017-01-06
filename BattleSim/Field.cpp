@@ -23,8 +23,25 @@ double bs::Field::RToF(const Real& real) const
 	return static_cast<double>(real.getRawValue()) / real.s_fpOne;
 }
 
+void bs::Field::UpdatePriorities()
+{
+	for (size_t i = 0; i < myUnits.size(); i++)
+	{
+		auto& unit = myUnits[i];
+		auto len = (unit.pos - unit.moveTarget).lengthSquared().abs().getRawValue();
+		unit.updatePriority = static_cast<U32>(len);
+	}
+
+	std::sort(myActiveUnits.begin(), myActiveUnits.end(), [&](Unit::Id a, Unit::Id b)
+	{
+		return myUnits[a].updatePriority < myUnits[b].updatePriority;
+	});
+}
+
 void bs::Field::Update()
 {
+	UpdatePriorities();
+
 	// Movement
 	std::vector<Unit::Id> collisions;
 	collisions.reserve(16);

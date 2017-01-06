@@ -35,6 +35,8 @@ namespace bs
 		}
 
 	private:
+		void UpdatePriorities();
+
 		bool CollisionCheck(const Unit& a, const Unit& b, const Vec& endPos, Vec& hitPos);
 
 		// Field is divided into levels in depth-axis. 

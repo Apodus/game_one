@@ -182,7 +182,9 @@ void Game::tick(long long timeMs)
 {
 	if (m_sim)
 	{
-		m_sim->Simulate(static_cast<size_t>(32));
+		auto delta = m_lastSimUpdate != 0 ? timeMs - m_lastSimUpdate : 0;
+		m_sim->Simulate(static_cast<size_t>(delta));
+		m_lastSimUpdate = timeMs;
 	}
 }
 
@@ -190,4 +192,5 @@ void Game::showBattle()
 {
 	m_sim = std::make_unique<bs::BattleSim>();
 	m_sim->TestSetup();
+	m_lastSimUpdate = 0;
 }

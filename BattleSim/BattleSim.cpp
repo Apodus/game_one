@@ -25,7 +25,7 @@ void bs::BattleSim::AddUnitToArmy(Unit& unit, size_t armyIndex)
 void bs::BattleSim::TestSetup()
 {
 	SetArmyCount(2);
-	for (int64_t y = 0; y < 3; y++)
+	for (int64_t y = 0; y < 5; y++)
 	{
 		for (int64_t i = 0; i < 100; i++)
 		{
@@ -45,7 +45,7 @@ void bs::BattleSim::TestSetup()
 				AddUnitToArmy(u, 1);
 			}
 		}
-	}
+	}	
 }
 
 void bs::BattleSim::Simulate(size_t milliSeconds)

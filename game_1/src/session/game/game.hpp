@@ -149,6 +149,7 @@ private:
 	Scripter m_scripter;
 	size_t m_tickID;
 	std::unique_ptr<bs::BattleSim> m_sim;
+	uint64_t m_lastSimUpdate;
 
 	struct Faction
 	{
