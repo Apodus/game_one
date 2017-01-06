@@ -59,7 +59,7 @@
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>assimp.lib;glew32.lib;opengl32.lib;glfw3dll.lib;libpng16.lib;zlib.lib;sfml-audio-d.lib;Box2D.lib;BattleSimDebug.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>assimp.lib;glew32.lib;opengl32.lib;glfw3dll.lib;libpng16_Debug.lib;zlib.lib;sfml-audio-d.lib;Box2D.lib;BattleSimDebug.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(ProjectDir)\..\Base\lib\win32\libpng\lib\debug;$(ProjectDir)\..\Base\lib\win32\GLFW-3.0.4\lib;$(ProjectDir)\..\Base\lib\win32\glew-1.10.0\lib;$(ProjectDir)\..\Base\lib\win32\assimp\lib;$(ProjectDir)\..\Base\lib\win32\SFML\lib\debug;$(ProjectDir)\..\Box2D-master\Box2D\Build\vs2015\bin\x32\Debug;$(ProjectDir)\..\Network\Common-cpp\lib;$(ProjectDir)\..\Network\Photon-cpp\lib;$(ProjectDir)\..\Debug</AdditionalLibraryDirectories>
       <SubSystem>Console</SubSystem>
     </Link>
