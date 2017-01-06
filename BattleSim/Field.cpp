@@ -48,76 +48,90 @@ void bs::Field::Update()
 	for (size_t i = 0; i < myActiveUnits.size(); i++)
 	{
 		auto& unit = myUnits[myActiveUnits[i]];
-
-		Vec targetDir = unit.moveTarget - unit.pos;
-		auto targetDirLen = targetDir.length();
-		if (targetDirLen > Real(0, 1))
+		if (unit.hitpoints > 0)
 		{
-			targetDir.x /= targetDirLen;
-			targetDir.y /= targetDirLen;
-			targetDir.z /= targetDirLen;
-		}
-
-		const bs::Real Agility(10);
-		const bs::Real Speed(3);
-		const bs::Real SlowDown(1, 2);
-		unit.acc = targetDir * Agility;
-
-		Vec newVel = unit.acc * TimePerUpdate + unit.vel;
-		auto speed = newVel.length();
-		if (speed > Speed)
-		{
-			auto excessSpeed = speed - Speed;
-			excessSpeed *= SlowDown;
-			newVel.normalize();
-			newVel *= (Speed + excessSpeed);
-		}
-
-		Vec newPos = unit.vel * TimePerUpdate + unit.pos;
-		collisions.clear();
-		myLevels[0].FindCollisions(unit, newPos, collisions);
-
-		bool foundCollision = false;
-		for (size_t j = 0; j < collisions.size(); j++)
-		{
-			auto& other = myUnits[collisions[j]];
-			Vec hitPos;
-			if (CollisionCheck(other, unit, newPos, hitPos))
+			Vec targetDir = unit.moveTarget - unit.pos;
+			auto targetDirLen = targetDir.length();
+			if (targetDirLen > Real(0, 1))
 			{
-				foundCollision = true;
-				newPos = hitPos;
+				targetDir.x /= targetDirLen;
+				targetDir.y /= targetDirLen;
+				targetDir.z /= targetDirLen;
 			}
-		}
 
-		if (foundCollision)
-		{
-			newVel.x = (Real(0,1) - unit.vel.x) / Real(2, 1);
-			newVel.y = (Real(0,1) - unit.vel.y) / Real(2, 1);
-			newVel.z = (Real(0, 1));
-		}
+			const bs::Real Agility(10);
+			const bs::Real Speed(3);
+			const bs::Real SlowDown(1, 2);
+			unit.acc = targetDir * Agility;
 
-		if (myLevels[0].IsGridMove(unit, newPos))
-		{
-			myLevels[0].RemoveUnit(unit);
-			unit.pos = newPos;
-			myLevels[0].AddUnit(unit);
-		}
-		else
-		{
-			unit.pos = newPos;
-		}
+			Vec newVel = unit.acc * TimePerUpdate + unit.vel;
+			auto speed = newVel.length();
+			if (speed > Speed)
+			{
+				auto excessSpeed = speed - Speed;
+				excessSpeed *= SlowDown;
+				newVel.normalize();
+				newVel *= (Speed + excessSpeed);
+			}
 
-		unit.vel = newVel;
+			Vec newPos = unit.vel * TimePerUpdate + unit.pos;
+			collisions.clear();
+			myLevels[0].FindCollisions(unit, newPos, collisions);
+
+			Unit::Id collisionId = static_cast<Unit::Id>(-1);
+			for (size_t j = 0; j < collisions.size(); j++)
+			{
+				auto& other = myUnits[collisions[j]];
+				Vec hitPos;
+				if (CollisionCheck(other, unit, newPos, hitPos))
+				{
+					collisionId = other.id;
+					newPos = hitPos;
+				}
+			}
+
+			if (collisionId != static_cast<Unit::Id>(-1))
+			{
+				Vec dir = newPos - unit.pos;
+				auto dp = dir.dotProduct(targetDir);
+				auto& other = myUnits[collisionId];
+				newVel.x = (dp * unit.vel.x) / Real(2, 1);
+				newVel.y = (dp * unit.vel.y) / Real(2, 1);
+				newVel.z = (Real(0, 1));
+
+				if (other.team != unit.team && other.hitpoints > 0)
+				{
+					other.hitpoints--;
+					if (other.hitpoints == 0)
+					{
+						myLevels[0].RemoveUnit(other);
+					}
+				}
+			}
+
+			if (myLevels[0].IsGridMove(unit, newPos))
+			{
+				myLevels[0].RemoveUnit(unit);
+				unit.pos = newPos;
+				myLevels[0].AddUnit(unit);
+			}
+			else
+			{
+				unit.pos = newPos;
+			}
+
+			unit.vel = newVel;
 #if 0
-		if (unit.id == 0)
-		{
-			LOG("[%lu] POS = %f, %f DIR=%f, %f VEL= %f, %f",
-				unit.id,
-				RToF(unit.pos.x), RToF(unit.pos.y),
-				RToF(targetDir.x), RToF(targetDir.y),
-				RToF(unit.vel.x), RToF(unit.vel.y));
-		}
+			if (unit.id == 0)
+			{
+				LOG("[%lu] POS = %f, %f DIR=%f, %f VEL= %f, %f",
+					unit.id,
+					RToF(unit.pos.x), RToF(unit.pos.y),
+					RToF(targetDir.x), RToF(targetDir.y),
+					RToF(unit.vel.x), RToF(unit.vel.y));
+			}
 #endif
+		}
 	}
 	myFrames.push_back(Frame());
 	myFrames.back().units = myUnits;
@@ -127,19 +141,30 @@ void bs::Field::Update()
 // Cylinder collision check
 bool bs::Field::CollisionCheck(const Unit& a, const Unit& b, const Vec& endPos, Vec& hitPos)
 {
+	Real radii = a.radius + b.radius;
+
+	Real left = b.pos.x < endPos.x ? b.pos.x - radii : endPos.x - radii;
+	Real right = b.pos.x > endPos.x ? b.pos.x + radii: endPos.x + radii;
+	Real top = b.pos.y < endPos.y ? b.pos.y - radii : endPos.y - radii;
+	Real bottom = b.pos.y > endPos.y ? b.pos.y + radii : endPos.y + radii;
+	if (a.pos.x < left || a.pos.x > right || a.pos.y < top || a.pos.y > bottom)
+	{
+		// No in bounding box
+		return false;
+	}
+
 	/* movement vector */
 	Vec N = endPos - b.pos;
 	Real length_N = N.length(); // TODO 2d vec
+	if (length_N == Real(0, 1))
+	{
+		// Not moving, TODO: should probably assert here
+		return false;
+	}
 
 	Vec C = a.pos - b.pos;
 	C.z = Real(0, 1); /* Ignore Z: used for sphere collision */
 	Real length_C = C.length(); // TODO 2d vec
-
-	if (length_N == Real(0, 1))
-	{
-		// Not moving
-		return false;
-	}
 
 	if (length_C == Real(0,1))
 	{
@@ -147,7 +172,6 @@ bool bs::Field::CollisionCheck(const Unit& a, const Unit& b, const Vec& endPos, 
 		return false;
 	}
 
-	Real radii = a.radius + b.radius;
 	if (length_N + radii < length_C)
 	{
 		return false;

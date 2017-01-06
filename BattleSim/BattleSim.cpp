@@ -25,14 +25,23 @@ void bs::BattleSim::AddUnitToArmy(Unit& unit, size_t armyIndex)
 void bs::BattleSim::TestSetup()
 {
 	SetArmyCount(2);
-	for (int64_t y = 0; y < 5; y++)
+	for (int64_t y = 0; y < 10; y++)
 	{
 		for (int64_t i = 0; i < 100; i++)
 		{
 			{
 				Unit u;
 				u.team = 0;
-				u.radius = Real(1, 2);
+				if (i % 10 == 0 && y == 0)
+				{
+					u.radius = Real(1, 1);
+					u.hitpoints = 10;
+				}
+				else
+				{
+					u.radius = Real(1, 2);
+					u.hitpoints = 5;
+				}
 				u.pos.set(Real(50 + i), Real(50 + y), Real(0));
 				u.moveTarget.set(Real(50 + i + (rand() %4)), Real(100), Real(0));
 				AddUnitToArmy(u, 0);
@@ -41,7 +50,16 @@ void bs::BattleSim::TestSetup()
 			{
 				Unit u;
 				u.team = 1;
-				u.radius = Real(1, 2);
+				if (i % 10 == 0 && y == 9)
+				{
+					u.radius = Real(1, 1);
+					u.hitpoints = 10;
+				}
+				else
+				{
+					u.radius = Real(1, 2);
+					u.hitpoints = 5;
+				}
 				u.pos.set(Real(50 + i), Real(100 + y), Real(0));
 				u.moveTarget.set(Real(50 + i + (rand() % 4)), Real(50), Real(0));
 				AddUnitToArmy(u, 1);

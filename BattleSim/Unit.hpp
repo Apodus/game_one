@@ -9,6 +9,14 @@ namespace bs
 	public:
 
 		typedef U32 Id;
+		Vec moveTarget;
+		Vec pos;
+		Vec vel;
+		Vec acc;
+
+		Real radius;
+
+		BoundingBox bb;
 
 		// Attributes
 		U32 speed = 0;
@@ -19,17 +27,11 @@ namespace bs
 		U32 strength = 0;
 		U32 range = 0;
 		U32 weaponspeed = 0;
-
-		Vec moveTarget;
-
-		Real radius;
-		Vec pos;
-		Vec vel;
-		Vec acc;
-		Id id;
-		U8 team;
 		U32 updatePriority = 0;
 
-		BoundingBox bb;
+
+		Id id;
+		U8 team;
+
 	};
 }

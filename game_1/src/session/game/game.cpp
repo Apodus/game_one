@@ -170,11 +170,13 @@ void Game::drawBattle(std::shared_ptr<sa::Graphics> pGraphics)
 		float size = unit.radius.toFloat() * scale;
 
 		sa::Matrix4 model;
-		model.makeTranslationMatrix(x, y, 0);
+		model.makeTranslationMatrix(x, y, unit.hitpoints == 0 ? -1.0f : 0);
 		model.rotate(0, 0, 0, 1);
 		model.scale(size, size, 1);
 
-		pGraphics->m_pRenderer->drawRectangle(model, "Hero", unit.team == 1 ? Color::RED : Color::BLUE);
+		pGraphics->m_pRenderer->drawRectangle(model, "Hero", 
+			unit.hitpoints == 0 ? Color::RED :			 
+			(unit.team == 1 ? Color::GREEN : Color::BLUE));
 	}
 }
 

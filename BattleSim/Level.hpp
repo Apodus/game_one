@@ -11,7 +11,7 @@ namespace bs
 	class Level
 	{
 	public:
-		static const U32 UniformGridBits = 16;
+		static const U32 UniformGridBits = 17;
 		static const U32 UniformGridLists = 1 << UniformGridBits;
 		static const Real UniformGridScale;
 
