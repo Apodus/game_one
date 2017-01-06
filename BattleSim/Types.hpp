@@ -3,6 +3,12 @@
 #include "util/fixedpoint.hpp"
 #include "util/vec3.hpp"
 
+#ifdef BATTLESIM_DLL
+#define BATTLESIM_API __declspec(dllimport)
+#else
+#define BATTLESIM_API __declspec(dllexport)
+#endif
+
 namespace bs
 {
 	typedef ::FixedPoint<1024 * 64> Real;

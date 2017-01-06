@@ -3,6 +3,11 @@
 
 const bs::Real bs::Field::TimePerUpdate = bs::Real(100, 1000);
 
+bs::Field::Field()
+{
+	myFrames.emplace_back();
+}
+
 bs::Unit::Id bs::Field::Add(Unit& unit)
 {
 	unit.id = myUnits.size();
@@ -13,7 +18,7 @@ bs::Unit::Id bs::Field::Add(Unit& unit)
 }
 
 // Real to Float conversion only for logging purposes
-double bs::Field::RToF(const Real& real)
+double bs::Field::RToF(const Real& real) const
 {
 	return static_cast<double>(real.getRawValue()) / real.s_fpOne;
 }
@@ -98,6 +103,8 @@ void bs::Field::Update()
 		}
 #endif
 	}
+	myFrames.push_back(Frame());
+	myFrames.back().units = myUnits;
 }
 
 

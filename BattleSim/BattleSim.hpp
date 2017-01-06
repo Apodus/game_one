@@ -3,12 +3,6 @@
 #include "Army.hpp"
 #include "Field.hpp"
 
-#ifdef BATTLESIM_DLL
-#define BATTLESIM_API __declspec(dllimport)
-#else
-#define BATTLESIM_API __declspec(dllexport)
-#endif
-
 namespace bs
 {
 	class BattleSim
@@ -16,9 +10,11 @@ namespace bs
 	public:
 		BATTLESIM_API BattleSim();
 
-		void BATTLESIM_API TestSetup();
+		BATTLESIM_API void TestSetup();
 
-		void BATTLESIM_API Simulate(size_t milliSeconds);
+		BATTLESIM_API void Simulate(size_t milliSeconds);
+
+		BATTLESIM_API Field& GetField() { return myField; }
 
 	private:
 		void SetArmyCount(size_t size);

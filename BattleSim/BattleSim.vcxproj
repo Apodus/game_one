@@ -161,6 +161,7 @@
     <ClInclude Include="Army.hpp" />
     <ClInclude Include="Array.hpp" />
     <ClInclude Include="BattleSim.hpp" />
+    <ClInclude Include="Deque.hpp" />
     <ClInclude Include="Field.hpp" />
     <ClInclude Include="Level.hpp" />
     <ClInclude Include="Types.hpp" />

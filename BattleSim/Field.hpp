@@ -2,8 +2,7 @@
 
 #include "Level.hpp"
 #include "Array.hpp"
-
-
+#include "Deque.hpp"
 
 namespace bs
 {
@@ -11,14 +10,29 @@ namespace bs
 	class Field
 	{
 	public:
+		struct Frame
+		{
+			Vector<Unit> units;
+		};
+
+		Field();
+
 		Unit::Id Add(Unit& unit);
 
-		double RToF(const Real& real);
-
+		double RToF(const Real& real) const;
 
 		void Update();
 
 		static const Real TimePerUpdate;
+
+		BATTLESIM_API const Frame& GetFrame()
+		{
+			if (myFrames.size() > 1)
+			{
+				myFrames.pop_front();
+			}
+			return myFrames.front();
+		}
 
 	private:
 		bool CollisionCheck(const Unit& a, const Unit& b, const Vec& endPos, Vec& hitPos);
@@ -28,6 +42,9 @@ namespace bs
 		Array<Level, 1> myLevels;
 		Vector<Unit::Id> myActiveUnits;
 		Vector<Unit> myUnits;
-
+		Deque<Frame> myFrames;
+		double myFrameTime = 0;
+		
+		
 	};
 }

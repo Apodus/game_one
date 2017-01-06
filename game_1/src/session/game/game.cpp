@@ -153,7 +153,29 @@ void Game::drawProvinces(std::shared_ptr<sa::Graphics> pGraphics)
 
 void Game::drawBattle(std::shared_ptr<sa::Graphics> pGraphics)
 {
+	sa::TextureHandler::getSingleton().bindTexture(0, "Empty");
 
+	float offsetX = 30.0f;
+	float offsetY = 20.0f;
+	float scale = 1/4.0f;
+
+	auto& frame = m_sim->GetField().GetFrame();
+	for (size_t i = 0; i < frame.units.size(); i++)
+	{
+		auto& unit = frame.units[i];
+		float x = unit.pos.x.toFloat() * scale - offsetX;
+		float y = unit.pos.y.toFloat() * scale - offsetY;
+
+
+		float size = unit.radius.toFloat() * scale;
+
+		sa::Matrix4 model;
+		model.makeTranslationMatrix(x, y, 0);
+		model.rotate(0, 0, 0, 1);
+		model.scale(size, size, 1);
+
+		pGraphics->m_pRenderer->drawRectangle(model, "Hero");
+	}
 }
 
 void Game::tick(long long timeMs)

@@ -93,6 +93,10 @@ public:
 	{
 		return FixedPoint(number % FIXED_POINT_ONE, FIXED_POINT_ONE);
 	}
+
+	float toFloat() const { return static_cast<float>(getRawValue()) / s_fpOne; }
+
+	double toDouble() const { return static_cast<double>(getRawValue()) / s_fpOne; }
 	
 	FixedPoint abs()
 	{
