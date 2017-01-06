@@ -24,19 +24,19 @@ void bs::BattleSim::AddUnitToArmy(Unit& unit, size_t armyIndex)
 void bs::BattleSim::TestSetup()
 {
 	SetArmyCount(2);
-	for (size_t i = 0; i < 1; i++)
+	for (int64_t i = 0; i < 10; i++)
 	{
 		{
 			Unit u;
-			u.pos.set(Real(50), Real(50), Real(0));
-			u.moveTarget.set(Real(100), Real(100), Real(0));
+			u.pos.set(Real(50), Real(50+i), Real(0));
+			u.moveTarget.set(Real(100), Real(50+i), Real(0));
 			AddUnitToArmy(u, 0);
 		}
 
 		{
 			Unit u;
-			u.pos.set(Real(100), Real(100), Real(0));
-			u.moveTarget.set(Real(50), Real(50), Real(0));
+			u.pos.set(Real(100), Real(50+i), Real(0));
+			u.moveTarget.set(Real(50), Real(50+i), Real(0));
 			AddUnitToArmy(u, 1);
 		}
 	}
@@ -52,6 +52,6 @@ void bs::BattleSim::Simulate(size_t milliSeconds)
 		myField.Update();		
 		myTotalTime += step;
 	};
-	myTimeAccu += endTime - myTotalTime;
-	LOG("Total time simulated = %f;in accu=%f", myTotalTime, myTimeAccu);
+	myTimeAccu = endTime - myTotalTime;
+	LOG("Total time simulated = %f;in accu=%f; step=%f", myTotalTime, myTimeAccu, step);
 }

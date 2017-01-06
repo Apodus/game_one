@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "Field.hpp"
 
-const bs::Real bs::Field::TimePerUpdate = bs::Real(10, 1000);
+const bs::Real bs::Field::TimePerUpdate = bs::Real(100, 1000);
 
 bs::Unit::Id bs::Field::Add(Unit& unit)
 {
@@ -21,6 +21,8 @@ double bs::Field::RToF(const Real& real)
 void bs::Field::Update()
 {
 	// Movement
+	std::vector<Unit::Id> collisions;
+	collisions.reserve(16);
 	for (size_t i = 0; i < myActiveUnits.size(); i++)
 	{
 		auto& unit = myUnits[myActiveUnits[i]];
@@ -43,19 +45,31 @@ void bs::Field::Update()
 		}
 
 		Vec newPos = unit.vel * TimePerUpdate + unit.pos;
-		myLevels[0].InternalScan(unit.pos, newPos, nullptr, [](int x, int y, void* /*data*/) -> bool
+		collisions.clear();
+		myLevels[0].FindCollisions(unit, newPos, collisions);
+		
+		if (collisions.size() > 0)
 		{
-			// TODO
-			LOG("FIELD SCAN at %i, %i", x, y);
-			return true;
-		});
+			// Stupid collision checking, so really not checking collision
+			newPos = unit.pos;
+		}
 
-		unit.vel = newVel;
-		unit.pos = newPos;
-		LOG("[%lu] POS = %f, %f DIR=%f, %f VEL= %f, %f",
+		if (myLevels[0].IsGridMove(unit, newPos))
+		{
+			myLevels[0].RemoveUnit(unit);
+			unit.pos = newPos;
+			myLevels[0].AddUnit(unit);
+		}
+		else
+		{
+			unit.pos = newPos;
+		}
+
+		unit.vel = newVel;		
+		/*LOG("[%lu] POS = %f, %f DIR=%f, %f VEL= %f, %f",
 			unit.id,
 			RToF(unit.pos.x), RToF(unit.pos.y),
 			RToF(targetDir.x), RToF(targetDir.y),
-			RToF(unit.vel.x), RToF(unit.vel.y));
+			RToF(unit.vel.x), RToF(unit.vel.y));*/
 	}
 }

@@ -22,6 +22,7 @@ namespace bs
 
 		Vec moveTarget;
 
+		Real radius;
 		Vec pos;
 		Vec vel;
 		Vec acc;
