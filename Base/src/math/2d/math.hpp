@@ -3,6 +3,7 @@
 
 #include <cmath>
 #include <utility>
+#include <cstdint>
 
 #ifdef max
 #undef max
@@ -36,7 +37,7 @@ namespace math {
 
 	// xorshift64 - feed the result as the next parameter to get next random number.
 	//              must start with nonzero value.
-	uint64_t rand(uint64_t x) {
+	inline uint64_t rand(uint64_t x) {
 		x ^= x >> 12; // a
 		x ^= x << 25; // b
 		x ^= x >> 27; // c
