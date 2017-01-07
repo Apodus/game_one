@@ -17,19 +17,19 @@ bs::Unit::Id bs::Field::Add(Unit& unit)
 	return unit.id;
 }
 
-// Real to Float conversion only for logging purposes
-double bs::Field::RToF(const Real& real) const
-{
-	return static_cast<double>(real.getRawValue()) / real.s_fpOne;
-}
-
 void bs::Field::UpdatePriorities()
 {
 	for (size_t i = 0; i < myUnits.size(); i++)
 	{
-		auto& unit = myUnits[i];
-		auto len = (unit.pos - unit.moveTarget).lengthSquared().abs().getRawValue();
-		unit.updatePriority = static_cast<U32>(len);
+		auto& unit = myUnits[i];		
+		auto len = ((unit.moveTarget - unit.pos).lengthSquared().getRawValue() - unit.radius.getRawValue()) >> 18;
+		if (len < 0)
+		{
+			len = 0;
+		}
+
+		ASSERT(len <= UINT16_MAX, "Too low priority");
+		unit.updatePriority = static_cast<U16>(len);
 	}
 
 	std::sort(myActiveUnits.begin(), myActiveUnits.end(), [&](Unit::Id a, Unit::Id b)
@@ -43,100 +43,114 @@ void bs::Field::Update()
 	UpdatePriorities();
 
 	// Movement
+	std::vector<Unit::Id> deleted;
 	std::vector<Unit::Id> collisions;
 	collisions.reserve(16);
 	for (size_t i = 0; i < myActiveUnits.size(); i++)
 	{
 		auto& unit = myUnits[myActiveUnits[i]];
-		if (unit.hitpoints > 0)
+
+		Vec targetDir = unit.moveTarget - unit.pos;
+		auto targetDirLen = targetDir.length();
+		if (targetDirLen > Real(0, 1))
 		{
-			Vec targetDir = unit.moveTarget - unit.pos;
-			auto targetDirLen = targetDir.length();
-			if (targetDirLen > Real(0, 1))
+			targetDir.x /= targetDirLen;
+			targetDir.y /= targetDirLen;
+			targetDir.z /= targetDirLen;
+		}
+
+		const bs::Real Agility(10);
+		const bs::Real Speed(3);
+		const bs::Real SlowDown(1, 2);
+		unit.acc = targetDir * Agility;
+
+		Vec newVel = unit.acc * TimePerUpdate + unit.vel;
+		auto speed = newVel.length();
+		if (speed > Speed)
+		{
+			auto excessSpeed = speed - Speed;
+			excessSpeed *= SlowDown;
+			newVel.normalize();
+			newVel *= (Speed + excessSpeed);
+		}
+
+		Vec newPos = unit.vel * TimePerUpdate + unit.pos;
+		collisions.clear();
+		myLevels[0].FindCollisions(unit, newPos, collisions);
+
+		Unit::Id collisionId = static_cast<Unit::Id>(-1);
+		for (size_t j = 0; j < collisions.size(); j++)
+		{
+			auto& other = myUnits[collisions[j]];
+			Vec hitPos;
+			if (CollisionCheck(other, unit, newPos, hitPos))
 			{
-				targetDir.x /= targetDirLen;
-				targetDir.y /= targetDirLen;
-				targetDir.z /= targetDirLen;
+				collisionId = other.id;
+				newPos = hitPos;
 			}
+		}
 
-			const bs::Real Agility(10);
-			const bs::Real Speed(3);
-			const bs::Real SlowDown(1, 2);
-			unit.acc = targetDir * Agility;
+		if (collisionId != static_cast<Unit::Id>(-1))
+		{
+			Vec dir = newPos - unit.pos;
+			auto dp = dir.dotProduct(targetDir);
+			auto& other = myUnits[collisionId];
+			newVel.x = (dp * unit.vel.x) / Real(2, 1);
+			newVel.y = (dp * unit.vel.y) / Real(2, 1);
+			newVel.z = (Real(0, 1));
 
-			Vec newVel = unit.acc * TimePerUpdate + unit.vel;
-			auto speed = newVel.length();
-			if (speed > Speed)
+			if (other.team != unit.team && other.hitpoints > 0)
 			{
-				auto excessSpeed = speed - Speed;
-				excessSpeed *= SlowDown;
-				newVel.normalize();
-				newVel *= (Speed + excessSpeed);
-			}
-
-			Vec newPos = unit.vel * TimePerUpdate + unit.pos;
-			collisions.clear();
-			myLevels[0].FindCollisions(unit, newPos, collisions);
-
-			Unit::Id collisionId = static_cast<Unit::Id>(-1);
-			for (size_t j = 0; j < collisions.size(); j++)
-			{
-				auto& other = myUnits[collisions[j]];
-				Vec hitPos;
-				if (CollisionCheck(other, unit, newPos, hitPos))
-				{
-					collisionId = other.id;
-					newPos = hitPos;
-				}
-			}
-
-			if (collisionId != static_cast<Unit::Id>(-1))
-			{
-				Vec dir = newPos - unit.pos;
-				auto dp = dir.dotProduct(targetDir);
-				auto& other = myUnits[collisionId];
-				newVel.x = (dp * unit.vel.x) / Real(2, 1);
-				newVel.y = (dp * unit.vel.y) / Real(2, 1);
-				newVel.z = (Real(0, 1));
-
-				if (other.team != unit.team && other.hitpoints > 0)
+				myRand = sa::math::rand(myRand);
+				if ((myRand & 1) == 1)
 				{
 					other.hitpoints--;
 					if (other.hitpoints == 0)
 					{
-						myLevels[0].RemoveUnit(other);
+						deleted.emplace_back(other.id);
 					}
 				}
 			}
-
-			if (myLevels[0].IsGridMove(unit, newPos))
-			{
-				myLevels[0].RemoveUnit(unit);
-				unit.pos = newPos;
-				myLevels[0].AddUnit(unit);
-			}
-			else
-			{
-				unit.pos = newPos;
-			}
-
-			unit.vel = newVel;
-#if 0
-			if (unit.id == 0)
-			{
-				LOG("[%lu] POS = %f, %f DIR=%f, %f VEL= %f, %f",
-					unit.id,
-					RToF(unit.pos.x), RToF(unit.pos.y),
-					RToF(targetDir.x), RToF(targetDir.y),
-					RToF(unit.vel.x), RToF(unit.vel.y));
-			}
-#endif
 		}
+
+		if (myLevels[0].IsGridMove(unit, newPos))
+		{
+			myLevels[0].RemoveUnit(unit);
+			unit.pos = newPos;
+			myLevels[0].AddUnit(unit);
+		}
+		else
+		{
+			unit.pos = newPos;
+		}
+
+		unit.vel = newVel;
+#if 0
+		if (unit.id == 0)
+		{
+			LOG("[%lu] POS = %f, %f DIR=%f, %f VEL= %f, %f",
+				unit.id,
+				RToF(unit.pos.x), RToF(unit.pos.y),
+				RToF(targetDir.x), RToF(targetDir.y),
+				RToF(unit.vel.x), RToF(unit.vel.y));
+		}
+#endif
+
 	}
 	myFrames.push_back(Frame());
 	myFrames.back().units = myUnits;
-}
 
+	// Remove deleted from active. This will change order of active units, but we are 
+	// going to sort active units next update anyway.
+	for (size_t i = 0; i < deleted.size(); i++)
+	{
+		auto iter = std::find(myActiveUnits.begin(), myActiveUnits.end(), deleted[i]);
+		ASSERT(iter != myActiveUnits.end(), "Deleted not found");
+		myLevels[0].RemoveUnit(myUnits[*iter]);
+		*iter = myActiveUnits.back();
+		myActiveUnits.pop_back();
+	}
+}
 
 // Cylinder collision check
 bool bs::Field::CollisionCheck(const Unit& a, const Unit& b, const Vec& endPos, Vec& hitPos)

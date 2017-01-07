@@ -27,7 +27,7 @@ namespace bs
 		U32 strength = 0;
 		U32 range = 0;
 		U32 weaponspeed = 0;
-		U32 updatePriority = 0;
+		U16 updatePriority = 0;
 
 
 		Id id;

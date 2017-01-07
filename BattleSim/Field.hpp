@@ -19,8 +19,6 @@ namespace bs
 
 		Unit::Id Add(Unit& unit);
 
-		double RToF(const Real& real) const;
-
 		void Update();
 
 		static const Real TimePerUpdate;
@@ -46,6 +44,7 @@ namespace bs
 		Vector<Unit> myUnits;
 		Deque<Frame> myFrames;
 		double myFrameTime = 0;
+		uint64_t myRand = 1;
 		
 		
 	};

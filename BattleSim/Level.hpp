@@ -80,7 +80,7 @@ inline void bs::Level::FindCollisions(
 			{
 				if (list.at(i) != unit.id)
 				{
-					if (std::find(collisions.begin(), collisions.end(), unit.id) == collisions.end())
+					if (std::find(collisions.begin(), collisions.end(), list.at(i)) == collisions.end())
 					{
 						collisions.emplace_back(list.at(i));
 					}

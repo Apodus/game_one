@@ -43,7 +43,7 @@ void bs::BattleSim::TestSetup()
 					u.hitpoints = 5;
 				}
 				u.pos.set(Real(50 + i), Real(50 + y), Real(0));
-				u.moveTarget.set(Real(50 + i + (rand() %4)), Real(100), Real(0));
+				u.moveTarget.set(Real(50 + i), Real(100), Real(0));
 				AddUnitToArmy(u, 0);
 			}
 
@@ -61,7 +61,7 @@ void bs::BattleSim::TestSetup()
 					u.hitpoints = 5;
 				}
 				u.pos.set(Real(50 + i), Real(100 + y), Real(0));
-				u.moveTarget.set(Real(50 + i + (rand() % 4)), Real(50), Real(0));
+				u.moveTarget.set(Real(50 + i), Real(50), Real(0));
 				AddUnitToArmy(u, 1);
 			}
 		}
