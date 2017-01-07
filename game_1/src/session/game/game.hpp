@@ -118,17 +118,41 @@ public:
 
 	void tick(long long timeMs);
 
+	inline sa::vec2<float> mouseToWorld(sa::vec3<float> mousePos)
+	{
+		return sa::vec2<float>(cameraPosition.x + mousePos.x * cameraPosition.z * 0.985f, cameraPosition.y + (mousePos.y * cameraPosition.z * 0.985f) / aspectRatio);
+	}
+
+	sa::vec3<float> getCameraPosition() const
+	{
+		return cameraPosition;
+	}
+
 	void update(std::shared_ptr<sa::UserIO> userio, float aspectRatio)
 	{
 		this->aspectRatio = aspectRatio;
 
 		mousePos = userio->getCursorPosition();
+		auto worldPos = mouseToWorld(mousePos);
 		{
 			int mouseKeyCode = userio->getMouseKeyCode(0);
 			if (userio->isKeyClicked(mouseKeyCode))
 			{
-				LOG("clicked mouse 0, %f %f", mousePos.x, mousePos.y);
-				
+				auto& provinces = graph.provinces();
+				ProvinceGraph::Province* best = nullptr;
+				float bestVal = 100000000.0f;
+
+				for (auto& province : provinces)
+				{
+					float dist = (province.m_position - worldPos).lengthSquared();
+					if (dist < bestVal)
+					{
+						bestVal = dist;
+						best = &province;
+					}
+				}
+
+				hud->selectProvince(*best);
 			}
 		}
 
@@ -174,6 +198,8 @@ private:
 	};
 
 	sa::vec3<float> mousePos;
+	sa::vec3<float> cameraPosition;
+	sa::vec3<float> targetCameraPosition;
 	float aspectRatio = 16.0f / 9.0f;
 
 	std::atomic<size_t> nextUnitId; // starts at 1, zero is reserved for invalid id.

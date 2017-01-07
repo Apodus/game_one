@@ -64,7 +64,7 @@ bool Session::Application::Session::tick() {
 		menuRoot->visualise(pGraphics);
 
 		pCamera->setProjection(0.02f, 200.0f, window->getAspectRatio());
-		pCamera->setPosition(sa::vec3<float>(0, 0, 20));
+		pCamera->setPosition(game->getCameraPosition());
 		pRenderer->cameraToGPU();
 		game->draw(pGraphics);
 

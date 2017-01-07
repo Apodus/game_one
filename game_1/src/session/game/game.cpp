@@ -12,6 +12,9 @@ Game::Game(
 	hud = std::make_shared<Hud>(*this, menuRootNode.get(), "GameHud", sa::vec3<float>(), sa::vec3<float>(1, 1, 1));
 	menuRootNode->addChild(hud);
 
+	cameraPosition = sa::vec3<float>(5, -5, 20);
+	targetCameraPosition = sa::vec3<float>(-5, +5, 20);
+
 	TroopReference militia;
 	militia.accuracy = 10;
 	militia.armor = 2;
@@ -74,9 +77,16 @@ Game::Game(
 		province.troopsToRecruit.emplace_back(militia.name);
 	}
 
-	provinces.front().m_owner = 0;
-	provinces.back().m_owner = 1;
+	auto& first = provinces.front();
+	first.m_owner = 0;
+	for(int i =0; i<23; ++i)
+		first.commanders.emplace_back(troopReferences["zealot"], ++nextUnitId, first.m_owner);
 
+	auto& second = provinces.back();
+	second.m_owner = 1;
+	for (int i = 0; i<23; ++i)
+		second.commanders.emplace_back(troopReferences["zealot"], ++nextUnitId, second.m_owner);
+	
 	players.emplace_back("Mestari");
 	players.emplace_back("Nubu");
 }
@@ -145,7 +155,8 @@ void Game::drawProvinces(std::shared_ptr<sa::Graphics> pGraphics)
 	}
 
 	sa::Matrix4 model;
-	model.makeTranslationMatrix(mousePos.x * 20 * 0.985f, mousePos.y * 20 * 0.985f / aspectRatio, 0);
+	auto worldPos = mouseToWorld(mousePos);
+	model.makeTranslationMatrix(worldPos.x, worldPos.y, 0);
 	model.rotate(0, 0, 0, 1);
 	model.scale(0.1f, 0.1f, 1);
 	pGraphics->m_pRenderer->drawRectangle(model, "Hero");
@@ -182,6 +193,8 @@ void Game::drawBattle(std::shared_ptr<sa::Graphics> pGraphics)
 
 void Game::tick(long long timeMs)
 {
+	cameraPosition += (targetCameraPosition - cameraPosition) * 16.0f / 1000.0f;
+
 	if (m_sim)
 	{
 		auto delta = m_lastSimUpdate != 0 ? timeMs - m_lastSimUpdate : 0;

@@ -131,9 +131,9 @@ void buildDebugMipmaps(size_t x, size_t y)
 		while(bit < x)
 			bit <<= 1;
 
-		unsigned char r = 255 - bit * 255 / 8;
-		unsigned char g = bit * 255 / 8;
-		unsigned char b = 0;
+		uint8_t r = static_cast<uint8_t>(255 - bit * 255 / 8);
+		uint8_t g = static_cast<uint8_t>(bit * 255 / 8);
+		uint8_t b = 0;
 		Color color = { r, g, b, 255 };
 
 		std::vector<Color> data(x*y, color);

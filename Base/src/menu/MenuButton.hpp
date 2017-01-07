@@ -97,7 +97,7 @@ private:
 		m_frame.draw(graphics);
 		if(!m_text.empty()) {
 			const vec3<float>& m_pos = getPosition();
-			graphics->m_pTextRenderer->drawText(m_text, m_pos.x, m_pos.y, m_worldScale.y * 0.75f, m_textColor, m_align, graphics->m_fontLenka); 
+			graphics->m_pTextRenderer->drawText(m_text, m_pos.x, m_pos.y, m_worldScale.y * 0.75f, m_textColor, m_align, graphics->m_fontConsola); 
 		}
 	}
 

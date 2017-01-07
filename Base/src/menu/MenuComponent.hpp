@@ -45,7 +45,7 @@ namespace sa {
 				m_worldPosition = m_currentPosition;
 			}
 			else {
-				m_worldPosition = m_pParent->getPosition() + m_currentPosition * m_pParent->getScale();
+				m_worldPosition = m_currentPosition;
 			}
 		}
 
@@ -54,7 +54,7 @@ namespace sa {
 				m_worldScale = m_currentScale;
 			}
 			else {
-				m_worldScale = m_pParent->getScale() * m_currentScale;
+				m_worldScale = m_currentScale;
 			}
 		}
 
@@ -73,7 +73,7 @@ namespace sa {
 		};
 
 		// defaults to middle x middle
-		int positionAlign = 0;
+		int positionAlign = PositionAlign::NONE;
 
 		MenuComponent(
 			std::shared_ptr<Window> window,
@@ -152,8 +152,8 @@ namespace sa {
 		void tick(float dt) {
 			float inverseAR = 1.0f / m_pWindow->getAspectRatio();
 			vec3<float> aspectFix = vec3<float>(1, inverseAR, 1);
-			m_currentPosition += (m_targetPosition() * aspectFix - m_currentPosition) * dt * 2;
-			m_currentScale += (m_targetScale - m_currentScale) * dt * 2;
+			m_currentPosition += (m_targetPosition() * aspectFix - m_currentPosition) * dt * 5;
+			m_currentScale += (m_targetScale - m_currentScale) * dt * 8;
 
 			updatePosition();
 			updateScale();
@@ -174,6 +174,13 @@ namespace sa {
 					child->tick(dt);
 				}
 			}
+		}
+
+		vec3<float> recursivePosition() const {
+			if (m_pParent) {
+				return m_pParent->recursivePosition() + m_worldPosition;
+			}
+			return m_worldPosition;
 		}
 
 		void visualise(std::shared_ptr<Graphics> graphics) const {
@@ -244,16 +251,16 @@ namespace sa {
 			m_worldScale = scale;
 		}
 
-		void show() {
+		virtual void show() {
 			m_focus = true;
 			m_targetPosition = m_defaultPosition;
 			m_targetScale = m_defaultScale;
 		}
 
-		void hide() {
+		virtual void hide() {
 			m_focus = false;
-			m_targetPosition = [this]() { auto value = m_defaultPosition(); value.x = -3.0f; return value; };
-			m_targetScale = sa::vec3<float>(0, 0, 0);
+			m_targetPosition = [this]() { auto value = m_defaultPosition(); value.x = -2.5f; return value; };
+			// m_targetScale = sa::vec3<float>(0, 0, 0);
 		}
 
 		sa::vec3<float> getExteriorPosition(PositionAlign positionAlign) {
@@ -268,6 +275,42 @@ namespace sa {
 			if (positionAlign & BOTTOM)
 				result.y -= m_worldScale.y * 0.5f;
 			
+			// since aspect ratio is fixed automatically in destination,
+			// we have to break this final value with aspect ratio.
+			result.y *= aspectRatio;
+			return result;
+		}
+
+		sa::vec3<float> getExteriorPositionForChild(PositionAlign positionAlign) {
+			sa::vec3<float> result = sa::vec3<float>();
+			float aspectRatio = m_pWindow->getAspectRatio();
+			if (positionAlign & LEFT)
+				result.x -= m_worldScale.x * 0.5f;
+			if (positionAlign & RIGHT)
+				result.x += m_worldScale.x * 0.5f;
+			if (positionAlign & TOP)
+				result.y += m_worldScale.y * 0.5f;
+			if (positionAlign & BOTTOM)
+				result.y -= m_worldScale.y * 0.5f;
+
+			// since aspect ratio is fixed automatically in destination,
+			// we have to break this final value with aspect ratio.
+			result.y *= aspectRatio;
+			return result;
+		}
+
+		sa::vec3<float> getLocalExteriorPosition(PositionAlign positionAlign) {
+			sa::vec3<float> result = m_worldPosition;
+			float aspectRatio = m_pWindow->getAspectRatio();
+			if (positionAlign & LEFT)
+				result.x -= m_currentScale.x * 0.5f;
+			if (positionAlign & RIGHT)
+				result.x += m_currentScale.x * 0.5f;
+			if (positionAlign & TOP)
+				result.y += m_currentScale.y * 0.5f;
+			if (positionAlign & BOTTOM)
+				result.y -= m_currentScale.y * 0.5f;
+
 			// since aspect ratio is fixed automatically in destination,
 			// we have to break this final value with aspect ratio.
 			result.y *= aspectRatio;

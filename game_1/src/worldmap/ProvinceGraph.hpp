@@ -17,6 +17,7 @@ struct TroopReference
 	uint32_t defence = 0; // evade chance
 	uint32_t armor = 0; // damage mitigation
 	uint32_t leadership = 0; // how many troops can control.
+	uint32_t isCommander = 0; // starts out with commander status?
 
 	// TODO: Abilities / Special properties (eg. fire resistant, trampling, regenerating, medic, ...?)
 	// TODO: Equipment definition
@@ -47,6 +48,16 @@ struct Troop
 
 struct BattleCommander
 {
+	BattleCommander() = default;
+	BattleCommander(const TroopReference& prototype, size_t id, size_t owner)
+		: id(id)
+		, owner(owner)
+		, reference(prototype)
+	{
+		std::vector<std::string> names = {"Paavo", "Irmeli", "Kaapo", "Perse", "Kikkeli", "Kulli", "Pena", "Milla", "Suvi"};
+		name = names[sa::math::rand(id) % names.size()];
+	}
+
 	struct Squad
 	{
 		enum class Behaviour
@@ -70,6 +81,9 @@ struct BattleCommander
 	size_t id = 0;
 	size_t owner = 0;
 	size_t upkeep = 0;
+	
+	std::string name;
+	const TroopReference& reference;
 
 	std::vector<Squad> squads;
 	
@@ -82,9 +96,14 @@ struct BattleCommander
 		CastSpell // perform miracles of science
 	};
 
-	OrderType type;
-	size_t moveTo;
-	size_t spellToCast;
+	struct StrategyViewOrder
+	{
+		OrderType orderType;
+		size_t moveTo;
+		size_t spellToCast;
+	};
+
+	StrategyViewOrder myOrder;
 };
 
 struct Building
