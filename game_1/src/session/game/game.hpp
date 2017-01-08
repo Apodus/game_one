@@ -134,25 +134,47 @@ public:
 
 		mousePos = userio->getCursorPosition();
 		auto worldPos = mouseToWorld(mousePos);
+
+		auto* nearest = graph.getNearestProvince(worldPos);
+		if ((nearest->m_position - worldPos).lengthSquared() > 1.5f * 1.5f)
+			nearest = nullptr;
+
+		for (auto& province : graph.provinces())
 		{
+			province.updatevisual();
+		}
+
+		{
+			if (nearest)
+			{
+				nearest->updatevisual(1.3f, 2.0f);
+			}
+
 			int mouseKeyCode = userio->getMouseKeyCode(0);
 			if (userio->isKeyClicked(mouseKeyCode))
 			{
-				auto& provinces = graph.provinces();
-				ProvinceGraph::Province* best = nullptr;
-				float bestVal = 100000000.0f;
-
-				for (auto& province : provinces)
+				// TODO: If hud element took the click action, don't react here.
+				if (nearest)
 				{
-					float dist = (province.m_position - worldPos).lengthSquared();
-					if (dist < bestVal)
-					{
-						bestVal = dist;
-						best = &province;
-					}
+					hud->selectProvince(nearest);
 				}
+			}
 
-				hud->selectProvince(*best);
+			// move camera
+			if (userio->isKeyDown(mouseKeyCode))
+			{
+				auto modifier = (mousePosPrev - mousePos) * cameraPosition.z;
+				modifier.y /= aspectRatio;
+				targetCameraPosition += modifier;
+			}
+
+			float scroll = userio->getMouseScroll();
+			if (scroll != 0)
+			{
+				if (scroll > 0)
+					targetCameraPosition.z *= 1.0f - scroll * 0.1f;
+				else
+					targetCameraPosition.z *= 1.0f - 0.1f / scroll;
 			}
 		}
 
@@ -163,6 +185,8 @@ public:
 				LOG("clicked mouse 1");
 			}
 		}
+
+		mousePosPrev = mousePos;
 	}
 
 	void draw(std::shared_ptr<sa::Graphics> pGraphics);
@@ -198,6 +222,8 @@ private:
 	};
 
 	sa::vec3<float> mousePos;
+	sa::vec3<float> mousePosPrev;
+
 	sa::vec3<float> cameraPosition;
 	sa::vec3<float> targetCameraPosition;
 	float aspectRatio = 16.0f / 9.0f;

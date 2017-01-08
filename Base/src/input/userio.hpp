@@ -25,8 +25,8 @@ class UserIO
 	std::array<int, 512> m_buttonStates;
 	sa::vec3<float> m_mousePosition;
 	std::shared_ptr<Window> m_window;
-	float m_mouseScroll;
-	bool m_mouseInScreen;
+	float m_mouseScroll = 0;
+	bool m_mouseInScreen = true;
 
 	enum {
 		KEY_CLICKED = 2,

@@ -125,14 +125,14 @@ public:
 			std::string className;
 		};
 
-		ProvinceCommandersTab(sa::MenuComponent* parent, ProvinceGraph::Province& province)
+		ProvinceCommandersTab(sa::MenuComponent* parent, const ProvinceGraph::Province& province)
 			: sa::MenuComponent(parent, "CommandersTab", []() {return sa::vec3<float>(-0.95f, +0.9f, 0);}, sa::vec3<float>(0.5f, 1.0f, 0))
 			, bg(this, "BG", "ButtonBase", sa::vec4<float>(1, 1, 1, 0.4f))
 		{
 			this->positionAlign = sa::MenuComponent::PositionAlign::LEFT | sa::MenuComponent::PositionAlign::TOP;
 			this->m_focus = true;
 
-			for (auto& commander : province.commanders)
+			for (const auto& commander : province.commanders)
 			{
 				auto icon = std::make_shared<CommanderIcon>(this, commander.name, commander.reference.name, commander.id);
 
@@ -200,11 +200,14 @@ public:
 		std::vector<std::shared_ptr<CommanderIcon>> icons;
 	};
 
-	void selectProvince(ProvinceGraph::Province& province)
+	void selectProvince(const ProvinceGraph::Province* province)
 	{
 		unselectProvince();
-		auto commanderTab = std::make_shared<ProvinceCommandersTab>(this, province);
-		provinceMenu.emplace_back(commanderTab);
+		if (province)
+		{
+			auto commanderTab = std::make_shared<ProvinceCommandersTab>(this, *province);
+			provinceMenu.emplace_back(commanderTab);
+		}
 	}
 
 	void unselectProvince()

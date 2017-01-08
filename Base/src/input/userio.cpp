@@ -131,7 +131,6 @@ void sa::UserIO::onMouseScrollEvent(double xoffset, double yoffset) {
 void sa::UserIO::onMouseMoveEvent(double xpos, double ypos) {
 	m_mousePosition.x = 2.0f * static_cast<float>(xpos) / m_window->width() - 1.0f;
 	m_mousePosition.y = 1.0f - 2.0f * static_cast<float>(ypos) / m_window->height();
-	// LOG("%f, %f", m_mousePosition.x, m_mousePosition.y);
 }
 
 void sa::UserIO::onMouseEnterEvent(int entered) {

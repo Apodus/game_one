@@ -131,14 +131,14 @@ void Game::drawProvinces(std::shared_ptr<sa::Graphics> pGraphics)
 
 	for (const auto& province : provinces)
 	{
-		float scale = 0.4f * province.area() / 100.f;
+		float scale = 0.4f * province.area() * province.scale() / 100.f;
 
 		sa::Matrix4 model;
 		model.makeTranslationMatrix(province.m_position.x, province.m_position.y, 0);
 		model.rotate(0, 0, 0, 1);
 		model.scale(scale, scale, 1);
 
-		sa::vec4<float> color(0.3f, 0.3f, 0.3f, 1);
+		sa::vec4<float> color(0.3f, 0.3f, 0.3f, province.alpha());
 		if (province.m_owner == 0)
 		{
 			color.r = 1;
@@ -193,7 +193,7 @@ void Game::drawBattle(std::shared_ptr<sa::Graphics> pGraphics)
 
 void Game::tick(long long timeMs)
 {
-	cameraPosition += (targetCameraPosition - cameraPosition) * 16.0f / 1000.0f;
+	cameraPosition += (targetCameraPosition - cameraPosition) * 100.0f / 1000.0f;
 
 	if (m_sim)
 	{

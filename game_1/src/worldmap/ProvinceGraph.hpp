@@ -143,6 +143,14 @@ public:
 		std::vector<NaturalResource> resources;
 		std::vector<std::string> troopsToRecruit; // names of available troops.
 
+		struct UIProperties
+		{
+			float alpha = 0.3f;
+			float scale = 1;
+		};
+
+		UIProperties visualProperties;
+
 	public:
 		Province() = default;
 		Province(sa::vec2<float> pos) : m_position(pos)
@@ -167,6 +175,22 @@ public:
 		void area(size_t area)
 		{
 			m_area = area;
+		}
+
+		void updatevisual(float targetAlpha = 0.3f, float targetScale = 1.0f)
+		{
+			visualProperties.alpha += (targetAlpha - visualProperties.alpha) * 0.1f;
+			visualProperties.scale += (targetScale - visualProperties.scale) * 0.1f;
+		}
+
+		float scale() const
+		{
+			return visualProperties.scale;
+		}
+
+		float alpha() const
+		{
+			return visualProperties.alpha;
 		}
 	};
 
@@ -250,6 +274,24 @@ public:
 				}
 			}
 		}
+	}
+
+	Province* getNearestProvince(sa::vec2<float> worldPos)
+	{
+		ProvinceGraph::Province* best = nullptr;
+		float bestVal = 100000000.0f;
+
+		for (auto& province : m_provinces)
+		{
+			float dist = (province.m_position - worldPos).lengthSquared();
+			if (dist < bestVal)
+			{
+				bestVal = dist;
+				best = &province;
+			}
+		}
+
+		return best;
 	}
 
 	const std::vector<Province>& provinces() const
