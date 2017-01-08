@@ -9,7 +9,7 @@
 
 #include <ctime>
 
-long long Timer::time_now()
+int64_t Timer::time_now()
 {
 #if PLATFORM_WIN
 	return clock();
