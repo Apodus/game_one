@@ -203,6 +203,14 @@ public:
 		mousePosPrev = mousePos;
 	}
 
+	const TroopReference* troopReference(const std::string& name) const
+	{
+		auto it = troopReferences.find(name);
+		if (it == troopReferences.end())
+			return nullptr;
+		return &(it->second);
+	}
+
 	void draw(std::shared_ptr<sa::Graphics> pGraphics);
 private:
 	void drawProvinces(std::shared_ptr<sa::Graphics> pGraphics);

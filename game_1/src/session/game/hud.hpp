@@ -10,6 +10,8 @@
 
 #include "localization/localization.hpp"
 
+#include "session/game/menu/RecruitmentTab.hpp"
+
 #include <memory>
 
 class Game;
@@ -59,12 +61,6 @@ public:
 		addChild(demoButton);
 		addChild(demoButton2);
 	}
-
-
-	struct ProvinceRecruitmentTab : public sa::MenuComponent
-	{
-
-	};
 
 	struct ProvinceInfoTab : public sa::MenuComponent
 	{
@@ -189,7 +185,7 @@ public:
 		virtual void hide() override
 		{
 			m_focus = false;
-			m_targetPosition = []() { return sa::vec3<float>(-1.7f, -1.7f, 0); };
+			m_targetPosition = [this]() { return getRelativePosition() + sa::vec3<float>(-0.5f, -0.05f / m_pWindow->getAspectRatio(), 0); };
 		}
 
 		virtual void update(float dt) override {
@@ -205,8 +201,8 @@ public:
 		unselectProvince();
 		if (province)
 		{
-			auto commanderTab = std::make_shared<ProvinceCommandersTab>(this, *province);
-			provinceMenu.emplace_back(commanderTab);
+			provinceMenu.emplace_back(std::make_shared<ProvinceCommandersTab>(this, *province));
+			provinceMenu.emplace_back(std::make_shared<ProvinceRecruitmentTab>(this, *province, game));
 		}
 	}
 

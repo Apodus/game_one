@@ -36,6 +36,9 @@
     <ClCompile Include="src\session\game\hud.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\session\game\menu\RecruitmentTab.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\session\game\game.hpp">
@@ -75,6 +78,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\session\game\hud.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\session\game\menu\RecruitmentTab.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
