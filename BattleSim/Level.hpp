@@ -13,16 +13,16 @@ namespace bs
 	public:
 		static const U32 UniformGridBits = 17;
 		static const U32 UniformGridLists = 1 << UniformGridBits;
-		static const Real UniformGridScale;
+		static const U32 UniformGridScale;
 
-		Level()
-		{
-		}
+		BATTLESIM_API Level();
+
+		BATTLESIM_API ~Level();
+
+		void AddUnit(Unit& unit);
 
 		void RemoveUnit(Unit& unit);
-		void AddUnit(Unit& unit);
-		void FindCollisions(const Unit& unit, const Vec& newPos, std::vector<Unit::Id>& collisions) const;
-
+		
 		bool IsGridMove(const Unit& unit, const Vec& newPos) const
 		{			
 			BoundingBox bb;
@@ -33,13 +33,14 @@ namespace bs
 		// Map position to uniform grid
 		U32 POS(Real x) const
 		{
-			return static_cast<int>(x / UniformGridScale);
+			return static_cast<U32>(x >> UniformGridScale);
 		}
 
-	private:
-		U32 HashGrid(U32 x, U32 y) const
+		typedef Vector<Unit::Id> UnitList;
+		const UnitList& GetUnitList(U32 x, U32 y) const
 		{
-			return (y * 4096 + x) & (UniformGridLists - 1);
+			U32 hash = HashGrid(x, y);
+			return myGrid[hash];
 		}
 
 		void FindBoundingBox(const Vec& pos, const Real& radius, BoundingBox& bb) const
@@ -50,42 +51,56 @@ namespace bs
 			bb.bottom = POS(pos.y + radius);
 		}
 
-		typedef Vector<Unit::Id> UnitList;
+	private:
+		
+		U32 HashGrid(U32 x, U32 y) const
+		{
+			return ((y * 53836093) ^ (x * 79349663)) & (UniformGridLists - 1);
+		}
+
 		Array<UnitList, UniformGridLists> myGrid;
 	};
 }
 
-inline void bs::Level::FindCollisions(
-	const Unit& unit, const Vec& newPos, std::vector<Unit::Id>& collisions) const
+inline void bs::Level::RemoveUnit(Unit& unit)
 {
-	BoundingBox start;
-	FindBoundingBox(unit.pos, unit.radius, start);
-
-	BoundingBox end;
-	FindBoundingBox(newPos, unit.radius, end);
-
-	BoundingBox bb;
-	bb.left = start.left < end.left ? start.left : end.left;
-	bb.right = start.right > end.right ? start.right : end.right;
-	bb.top = start.top < end.top ? start.top : end.top;
-	bb.bottom = start.bottom > end.bottom ? start.bottom : end.bottom;
-
-	for (U32 y = bb.top; y <= bb.bottom; y++)
+	for (U32 y = unit.bb.top; y <= unit.bb.bottom; y++)
 	{
-		for (U32 x = bb.left; x <= bb.right; x++)
+		for (U32 x = unit.bb.left; x <= unit.bb.right; x++)
 		{
 			U32 hash = HashGrid(x, y);
+			ASSERT(!myGrid[hash].empty(), "No units found at [%u, %u]", x, y);
 			auto& list = myGrid[hash];
-			for (size_t i = 0; i < list.size(); i++)
+			for (size_t i = 0; i < list.size();)
 			{
-				if (list.at(i) != unit.id)
+				if (list.at(i) == unit.id)
 				{
-					if (std::find(collisions.begin(), collisions.end(), list.at(i)) == collisions.end())
-					{
-						collisions.emplace_back(list.at(i));
-					}
+					// LOG("UNIT %d removed at[%u, %u](%lu)", unit.id, x, y, hash);
+					list[i] = list.back();
+					list.pop_back();
+					break;
+				}
+				else
+				{
+					++i;
 				}
 			}
 		}
 	}
 }
+
+inline void bs::Level::AddUnit(Unit& unit)
+{
+	FindBoundingBox(unit.pos, unit.radius, unit.bb);
+	for (U32 y = unit.bb.top; y <= unit.bb.bottom; y++)
+	{
+		for (U32 x = unit.bb.left; x <= unit.bb.right; x++)
+		{
+			U32 hash = HashGrid(x, y);
+			myGrid[hash].emplace_back(unit.id);
+			// LOG("UNIT %d added at[%u, %u](%lu)", unit.id, x, y, hash);
+			ASSERT(myGrid[hash].size() < 32, "Lots of units in same block. Hash collision?");
+		}
+	}
+}
+

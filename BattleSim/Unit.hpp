@@ -25,7 +25,7 @@ namespace bs
 
 		// Weapons, TODO: allow multiple weapons
 		U32 strength = 0;
-		U32 range = 0;
+		U32 range = 100;
 		U32 weaponspeed = 0;
 		U16 updatePriority = 0;
 

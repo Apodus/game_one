@@ -38,6 +38,87 @@ void bs::Field::UpdatePriorities()
 	});
 }
 
+void bs::Field::FindCollisions(
+	const Unit& unit, const Vec& newPos, std::vector<Unit::Id>& collisions) const
+{
+	BoundingBox start;
+	myLevels[0].FindBoundingBox(unit.pos, unit.radius, start);
+
+	BoundingBox end;
+	myLevels[0].FindBoundingBox(newPos, unit.radius, end);
+
+	BoundingBox bb;
+	bb.left = start.left < end.left ? start.left : end.left;
+	bb.right = start.right > end.right ? start.right : end.right;
+	bb.top = start.top < end.top ? start.top : end.top;
+	bb.bottom = start.bottom > end.bottom ? start.bottom : end.bottom;
+
+	for (U32 y = bb.top; y <= bb.bottom; y++)
+	{
+		for (U32 x = bb.left; x <= bb.right; x++)
+		{
+			auto& list = myLevels[0].GetUnitList(x, y);
+			for (size_t i = 0; i < list.size(); i++)
+			{
+				if (list.at(i) != unit.id)
+				{
+					// if (std::find(collisions.begin(), collisions.end(), list.at(i)) == collisions.end())
+					{
+						collisions.emplace_back(list.at(i));
+					}
+				}
+			}
+		}
+	}
+	// Sort and erase duplicates.
+	std::sort(collisions.begin(), collisions.end());
+	collisions.erase(std::unique(collisions.begin(), collisions.end()), collisions.end());
+}
+
+bs::Unit::Id bs::Field::FindClosestEnemy(const Unit& unit, Real& range) const
+{
+	BoundingBox bb;
+	range = Real(unit.range, 100) + unit.radius;
+	bb.left = myLevels[0].POS(unit.pos.x - range);
+	bb.top = myLevels[0].POS(unit.pos.y - range);
+	bb.right = myLevels[0].POS(unit.pos.x + range);
+	bb.bottom = myLevels[0].POS(unit.pos.y + range);
+	return FindClosestEnemy(unit, bb, range);
+}
+
+bs::Unit::Id bs::Field::FindClosestEnemy(const Unit& unit, const BoundingBox& bb,  Real& range) const
+{
+	Unit::Id otherId = static_cast<Unit::Id>(-1);
+	for (U32 y = bb.top; y <= bb.bottom; y++)
+	{
+		for (U32 x = bb.left; x <= bb.right; x++)
+		{
+			FindClosestEnemy(unit, x, y, range, otherId);
+		}
+	}
+	return otherId;
+}
+
+void bs::Field::FindClosestEnemy(const Unit& unit, U32 x, U32 y, Real& range, Unit::Id& otherId) const
+{
+	auto& list = myLevels[0].GetUnitList(x, y);
+	for (size_t i = 0; i < list.size(); i++)
+	{
+		auto& otherUnit = myUnits[list[i]];
+		if (otherUnit.team != unit.team)
+		{
+			auto radius = unit.radius + otherUnit.radius;
+			auto len = (otherUnit.pos - unit.pos).lengthSquared() + (radius*radius);
+			if (len < range)
+			{
+				range = len;
+				otherId = list[i];
+			}
+		}
+	}
+}
+
+
 void bs::Field::Update()
 {
 	UpdatePriorities();
@@ -76,7 +157,7 @@ void bs::Field::Update()
 
 		Vec newPos = unit.vel * TimePerUpdate + unit.pos;
 		collisions.clear();
-		myLevels[0].FindCollisions(unit, newPos, collisions);
+		FindCollisions(unit, newPos, collisions);
 
 		Unit::Id collisionId = static_cast<Unit::Id>(-1);
 		for (size_t j = 0; j < collisions.size(); j++)

@@ -21,6 +21,8 @@ namespace bs
 
 		void Update();
 
+		Unit::Id FindClosestEnemy(const Unit& unit, Real& range) const;
+
 		static const Real TimePerUpdate;
 
 		BATTLESIM_API const Frame& GetFrame()
@@ -34,6 +36,12 @@ namespace bs
 
 	private:
 		void UpdatePriorities();
+
+		void FindCollisions(const Unit& unit, const Vec& newPos, std::vector<Unit::Id>& collisions) const;
+
+		Unit::Id FindClosestEnemy(const Unit& unit, const BoundingBox& bb, Real& range) const;
+
+		void FindClosestEnemy(const Unit& unit, U32 x, U32 y, Real& range, Unit::Id& otherId) const;
 
 		bool CollisionCheck(const Unit& a, const Unit& b, const Vec& endPos, Vec& hitPos);
 

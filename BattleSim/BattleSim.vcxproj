@@ -163,11 +163,14 @@
     <ClInclude Include="BattleSim.hpp" />
     <ClInclude Include="Deque.hpp" />
     <ClInclude Include="Field.hpp" />
+    <ClInclude Include="GroupAI.hpp" />
     <ClInclude Include="Level.hpp" />
+    <ClInclude Include="PriorityQueue.hpp" />
     <ClInclude Include="Types.hpp" />
     <ClInclude Include="Unit.hpp" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="UnitAI.h" />
     <ClInclude Include="Vector.hpp" />
   </ItemGroup>
   <ItemGroup>
