@@ -19,9 +19,9 @@ bs::Unit::Id bs::Field::Add(Unit& unit)
 
 void bs::Field::UpdatePriorities()
 {
-	for (size_t i = 0; i < myUnits.size(); i++)
+	for (size_t i = 0; i < myActiveUnits.size(); i++)
 	{
-		auto& unit = myUnits[i];		
+		auto& unit = myUnits[myActiveUnits[i]];
 		auto len = ((unit.moveTarget - unit.pos).lengthSquared().getRawValue() - unit.radius.getRawValue()) >> 18;
 		if (len < 0)
 		{

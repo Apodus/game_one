@@ -170,6 +170,8 @@ void Game::drawBattle(std::shared_ptr<sa::Graphics> pGraphics)
 	float offsetX = 30.0f;
 	float offsetY = 20.0f;
 	float scale = 1/4.0f;
+	
+	float unitHeight = 1.5f;
 
 	auto& frame = m_sim->GetField().GetFrame();
 	for (size_t i = 0; i < frame.units.size(); i++)
@@ -182,7 +184,7 @@ void Game::drawBattle(std::shared_ptr<sa::Graphics> pGraphics)
 		float size = unit.radius.toFloat() * scale;
 
 		sa::Matrix4 model;
-		model.makeTranslationMatrix(x, y, unit.hitpoints == 0 ? -1.0f : 0);
+		model.makeTranslationMatrix(x, y, unit.hitpoints == 0 ? 0.0f : unitHeight * scale);
 		model.rotate(0, 0, 0, 1);
 		model.scale(size, size, 1);
 
