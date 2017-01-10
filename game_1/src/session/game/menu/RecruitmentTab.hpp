@@ -3,6 +3,7 @@
 
 #include "menu/MenuComponent.hpp"
 #include "menu/MenuFrame.hpp"
+#include "menu/MenuButton.hpp"
 #include "graphics/graphics.hpp"
 #include "worldmap/ProvinceGraph.hpp"
 
@@ -43,20 +44,20 @@ struct ProvinceRecruitmentTab : public sa::MenuComponent
 
 
 	virtual void childComponentCall(const std::string& who, const std::string& what, int = 0)
-	{}
+	{
+		if (who == "RecruitmentOpenClose")
+		{
+			isOpen = !isOpen;
+			if (isOpen)
+				open();
+			else
+				close();
+		}
+	}
 
 	virtual void draw(std::shared_ptr<sa::Graphics> graphics) const override
 	{
 		bg.draw(graphics);
-		graphics->m_pTextRenderer->drawText(
-			"Recruitment",
-			m_worldPosition.x,
-			m_worldPosition.y + m_worldScale.y * 0.5f,
-			0.1f,
-			Color::CYAN,
-			sa::TextRenderer::Align::CENTER,
-			graphics->m_fontConsola
-		);
 	}
 
 	virtual void hide() override
@@ -73,15 +74,17 @@ struct ProvinceRecruitmentTab : public sa::MenuComponent
 	// open / close this panel
 	void open()
 	{
+		isOpen = true;
 		setTargetPosition(
-			[this]() { return sa::vec3<float>(0, -0.9f + height(), 0); }
+			[this]() { return sa::vec3<float>(0, -1.0f, 0); }
 		);
 	}
 
 	void close()
 	{
+		isOpen = false;
 		setTargetPosition(
-			[this]() { return sa::vec3<float>(0, -0.9f, 0); }
+			[this]() { return sa::vec3<float>(0, -1.0f - m_worldScale.y * m_pWindow->getAspectRatio(), 0); }
 		);
 	}
 
@@ -92,7 +95,9 @@ private:
 	}
 
 	const int iconsPerRow = 8;
+	bool isOpen = false;
 
 	sa::MenuFrameBackground bg;
+	std::shared_ptr<sa::MenuButton> openClose;
 	std::vector<std::shared_ptr<RecruitmentIcon>> icons;
 };

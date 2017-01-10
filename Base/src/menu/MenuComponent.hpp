@@ -168,11 +168,8 @@ namespace sa {
 				m_worldPosition.y += m_worldScale.y * 0.5f;
 
 			update(dt);
-
-			if (inScreen()) {
-				for (auto child : m_children) {
-					child->tick(dt);
-				}
+			for (auto child : m_children) {
+				child->tick(dt);
 			}
 		}
 
@@ -186,9 +183,9 @@ namespace sa {
 		void visualise(std::shared_ptr<Graphics> graphics) const {
 			if (inScreen()) {
 				draw(graphics);
-				for (auto child : m_children) {
-					child->visualise(graphics);
-				}
+			}
+			for (auto child : m_children) {
+				child->visualise(graphics);
 			}
 		}
 

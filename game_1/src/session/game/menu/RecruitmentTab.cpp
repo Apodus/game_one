@@ -3,11 +3,25 @@
 #include "session/game/game.hpp"
 
 ProvinceRecruitmentTab::ProvinceRecruitmentTab(sa::MenuComponent* parent, const ProvinceGraph::Province& province, const Game& game)
-	: sa::MenuComponent(parent, "CommandersTab", []() {return sa::vec3<float>(0, -0.9f, 0); }, sa::vec3<float>(1, 0.3f, 0))
+	: sa::MenuComponent(parent, "CommandersTab", []() {return sa::vec3<float>(0, -0.95f, 0); }, sa::vec3<float>(1, 0.3f, 0))
 	, bg(this, "BG", "ButtonBase", sa::vec4<float>(1, 1, 1, 0.4f))
 {
-	this->positionAlign = sa::MenuComponent::PositionAlign::TOP;
+	this->positionAlign = sa::MenuComponent::PositionAlign::BOTTOM;
 	this->m_focus = true;
+
+	openClose = std::make_shared<sa::MenuButton>(
+		this,
+		"RecruitmentOpenClose",
+		[this](){ return getExteriorPosition(TOP); },
+		sa::vec3<float>(0.3f, 0.1f, 0),
+		"Frame",
+		"Recruitment",
+		PositionAlign::BOTTOM,
+		sa::TextRenderer::Align::CENTER,
+		Color::WHITE,
+		Color::WHITE
+	);
+	this->addChild(openClose);
 
 	for (const auto& troopName : province.troopsToRecruit)
 	{
@@ -35,7 +49,7 @@ ProvinceRecruitmentTab::ProvinceRecruitmentTab(sa::MenuComponent* parent, const 
 				int index = icons.size() - iconsPerRow;
 				icon->setTargetPosition([this, index]() {
 					auto pos = icons[index]->getLocalExteriorPosition(sa::MenuComponent::BOTTOM);
-					return pos + sa::vec3<float>(0, -0.1f, 0);
+					return pos + sa::vec3<float>(0, -0.9f, 0);
 				});
 				icon->positionAlign = sa::MenuComponent::TOP;
 			}
@@ -54,7 +68,7 @@ ProvinceRecruitmentTab::ProvinceRecruitmentTab(sa::MenuComponent* parent, const 
 		icons.emplace_back(icon);
 	}
 
-	open();
+	close();
 }
 
 
