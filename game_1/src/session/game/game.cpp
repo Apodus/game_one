@@ -74,7 +74,8 @@ Game::Game(
 
 	for (auto& province : provinces)
 	{
-		province.troopsToRecruit.emplace_back(militia.name);
+		for(int i=0; i<10; ++i)
+			province.troopsToRecruit.emplace_back(militia.name);
 	}
 
 	auto& first = provinces.front();

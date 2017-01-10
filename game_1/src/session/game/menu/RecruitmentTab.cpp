@@ -21,6 +21,8 @@ ProvinceRecruitmentTab::ProvinceRecruitmentTab(sa::MenuComponent* parent, const 
 		Color::WHITE,
 		Color::WHITE
 	);
+	openClose->setPositionUpdateType(true);
+
 	this->addChild(openClose);
 
 	for (const auto& troopName : province.troopsToRecruit)
@@ -34,11 +36,12 @@ ProvinceRecruitmentTab::ProvinceRecruitmentTab(sa::MenuComponent* parent, const 
 
 
 		auto icon = std::make_shared<RecruitmentIcon>(this, troopName, *troopReference);
-		
+		icon->myIndex = icons.size();
+
 		if (icons.empty())
 		{
 			icon->setTargetPosition([this]() {
-				return this->getExteriorPositionForChild(sa::MenuComponent::TOP | sa::MenuComponent::LEFT) + sa::vec3<float>(0.03f, -0.1f, 0);
+				return this->getExteriorPosition(sa::MenuComponent::TOP | sa::MenuComponent::LEFT) + sa::vec3<float>(0.03f, -0.03f, 0);
 			});
 			icon->positionAlign = sa::MenuComponent::TOP | sa::MenuComponent::LEFT;
 		}
@@ -48,7 +51,7 @@ ProvinceRecruitmentTab::ProvinceRecruitmentTab(sa::MenuComponent* parent, const 
 			{
 				int index = icons.size() - iconsPerRow;
 				icon->setTargetPosition([this, index]() {
-					auto pos = icons[index]->getLocalExteriorPosition(sa::MenuComponent::BOTTOM);
+					auto pos = icons[index]->getExteriorPosition(sa::MenuComponent::BOTTOM);
 					return pos + sa::vec3<float>(0, -0.9f, 0);
 				});
 				icon->positionAlign = sa::MenuComponent::TOP;
@@ -57,7 +60,7 @@ ProvinceRecruitmentTab::ProvinceRecruitmentTab(sa::MenuComponent* parent, const 
 			{
 				int index = icons.size() - 1;
 				icon->setTargetPosition([this, index]() {
-					auto pos = icons[index]->getLocalExteriorPosition(sa::MenuComponent::RIGHT);
+					auto pos = icons[index]->getExteriorPosition(sa::MenuComponent::RIGHT);
 					return pos + sa::vec3<float>(0.03f, 0, 0);
 				});
 				icon->positionAlign = sa::MenuComponent::LEFT;
@@ -69,25 +72,4 @@ ProvinceRecruitmentTab::ProvinceRecruitmentTab(sa::MenuComponent* parent, const 
 	}
 
 	close();
-}
-
-
-void ProvinceRecruitmentTab::RecruitmentIcon::draw(std::shared_ptr<sa::Graphics> graphics) const
-{
-	sa::Matrix4 model;
-	auto pos = recursivePosition();
-	model.makeTranslationMatrix(pos.x, pos.y, 0);
-	model.rotate(0, 0, 0, 1);
-	model.scale(m_worldScale.x * 0.5f, m_worldScale.y * 0.5f, 0);
-	graphics->m_pRenderer->drawRectangle(model, "Hero", color); // TODO: Choose texture
-
-	graphics->m_pTextRenderer->drawText(
-		className,
-		pos.x,
-		(pos.y - 0.035f),
-		0.04f,
-		Color::GOLDEN,
-		sa::TextRenderer::Align::CENTER,
-		graphics->m_fontConsola
-	);
 }

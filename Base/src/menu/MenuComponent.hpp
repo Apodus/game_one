@@ -24,6 +24,8 @@ namespace sa {
 
 		std::string m_name;
 		bool m_focus;
+		bool instantPositionUpdate = false;
+		bool instantScaleUpdate = false;
 
 		std::vector<std::shared_ptr<MenuComponent>> m_children;
 
@@ -145,6 +147,16 @@ namespace sa {
 		virtual ~MenuComponent() {
 		}
 
+		void setPositionUpdateType(bool instant)
+		{
+			instantPositionUpdate = instant;
+		}
+
+		void setScaleUpdateType(bool instant)
+		{
+			instantScaleUpdate = instant;
+		}
+
 		void addChild(std::shared_ptr<MenuComponent> child) {
 			m_children.push_back(child);
 		}
@@ -152,8 +164,24 @@ namespace sa {
 		void tick(float dt) {
 			float inverseAR = 1.0f / m_pWindow->getAspectRatio();
 			vec3<float> aspectFix = vec3<float>(1, inverseAR, 1);
-			m_currentPosition += (m_targetPosition() * aspectFix - m_currentPosition) * dt * 5;
-			m_currentScale += (m_targetScale - m_currentScale) * dt * 8;
+
+			if (!instantPositionUpdate)
+			{
+				m_currentPosition += (m_targetPosition() * aspectFix - m_currentPosition) * dt * 5;
+			}
+			else
+			{
+				m_currentPosition = m_targetPosition() * aspectFix;
+			}
+
+			if (!instantScaleUpdate)
+			{
+				m_currentScale += (m_targetScale - m_currentScale) * dt * 8;
+			}
+			else
+			{
+				m_currentScale = m_targetScale;
+			}
 
 			updatePosition();
 			updateScale();

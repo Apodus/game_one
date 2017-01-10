@@ -17,7 +17,7 @@
 namespace sa {
 
 class MenuButton : public MenuComponent {
-
+protected:
 	float targetAlpha;
 	std::string m_texture;
 	std::string m_text;
