@@ -135,20 +135,7 @@ public:
 		mousePos = userio->getCursorPosition();
 		auto worldPos = mouseToWorld(mousePos);
 
-		bool mouseClickActual = false;
-
 		int mouseKeyCode = userio->getMouseKeyCode(0);
-		if (userio->isKeyClicked(mouseKeyCode))
-		{
-			mouseDownLogicalPos = mousePos;
-			mouseDownTime = Timer::time_now();
-		}
-		if (userio->isKeyReleased(mouseKeyCode))
-		{
-			int64_t mouseTimeThing = Timer::time_now() - mouseDownTime;
-			mouseClickActual = ((mouseDownLogicalPos - mousePos).lengthSquared() < 0.05f * 0.05f && mouseTimeThing < 250);
-		}
-
 		auto* nearest = graph.getNearestProvince(worldPos);
 		if ((nearest->m_position - worldPos).lengthSquared() > 1.5f * 1.5f)
 			nearest = nullptr;
@@ -165,9 +152,8 @@ public:
 			}
 
 			int mouseKeyCode = userio->getMouseKeyCode(0);
-			if (mouseClickActual)
+			if (userio->isKeyClicked(mouseKeyCode) && !userio->isKeyConsumed(mouseKeyCode))
 			{
-				// TODO: If hud element took the click action, don't react here.
 				if (nearest)
 				{
 					hud->selectProvince(nearest);
@@ -194,7 +180,7 @@ public:
 
 		{
 			int mouseKeyCode = userio->getMouseKeyCode(1);
-			if (userio->isKeyClicked(mouseKeyCode))
+			if (userio->isKeyPressed(mouseKeyCode))
 			{
 				LOG("clicked mouse 1");
 			}
@@ -246,11 +232,6 @@ private:
 	sa::vec3<float> mousePos;
 	sa::vec3<float> mousePosPrev;
 	
-	// for differentiating clicks vs other mouse gestures.
-	sa::vec3<float> mouseDownLogicalPos;
-	int64_t mouseDownTime = 0;
-
-
 	sa::vec3<float> cameraPosition;
 	sa::vec3<float> targetCameraPosition;
 	float aspectRatio = 16.0f / 9.0f;

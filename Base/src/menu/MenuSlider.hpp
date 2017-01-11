@@ -73,7 +73,7 @@ public:
 	virtual void update(float) override {
 		if(isMouseOver()) {
 			int mouseKey1 = m_pUserIO->getMouseKeyCode(0);
-			if(m_pUserIO->isKeyClicked(mouseKey1))
+			if(m_pUserIO->isKeyPressed(mouseKey1))
 				m_mouseDragActive = true;
 			if(m_pUserIO->isKeyReleased(mouseKey1))
 				m_mouseDragActive = false;

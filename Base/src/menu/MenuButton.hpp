@@ -111,14 +111,12 @@ private:
 			setTargetScale(m_defaultScale * 1.2f);
 			targetAlpha = 1.0f;
 
-			if(m_pUserIO->isKeyClicked(m_pUserIO->getMouseKeyCode(0))) {
-				callParent("click", 0);
-			}
-			if(m_pUserIO->isKeyClicked(m_pUserIO->getMouseKeyCode(1))) {
-				callParent("click", 1);
-			}
-			if(m_pUserIO->isKeyClicked(m_pUserIO->getMouseKeyCode(2))) {
-				callParent("click", 2);
+			for (int i = 0; i < 3; ++i)
+			{
+				if (m_pUserIO->isKeyClicked(m_pUserIO->getMouseKeyCode(i))) {
+					m_pUserIO->consume(m_pUserIO->getMouseKeyCode(i));
+					callParent("click", i);
+				}
 			}
 		}
 		else {

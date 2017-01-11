@@ -276,6 +276,10 @@ namespace sa {
 			m_worldScale = scale;
 		}
 
+		void setFocus(bool v) {
+			m_focus = v;
+		}
+
 		virtual void show() {
 			m_focus = true;
 			m_targetPosition = m_defaultPosition;

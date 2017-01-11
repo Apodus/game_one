@@ -22,17 +22,20 @@ class UserIO
 	void onMouseMoveEvent(double xpos, double ypos);
 	void onMouseEnterEvent(int entered);
 
-	std::array<int, 512> m_buttonStates;
+	std::array<uint8_t, 512> m_buttonStates;
 	sa::vec3<float> m_mousePosition;
+	sa::vec3<float> m_mousePosition_clickBegin;
 	std::shared_ptr<Window> m_window;
 	float m_mouseScroll = 0;
 	bool m_mouseInScreen = true;
 
 	enum {
-		KEY_CLICKED = 2,
 		KEY_DOWN = 1,
+		KEY_PRESSED = 2,
 		KEY_REPEAT = 4,
-		KEY_RELEASED = 8
+		KEY_RELEASED = 8,
+		KEY_CLICK = 16,
+		KEY_CONSUMED = 32
 	};
 
 public:
@@ -54,10 +57,14 @@ public:
 		return m_mousePosition;
 	}
 
-	bool isKeyClicked(int key);
-	bool isKeyDown(int key);
-	bool isKeyRepeat(int key);
-	bool isKeyReleased(int key);
+	bool isKeyClicked(int key) const;
+	bool isKeyPressed(int key) const;
+	bool isKeyDown(int key) const;
+	bool isKeyRepeat(int key) const;
+	bool isKeyReleased(int key) const;
+	bool isKeyConsumed(int key) const;
+	void consume(int key);
+
 	float getMouseScroll() const;
 
 	int getAnyClicked();

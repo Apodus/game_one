@@ -43,6 +43,7 @@ struct ProvinceRecruitmentTab : public sa::MenuComponent
 
 				if (m_pUserIO->isKeyClicked(m_pUserIO->getMouseKeyCode(0)))
 				{
+					m_pUserIO->consume(m_pUserIO->getMouseKeyCode(0));
 					callParent("click", myIndex);
 				}
 			}
@@ -106,12 +107,25 @@ struct ProvinceRecruitmentTab : public sa::MenuComponent
 	virtual void hide() override
 	{
 		m_focus = false;
-		m_targetPosition = [this]() { return getExteriorPosition(BOTTOM) - sa::vec3<float>(0, -0.05f / m_pWindow->getAspectRatio(), 0); };
+		openClose->setFocus(false);
+		for (auto& elem : icons)
+			elem->setFocus(false);
+		for (auto& elem : recruitmentOrders)
+			elem->setFocus(false);
+
+		m_targetPosition = [this]() { return sa::vec3<float>(0, -2, 0); };
 	}
 
 	virtual void update(float dt) override
 	{
 		bg.update(dt);
+
+		if (isMouseOver())
+		{
+			int key = m_pUserIO->getMouseKeyCode(0);
+			if (m_pUserIO->isKeyClicked(key))
+				m_pUserIO->consume(key);
+		}
 	}
 
 	// open / close this panel

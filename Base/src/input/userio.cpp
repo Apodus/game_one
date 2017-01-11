@@ -52,25 +52,38 @@ sa::UserIO::~UserIO() {
 #pragma warning (disable : 4800) // forcing int value to boolean
 #endif
 
-bool sa::UserIO::isKeyClicked(int key) {
-	return m_buttonStates[key] & KEY_CLICKED;
+bool sa::UserIO::isKeyClicked(int key) const {
+	return m_buttonStates[key] & KEY_CLICK;
 }
 
-bool sa::UserIO::isKeyDown(int key) {
+bool sa::UserIO::isKeyPressed(int key) const {
+	return m_buttonStates[key] & KEY_PRESSED;
+}
+
+bool sa::UserIO::isKeyDown(int key) const {
 	return m_buttonStates[key] & KEY_DOWN;
 }
 
-bool sa::UserIO::isKeyRepeat(int key) {
+bool sa::UserIO::isKeyRepeat(int key) const {
 	return m_buttonStates[key] & KEY_REPEAT;
 }
 
-bool sa::UserIO::isKeyReleased(int key) {
+bool sa::UserIO::isKeyReleased(int key) const {
 	return m_buttonStates[key] & KEY_RELEASED;
 }
 
+bool sa::UserIO::isKeyConsumed(int key) const {
+	return m_buttonStates[key] & KEY_CONSUMED;
+}
+
+void sa::UserIO::consume(int key) {
+	m_buttonStates[key] |= KEY_CONSUMED;
+}
+
+
 int sa::UserIO::getAnyClicked() {
 	for(unsigned index = 0; index < m_buttonStates.size(); ++index) {
-		if(m_buttonStates[index] & KEY_CLICKED) {
+		if(m_buttonStates[index] & KEY_PRESSED) {
 			return index;
 		}
 	}
@@ -95,8 +108,8 @@ float sa::UserIO::getMouseScroll() const {
 #endif
 
 void sa::UserIO::update() {
-	for(int& keyState : m_buttonStates) {
-		keyState &= ~(KEY_CLICKED | KEY_RELEASED | KEY_REPEAT);
+	for(uint8_t& keyState : m_buttonStates) {
+		keyState &= ~(KEY_PRESSED | KEY_RELEASED | KEY_REPEAT | KEY_CLICK | KEY_CONSUMED);
 	}
 	m_mouseScroll = 0;
 }
@@ -105,10 +118,10 @@ void sa::UserIO::onKeyEvent(int key, int scancode, int action, int mods) {
 	if (key < 0)
 		return;
 	if (action == GLFW_PRESS) {
-		m_buttonStates[key] |= KEY_CLICKED | KEY_DOWN;
+		m_buttonStates[key] |= KEY_PRESSED | KEY_DOWN;
 	}
 	else if (action == GLFW_RELEASE) {
-		m_buttonStates[key] = KEY_RELEASED;
+		m_buttonStates[key] = KEY_RELEASED | KEY_CLICK;
 	}
 	else if (action == GLFW_REPEAT) {
 		m_buttonStates[key] |= KEY_REPEAT;
@@ -117,10 +130,17 @@ void sa::UserIO::onKeyEvent(int key, int scancode, int action, int mods) {
 
 void sa::UserIO::onMouseButtonEvent(int key, int action, int mods) {
 	if (action == GLFW_PRESS) {
-		m_buttonStates[key + 256] |= KEY_CLICKED | KEY_DOWN;
+		m_buttonStates[key + 256] |= KEY_PRESSED | KEY_DOWN;
+		m_mousePosition_clickBegin = m_mousePosition;
 	}
 	if (action == GLFW_RELEASE) {
-		m_buttonStates[key + 256] = KEY_RELEASED;
+		uint8_t value = KEY_RELEASED;
+		if ((m_mousePosition - m_mousePosition_clickBegin).lengthSquared() < 0.02f * 0.02f)
+		{
+			value |= KEY_CLICK;
+		}
+
+		m_buttonStates[key + 256] = value;
 	}
 }
 
