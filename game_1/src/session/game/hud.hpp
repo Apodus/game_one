@@ -196,11 +196,12 @@ public:
 		std::vector<std::shared_ptr<CommanderIcon>> icons;
 	};
 
-	void selectProvince(const ProvinceGraph::Province* province)
+	void selectProvince(ProvinceGraph::Province* province)
 	{
 		unselectProvince();
 		if (province)
 		{
+			activeProvince = province;
 			provinceMenu.emplace_back(std::make_shared<ProvinceCommandersTab>(this, *province));
 			provinceMenu.emplace_back(std::make_shared<ProvinceRecruitmentTab>(this, *province, game));
 		}
@@ -210,12 +211,14 @@ public:
 	{
 		for(auto& entry : provinceMenu)
 			entry->hide();
+		activeProvince = nullptr;
 	}
 
 private:
 
 	Game& game;
 	std::vector<std::shared_ptr<sa::MenuComponent>> provinceMenu;
+	ProvinceGraph::Province* activeProvince = nullptr;
 
 	virtual void childComponentCall(const std::string& who, const std::string& what, int = 0) override;
 

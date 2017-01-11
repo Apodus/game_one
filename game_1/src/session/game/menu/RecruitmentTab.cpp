@@ -3,7 +3,7 @@
 #include "session/game/game.hpp"
 
 ProvinceRecruitmentTab::ProvinceRecruitmentTab(sa::MenuComponent* parent, const ProvinceGraph::Province& province, const Game& game)
-	: sa::MenuComponent(parent, "CommandersTab", []() {return sa::vec3<float>(0, -0.95f, 0); }, sa::vec3<float>(1, 0.3f, 0))
+	: sa::MenuComponent(parent, "RecruitmentTab", []() {return sa::vec3<float>(0, -0.95f, 0); }, sa::vec3<float>(1, 0.3f, 0))
 	, bg(this, "BG", "ButtonBase", sa::vec4<float>(1, 1, 1, 0.4f))
 {
 	this->positionAlign = sa::MenuComponent::PositionAlign::BOTTOM;
@@ -35,7 +35,7 @@ ProvinceRecruitmentTab::ProvinceRecruitmentTab(sa::MenuComponent* parent, const 
 		}
 
 
-		auto icon = std::make_shared<RecruitmentIcon>(this, troopName, *troopReference);
+		auto icon = std::make_shared<RecruitmentIcon>(this, troopName, *troopReference, "RecruitmentIcon");
 		icon->myIndex = icons.size();
 
 		if (icons.empty())

@@ -143,6 +143,8 @@ public:
 		std::vector<NaturalResource> resources;
 		std::vector<std::string> troopsToRecruit; // names of available troops.
 
+		std::vector<const TroopReference*> currentRecruitmentRequests;
+
 		struct UIProperties
 		{
 			float alpha = 0.3f;
@@ -155,6 +157,23 @@ public:
 		Province() = default;
 		Province(sa::vec2<float> pos) : m_position(pos)
 		{
+		}
+
+		void addRecruitOrder(const TroopReference* troopReference)
+		{
+			currentRecruitmentRequests.emplace_back(troopReference);
+		}
+
+		void removeRecruitOrder(const TroopReference* troopReference)
+		{
+			for (size_t i = 0; i < currentRecruitmentRequests.size(); ++i)
+			{
+				if (currentRecruitmentRequests[i] == troopReference)
+				{
+					currentRecruitmentRequests.erase(currentRecruitmentRequests.begin() + i);
+					return;
+				}
+			}
 		}
 
 		size_t supplies() const

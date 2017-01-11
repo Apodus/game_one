@@ -18,8 +18,8 @@ struct ProvinceRecruitmentTab : public sa::MenuComponent
 
 	struct RecruitmentIcon : public sa::MenuButton
 	{
-		RecruitmentIcon(sa::MenuComponent* parent, std::string className, const TroopReference& reference)
-			: sa::MenuButton(parent, "RecruitmentIcon", []() {return sa::vec3<float>(0, 0, 0); }, sa::vec3<float>(0.1f, 0.1f, 0), "Hero", className)
+		RecruitmentIcon(sa::MenuComponent* parent, std::string className, const TroopReference& reference, const std::string& componentName)
+			: sa::MenuButton(parent, componentName, []() {return sa::vec3<float>(0, 0, 0); }, sa::vec3<float>(0.1f, 0.1f, 0), "Hero", className)
 			, troopReference(reference)
 		{
 			this->className = className;
@@ -76,7 +76,24 @@ struct ProvinceRecruitmentTab : public sa::MenuComponent
 		{
 			if (what == "click")
 			{
+				auto recruitmentOrderIcon = std::make_shared<RecruitmentIcon>(this, icons[value]->className, icons[value]->troopReference, "CancelRecruitment");
+				recruitmentOrderIcon->myIndex = value;
+				recruitmentOrderIcon->setTargetPosition([this]() { return sa::vec3<float>(); });
+				recruitmentOrders.emplace_back(recruitmentOrderIcon);
 
+				// TODO: positioning of created item?
+				// TODO: when creating the tab from scratch, read the province for current recruitment requests.
+
+				callParent(icons[value]->className, 1);
+			}
+		}
+		else if (who == "CancelRecruitment")
+		{
+			if (what == "click")
+			{
+				callParent(icons[value]->className, 2);
+
+				// TODO: remove the icon from recruitment orders
 			}
 		}
 	}
@@ -126,4 +143,5 @@ private:
 	sa::MenuFrameBackground bg;
 	std::shared_ptr<sa::MenuButton> openClose;
 	std::vector<std::shared_ptr<RecruitmentIcon>> icons;
+	std::vector<std::shared_ptr<RecruitmentIcon>> recruitmentOrders;
 };
