@@ -190,6 +190,13 @@ public:
 
 		virtual void update(float dt) override {
 			bg.update(dt);
+
+			if (isMouseOver())
+			{
+				int key = m_pUserIO->getMouseKeyCode(0);
+				if (m_pUserIO->isKeyClicked(key))
+					m_pUserIO->consume(key);
+			}
 		}
 
 		sa::MenuFrameBackground bg;
