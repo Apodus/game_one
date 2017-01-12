@@ -17,7 +17,7 @@ namespace bs
 
 		Field();
 
-		Unit::Id Add(Unit& unit);
+		Unit::Id Add(Unit& unit, Unit::Detail& detail);
 
 		void Update();
 
@@ -37,7 +37,7 @@ namespace bs
 	private:
 		void UpdatePriorities();
 
-		void FindCollisions(const Unit& unit, const Vec& newPos, std::vector<Unit::Id>& collisions) const;
+		void FindCollisions(const Unit& unit, Unit::Id id, const Vec& newPos, std::vector<Unit::Id>& collisions) const;
 
 		Unit::Id FindClosestEnemy(const Unit& unit, const BoundingBox& bb, Real& range) const;
 
@@ -50,6 +50,7 @@ namespace bs
 		Array<Level, 1> myLevels;
 		Vector<Unit::Id> myActiveUnits;
 		Vector<Unit> myUnits;
+		Vector<Unit::Detail> myUnitDetails;
 		Deque<Frame> myFrames;
 		double myFrameTime = 0;
 		uint64_t myRand = 1;

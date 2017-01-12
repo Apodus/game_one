@@ -8,13 +8,14 @@ bs::Field::Field()
 	myFrames.emplace_back();
 }
 
-bs::Unit::Id bs::Field::Add(Unit& unit)
+bs::Unit::Id bs::Field::Add(Unit& unit, Unit::Detail& detail)
 {
-	unit.id = myUnits.size();
+	detail.id = myUnits.size();
 	myUnits.emplace_back(unit);
-	myLevels[0].AddUnit(myUnits.back());
-	myActiveUnits.emplace_back(unit.id);
-	return unit.id;
+	myUnitDetails.emplace_back(detail);
+	myLevels[0].AddUnit(myUnits.back(), myUnitDetails.back());
+	myActiveUnits.emplace_back(detail.id);
+	return detail.id;
 }
 
 void bs::Field::UpdatePriorities()
@@ -22,24 +23,25 @@ void bs::Field::UpdatePriorities()
 	for (size_t i = 0; i < myActiveUnits.size(); i++)
 	{
 		auto& unit = myUnits[myActiveUnits[i]];
-		auto len = ((unit.moveTarget - unit.pos).lengthSquared().getRawValue() - unit.radius.getRawValue()) >> 18;
+		auto& unitDetails = myUnitDetails[myActiveUnits[i]];
+		auto len = ((unitDetails.moveTarget - unit.pos).lengthSquared().getRawValue() - unit.radius.getRawValue()) >> 18;
 		if (len < 0)
 		{
 			len = 0;
 		}
 
 		ASSERT(len <= UINT16_MAX, "Too low priority");
-		unit.updatePriority = static_cast<U16>(len);
+		unitDetails.updatePriority = static_cast<U16>(len);
 	}
 
 	std::sort(myActiveUnits.begin(), myActiveUnits.end(), [&](Unit::Id a, Unit::Id b)
 	{
-		return myUnits[a].updatePriority < myUnits[b].updatePriority;
+		return myUnitDetails[a].updatePriority < myUnitDetails[b].updatePriority;
 	});
 }
 
 void bs::Field::FindCollisions(
-	const Unit& unit, const Vec& newPos, std::vector<Unit::Id>& collisions) const
+	const Unit& unit, Unit::Id id, const Vec& newPos, std::vector<Unit::Id>& collisions) const
 {
 	BoundingBox start;
 	myLevels[0].FindBoundingBox(unit.pos, unit.radius, start);
@@ -60,7 +62,7 @@ void bs::Field::FindCollisions(
 			auto& list = myLevels[0].GetUnitList(x, y);
 			for (size_t i = 0; i < list.size(); i++)
 			{
-				if (list.at(i) != unit.id)
+				if (list.at(i) != id)
 				{
 					// if (std::find(collisions.begin(), collisions.end(), list.at(i)) == collisions.end())
 					{
@@ -130,8 +132,9 @@ void bs::Field::Update()
 	for (size_t i = 0; i < myActiveUnits.size(); i++)
 	{
 		auto& unit = myUnits[myActiveUnits[i]];
+		auto& detail = myUnitDetails[myActiveUnits[i]];
 
-		Vec targetDir = unit.moveTarget - unit.pos;
+		Vec targetDir = detail.moveTarget - unit.pos;
 		auto targetDirLen = targetDir.length();
 		if (targetDirLen > Real(0, 1))
 		{
@@ -143,9 +146,9 @@ void bs::Field::Update()
 		const bs::Real Agility(10);
 		const bs::Real Speed(3);
 		const bs::Real SlowDown(1, 2);
-		unit.acc = targetDir * Agility;
+		detail.acc = targetDir * Agility;
 
-		Vec newVel = unit.acc * TimePerUpdate + unit.vel;
+		Vec newVel = detail.acc * TimePerUpdate + detail.vel;
 		auto speed = newVel.length();
 		if (speed > Speed)
 		{
@@ -155,9 +158,9 @@ void bs::Field::Update()
 			newVel *= (Speed + excessSpeed);
 		}
 
-		Vec newPos = unit.vel * TimePerUpdate + unit.pos;
+		Vec newPos = detail.vel * TimePerUpdate + unit.pos;
 		collisions.clear();
-		FindCollisions(unit, newPos, collisions);
+		FindCollisions(unit, detail.id, newPos, collisions);
 
 		Unit::Id collisionId = static_cast<Unit::Id>(-1);
 		for (size_t j = 0; j < collisions.size(); j++)
@@ -166,7 +169,7 @@ void bs::Field::Update()
 			Vec hitPos;
 			if (CollisionCheck(other, unit, newPos, hitPos))
 			{
-				collisionId = other.id;
+				collisionId = myUnitDetails[collisions[j]].id;
 				newPos = hitPos;
 			}
 		}
@@ -176,8 +179,8 @@ void bs::Field::Update()
 			Vec dir = newPos - unit.pos;
 			auto dp = dir.dotProduct(targetDir);
 			auto& other = myUnits[collisionId];
-			newVel.x = (dp * unit.vel.x) / Real(2, 1);
-			newVel.y = (dp * unit.vel.y) / Real(2, 1);
+			newVel.x = (dp * detail.vel.x) / Real(2, 1);
+			newVel.y = (dp * detail.vel.y) / Real(2, 1);
 			newVel.z = (Real(0, 1));
 
 			if (other.team != unit.team && other.hitpoints > 0)
@@ -188,24 +191,24 @@ void bs::Field::Update()
 					other.hitpoints--;
 					if (other.hitpoints == 0)
 					{
-						deleted.emplace_back(other.id);
+						deleted.emplace_back(myUnitDetails[collisionId].id);
 					}
 				}
 			}
 		}
 
-		if (myLevels[0].IsGridMove(unit, newPos))
+		if (myLevels[0].IsGridMove(unit, detail, newPos))
 		{
-			myLevels[0].RemoveUnit(unit);
+			myLevels[0].RemoveUnit(detail);
 			unit.pos = newPos;
-			myLevels[0].AddUnit(unit);
+			myLevels[0].AddUnit(unit, detail);
 		}
 		else
 		{
 			unit.pos = newPos;
 		}
 
-		unit.vel = newVel;
+		detail.vel = newVel;
 #if 0
 		if (unit.id == 0)
 		{
@@ -227,14 +230,14 @@ void bs::Field::Update()
 	{
 		auto iter = std::find(myActiveUnits.begin(), myActiveUnits.end(), deleted[i]);
 		ASSERT(iter != myActiveUnits.end(), "Deleted not found");
-		myLevels[0].RemoveUnit(myUnits[*iter]);
+		myLevels[0].RemoveUnit(myUnitDetails[*iter]);
 		*iter = myActiveUnits.back();
 		myActiveUnits.pop_back();
 	}
 }
 
 // Cylinder collision check
-bool bs::Field::CollisionCheck(const Unit& a, const Unit& b, const Vec& endPos, Vec& hitPos)
+bool bs::Field::CollisionCheck(const Unit& a, const Unit& b, const Vec& endPos, Vec& N)
 {
 	Real radii = a.radius + b.radius;
 
@@ -249,7 +252,7 @@ bool bs::Field::CollisionCheck(const Unit& a, const Unit& b, const Vec& endPos, 
 	}
 
 	/* movement vector */
-	Vec N = endPos - b.pos;
+	N = endPos - b.pos;
 	Real length_N = N.length(); // TODO 2d vec
 	if (length_N == Real(0, 1))
 	{
@@ -259,7 +262,7 @@ bool bs::Field::CollisionCheck(const Unit& a, const Unit& b, const Vec& endPos, 
 
 	Vec C = a.pos - b.pos;
 	C.z = Real(0, 1); /* Ignore Z: used for sphere collision */
-	Real length_C = C.length(); // TODO 2d vec
+	Real length_C = sa::math::sqrt((C.x*C.x + C.y*C.y)); 
 
 	if (length_C == Real(0,1))
 	{
@@ -297,12 +300,13 @@ bool bs::Field::CollisionCheck(const Unit& a, const Unit& b, const Vec& endPos, 
 	* way they are going collide
 	*/
 	Real F = (length_C * length_C) - (D * D);
-	if (F >= (radii*radii))
+	const Real radii2 = radii*radii;
+	if (F >= (radii2))
 	{
 		return false;
 	}
 
-	Real T = (radii*radii) - F;
+	Real T = (radii2) - F;
 	if (T < Real(0,1) )
 	{
 		return false;
@@ -321,6 +325,5 @@ bool bs::Field::CollisionCheck(const Unit& a, const Unit& b, const Vec& endPos, 
 	N.x = N.x*(dist)+b.pos.x;
 	N.y = N.y*(dist)+b.pos.y;
 	N.z = N.z*(dist)+b.pos.z;
-	hitPos = N;
 	return true;
 }

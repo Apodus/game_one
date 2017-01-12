@@ -19,15 +19,15 @@ namespace bs
 
 		BATTLESIM_API ~Level();
 
-		void AddUnit(Unit& unit);
+		void AddUnit(const Unit& unit, Unit::Detail& detail);
 
-		void RemoveUnit(Unit& unit);
+		void RemoveUnit(Unit::Detail& detail);
 		
-		bool IsGridMove(const Unit& unit, const Vec& newPos) const
+		bool IsGridMove(const Unit& unit, const Unit::Detail& detail, const Vec& newPos) const
 		{			
 			BoundingBox bb;
 			FindBoundingBox(newPos, unit.radius, bb);
-			return bb != unit.bb;
+			return bb != detail.bb;
 		}
 
 		// Map position to uniform grid
@@ -62,18 +62,18 @@ namespace bs
 	};
 }
 
-inline void bs::Level::RemoveUnit(Unit& unit)
+inline void bs::Level::RemoveUnit(Unit::Detail& detail)
 {
-	for (U32 y = unit.bb.top; y <= unit.bb.bottom; y++)
+	for (U32 y = detail.bb.top; y <= detail.bb.bottom; y++)
 	{
-		for (U32 x = unit.bb.left; x <= unit.bb.right; x++)
+		for (U32 x = detail.bb.left; x <= detail.bb.right; x++)
 		{
 			U32 hash = HashGrid(x, y);
 			ASSERT(!myGrid[hash].empty(), "No units found at [%u, %u]", x, y);
 			auto& list = myGrid[hash];
 			for (size_t i = 0; i < list.size();)
 			{
-				if (list.at(i) == unit.id)
+				if (list.at(i) == detail.id)
 				{
 					// LOG("UNIT %d removed at[%u, %u](%lu)", unit.id, x, y, hash);
 					list[i] = list.back();
@@ -89,17 +89,17 @@ inline void bs::Level::RemoveUnit(Unit& unit)
 	}
 }
 
-inline void bs::Level::AddUnit(Unit& unit)
+inline void bs::Level::AddUnit(const Unit& unit, Unit::Detail& detail)
 {
-	FindBoundingBox(unit.pos, unit.radius, unit.bb);
-	for (U32 y = unit.bb.top; y <= unit.bb.bottom; y++)
+	FindBoundingBox(unit.pos, unit.radius, detail.bb);
+	for (U32 y = detail.bb.top; y <= detail.bb.bottom; y++)
 	{
-		for (U32 x = unit.bb.left; x <= unit.bb.right; x++)
+		for (U32 x = detail.bb.left; x <= detail.bb.right; x++)
 		{
 			U32 hash = HashGrid(x, y);
-			myGrid[hash].emplace_back(unit.id);
+			myGrid[hash].emplace_back(detail.id);
 			// LOG("UNIT %d added at[%u, %u](%lu)", unit.id, x, y, hash);
-			ASSERT(myGrid[hash].size() < 32, "Lots of units in same block. Hash collision?");
+			ASSERT(myGrid[hash].size() < 64, "Lots of units in same block. Hash collision?");
 		}
 	}
 }

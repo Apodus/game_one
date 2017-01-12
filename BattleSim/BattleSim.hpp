@@ -18,7 +18,7 @@ namespace bs
 
 	private:
 		void SetArmyCount(size_t size);
-		void AddUnitToArmy(Unit& unit, size_t armyIndex);
+		void AddUnitToArmy(Unit& unit, Unit::Detail& detail, size_t armyIndex);
 
 		Vector<Army> myArmies;
 		Field myField;

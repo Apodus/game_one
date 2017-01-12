@@ -9,29 +9,39 @@ namespace bs
 	public:
 
 		typedef U32 Id;
-		Vec moveTarget;
+
+		// Public unit data - visible to UI
 		Vec pos;
-		Vec vel;
-		Vec acc;
-
 		Real radius;
-
-		BoundingBox bb;
-
-		// Attributes
-		U32 speed = 0;
-		U32 agility = 0;
 		U32 hitpoints = 0;
-
-		// Weapons, TODO: allow multiple weapons
-		U32 strength = 0;
 		U32 range = 100;
-		U32 weaponspeed = 0;
-		U16 updatePriority = 0;
-
-
-		Id id;
 		U8 team;
+		U8 group;
 
+
+		// Private data
+		struct Weapon
+		{
+			U32 strength = 0;
+			U32 speed = 0;
+		};
+
+		struct Detail
+		{
+			Vec vel;
+			Vec acc;
+			Vec moveTarget;
+			BoundingBox bb;
+
+			Id id;
+
+			// Attributes
+			U32 speed = 0;
+			U32 agility = 0;
+
+			// Weapons, TODO: allow multiple weapons
+			U16 weaponId;
+			U16 updatePriority = 0;
+		};
 	};
 }
