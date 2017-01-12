@@ -100,6 +100,7 @@
     <ClCompile Include="src\session\application\session.cpp" />
     <ClCompile Include="src\session\game\game.cpp" />
     <ClCompile Include="src\session\game\hud.cpp" />
+    <ClCompile Include="src\session\game\menu\CommanderTab.cpp" />
     <ClCompile Include="src\session\game\menu\RecruitmentTab.cpp" />
     <ClCompile Include="src\worldmap\ProvinceGraph.cpp" />
   </ItemGroup>
@@ -116,6 +117,7 @@
     <ClInclude Include="src\menu\menuroot.hpp" />
     <ClInclude Include="src\menu\optionsmenu.hpp" />
     <ClInclude Include="src\session\game\hud.hpp" />
+    <ClInclude Include="src\session\game\menu\CommanderTab.hpp" />
     <ClInclude Include="src\session\game\menu\RecruitmentTab.hpp" />
     <ClInclude Include="src\worldmap\ProvinceGraph.hpp" />
   </ItemGroup>
