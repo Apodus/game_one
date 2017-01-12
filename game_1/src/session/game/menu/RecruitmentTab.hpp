@@ -38,7 +38,7 @@ struct ProvinceRecruitmentTab : public sa::MenuComponent
 
 			if (hasFocus() && isMouseOver())
 			{
-				setTargetScale(m_defaultScale * 1.2f);
+				setTargetScale(m_defaultScale * 1.05f);
 				targetAlpha = 1.0f;
 
 				if (m_pUserIO->isKeyClicked(m_pUserIO->getMouseKeyCode(0)))
@@ -54,6 +54,11 @@ struct ProvinceRecruitmentTab : public sa::MenuComponent
 			}
 
 			m_color.a += (targetAlpha - m_color.a) * dt;
+		}
+
+		void noText()
+		{
+			m_text = "";
 		}
 
 		int myIndex = -1;
@@ -79,10 +84,23 @@ struct ProvinceRecruitmentTab : public sa::MenuComponent
 			{
 				auto recruitmentOrderIcon = std::make_shared<RecruitmentIcon>(this, icons[value]->className, icons[value]->troopReference, "CancelRecruitment");
 				recruitmentOrderIcon->myIndex = value;
-				recruitmentOrderIcon->setTargetPosition([this]() { return sa::vec3<float>(); });
+
+				float elementWidth = 0.06f * 1.01f;
+				int elementsPerRow = static_cast<int>(m_worldScale.x / elementWidth);
+				int myX = recruitmentOrders.size() % elementsPerRow;
+				int myY = recruitmentOrders.size() / elementsPerRow;
+				recruitmentOrderIcon->setTargetPosition([this, elementWidth, myX, myY]() {
+					return getExteriorPosition(sa::MenuComponent::LEFT | sa::MenuComponent::TOP) +
+						sa::vec3<float>(myX * elementWidth, myY * -elementWidth * m_pWindow->getAspectRatio(), 0);
+				});
+				recruitmentOrderIcon->positionAlign = sa::MenuComponent::LEFT | sa::MenuComponent::TOP;
+				recruitmentOrderIcon->tick(0.5f);
+				recruitmentOrderIcon->setDefaultScale(sa::vec3<float>(elementWidth / 1.01f, elementWidth / 1.01f, 0));
+				recruitmentOrderIcon->noText();
 				recruitmentOrders.emplace_back(recruitmentOrderIcon);
 
-				// TODO: positioning of created item?
+				setTargetScale(sa::vec3<float>(1, height(), 0));
+
 				// TODO: when creating the tab from scratch, read the province for current recruitment requests.
 
 				callParent(icons[value]->className, 1);
@@ -92,9 +110,20 @@ struct ProvinceRecruitmentTab : public sa::MenuComponent
 		{
 			if (what == "click")
 			{
+				// inform parent to remove troop recruitment from province orders
 				callParent(icons[value]->className, 2);
+				
+				// remove the icon from recruitment orders menu
+				for (size_t i = 0; i < recruitmentOrders.size(); ++i)
+				{
+					if (recruitmentOrders[i]->className == icons[value]->className)
+					{
+						removeRecruitmentOrderIndex = i;
+						break;
+					}
+				}
 
-				// TODO: remove the icon from recruitment orders
+				setTargetScale(sa::vec3<float>(1, height(), 0));
 			}
 		}
 	}
@@ -102,6 +131,8 @@ struct ProvinceRecruitmentTab : public sa::MenuComponent
 	virtual void draw(std::shared_ptr<sa::Graphics> graphics) const override
 	{
 		bg.draw(graphics);
+		for (auto& rec : recruitmentOrders)
+			rec->visualise(graphics);
 	}
 
 	virtual void hide() override
@@ -118,6 +149,27 @@ struct ProvinceRecruitmentTab : public sa::MenuComponent
 
 	virtual void update(float dt) override
 	{
+		// delayed removal.
+		if (removeRecruitmentOrderIndex >= 0)
+		{
+			recruitmentOrders.erase(recruitmentOrders.begin() + removeRecruitmentOrderIndex);
+			removeRecruitmentOrderIndex = -1;
+
+			// update remaining recruitment orders' positions
+			for (size_t i = 0; i < recruitmentOrders.size(); ++i)
+			{
+				auto& recruitmentOrderIcon = recruitmentOrders[i];
+				float elementWidth = 0.06f * 1.01f;
+				int elementsPerRow = static_cast<int>(m_worldScale.x / elementWidth);
+				int myX = i % elementsPerRow;
+				int myY = i / elementsPerRow;
+				recruitmentOrderIcon->setTargetPosition([this, elementWidth, myX, myY]() {
+					return getExteriorPosition(sa::MenuComponent::LEFT | sa::MenuComponent::TOP) +
+						sa::vec3<float>(myX * elementWidth, myY * -elementWidth * m_pWindow->getAspectRatio(), 0);
+				});
+			}
+		}
+
 		bg.update(dt);
 
 		if (isMouseOver())
@@ -126,6 +178,9 @@ struct ProvinceRecruitmentTab : public sa::MenuComponent
 			if (m_pUserIO->isKeyClicked(key))
 				m_pUserIO->consume(key);
 		}
+
+		for (size_t i=0; i<recruitmentOrders.size(); ++i)
+			recruitmentOrders[i]->tick(dt);
 	}
 
 	// open / close this panel
@@ -148,11 +203,12 @@ struct ProvinceRecruitmentTab : public sa::MenuComponent
 private:
 	float height() const
 	{
-		return 0.2f * (icons.size() + iconsPerRow - 1) / iconsPerRow;
+		return 0.1f + 0.2f * (icons.size() + iconsPerRow - 1) / iconsPerRow;
 	}
 
 	const int iconsPerRow = 8;
 	bool isOpen = false;
+	int removeRecruitmentOrderIndex = -1;
 
 	sa::MenuFrameBackground bg;
 	std::shared_ptr<sa::MenuButton> openClose;

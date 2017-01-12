@@ -363,6 +363,10 @@ namespace sa {
 			m_targetScale = scale;
 		}
 
+		void setDefaultScale(const sa::vec3<float>& scale) {
+			m_defaultScale = scale;
+		}
+
 	};
 
 }

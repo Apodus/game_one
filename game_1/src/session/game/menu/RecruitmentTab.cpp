@@ -41,7 +41,7 @@ ProvinceRecruitmentTab::ProvinceRecruitmentTab(sa::MenuComponent* parent, const 
 		if (icons.empty())
 		{
 			icon->setTargetPosition([this]() {
-				return this->getExteriorPosition(sa::MenuComponent::TOP | sa::MenuComponent::LEFT) + sa::vec3<float>(0.03f, -0.03f, 0);
+				return this->getExteriorPosition(sa::MenuComponent::TOP | sa::MenuComponent::LEFT) + sa::vec3<float>(0.03f, -0.2f, 0);
 			});
 			icon->positionAlign = sa::MenuComponent::TOP | sa::MenuComponent::LEFT;
 		}
@@ -52,7 +52,7 @@ ProvinceRecruitmentTab::ProvinceRecruitmentTab(sa::MenuComponent* parent, const 
 				int index = icons.size() - iconsPerRow;
 				icon->setTargetPosition([this, index]() {
 					auto pos = icons[index]->getExteriorPosition(sa::MenuComponent::BOTTOM);
-					return pos + sa::vec3<float>(0, -0.9f, 0);
+					return pos + sa::vec3<float>(0, -0.03f, 0);
 				});
 				icon->positionAlign = sa::MenuComponent::TOP;
 			}
@@ -69,6 +69,7 @@ ProvinceRecruitmentTab::ProvinceRecruitmentTab(sa::MenuComponent* parent, const 
 		
 		this->addChild(icon);
 		icons.emplace_back(icon);
+		setTargetScale(sa::vec3<float>(1, height(), 0));
 	}
 
 	close();

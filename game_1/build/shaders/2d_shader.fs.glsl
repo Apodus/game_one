@@ -1,9 +1,7 @@
 #version 330
 
 in vec2 texCoord_pass;
-
 uniform sampler2D tex;
-
 uniform vec4 color;
 
 out vec4 frag_color;
