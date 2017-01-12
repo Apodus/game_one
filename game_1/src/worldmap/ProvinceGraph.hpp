@@ -159,6 +159,10 @@ public:
 		{
 		}
 
+		const std::vector<const TroopReference*> inspectRecruitOrders() const {
+			return currentRecruitmentRequests;
+		}
+
 		void addRecruitOrder(const TroopReference* troopReference)
 		{
 			currentRecruitmentRequests.emplace_back(troopReference);

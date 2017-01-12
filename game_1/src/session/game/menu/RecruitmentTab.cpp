@@ -25,6 +25,7 @@ ProvinceRecruitmentTab::ProvinceRecruitmentTab(sa::MenuComponent* parent, const 
 
 	this->addChild(openClose);
 
+	// fill recruitment options
 	for (const auto& troopName : province.troopsToRecruit)
 	{
 		const TroopReference* troopReference = game.troopReference(troopName);
@@ -70,6 +71,11 @@ ProvinceRecruitmentTab::ProvinceRecruitmentTab(sa::MenuComponent* parent, const 
 		this->addChild(icon);
 		icons.emplace_back(icon);
 		setTargetScale(sa::vec3<float>(1, height(), 0));
+	}
+
+	// fill current recruitment orders to recruitment order icons
+	for (const auto* troopReference : province.inspectRecruitOrders()) {
+		addRecruitmentOrderIcon(troopReference);
 	}
 
 	close();

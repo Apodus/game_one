@@ -67,6 +67,32 @@ struct ProvinceRecruitmentTab : public sa::MenuComponent
 		const TroopReference& troopReference;
 	};
 
+	void addRecruitmentOrderIcon(const TroopReference* troopReference) {
+		auto recruitmentOrderIcon = std::make_shared<RecruitmentIcon>(this, troopReference->name, *troopReference, "CancelRecruitment");
+		for (size_t i = 0; i<icons.size(); ++i)
+		{
+			if (&icons[i]->troopReference == troopReference)
+			{
+				recruitmentOrderIcon->myIndex = i;
+				break;
+			}
+		}
+
+		float elementWidth = 0.06f * 1.01f;
+		int elementsPerRow = static_cast<int>(m_targetScale.x / elementWidth);
+		int myX = recruitmentOrders.size() % elementsPerRow;
+		int myY = recruitmentOrders.size() / elementsPerRow;
+		recruitmentOrderIcon->setTargetPosition([this, elementWidth, myX, myY]() {
+			return getExteriorPosition(sa::MenuComponent::LEFT | sa::MenuComponent::TOP) +
+				sa::vec3<float>(myX * elementWidth, myY * -elementWidth * m_pWindow->getAspectRatio(), 0);
+		});
+		recruitmentOrderIcon->positionAlign = sa::MenuComponent::LEFT | sa::MenuComponent::TOP;
+		recruitmentOrderIcon->tick(0.5f);
+		recruitmentOrderIcon->setDefaultScale(sa::vec3<float>(elementWidth / 1.01f, elementWidth / 1.01f, 0));
+		recruitmentOrderIcon->noText();
+		recruitmentOrders.emplace_back(recruitmentOrderIcon);
+		setTargetScale(sa::vec3<float>(1, height(), 0));
+	}
 
 	virtual void childComponentCall(const std::string& who, const std::string& what, int value = 0)
 	{
@@ -82,27 +108,7 @@ struct ProvinceRecruitmentTab : public sa::MenuComponent
 		{
 			if (what == "click")
 			{
-				auto recruitmentOrderIcon = std::make_shared<RecruitmentIcon>(this, icons[value]->className, icons[value]->troopReference, "CancelRecruitment");
-				recruitmentOrderIcon->myIndex = value;
-
-				float elementWidth = 0.06f * 1.01f;
-				int elementsPerRow = static_cast<int>(m_worldScale.x / elementWidth);
-				int myX = recruitmentOrders.size() % elementsPerRow;
-				int myY = recruitmentOrders.size() / elementsPerRow;
-				recruitmentOrderIcon->setTargetPosition([this, elementWidth, myX, myY]() {
-					return getExteriorPosition(sa::MenuComponent::LEFT | sa::MenuComponent::TOP) +
-						sa::vec3<float>(myX * elementWidth, myY * -elementWidth * m_pWindow->getAspectRatio(), 0);
-				});
-				recruitmentOrderIcon->positionAlign = sa::MenuComponent::LEFT | sa::MenuComponent::TOP;
-				recruitmentOrderIcon->tick(0.5f);
-				recruitmentOrderIcon->setDefaultScale(sa::vec3<float>(elementWidth / 1.01f, elementWidth / 1.01f, 0));
-				recruitmentOrderIcon->noText();
-				recruitmentOrders.emplace_back(recruitmentOrderIcon);
-
-				setTargetScale(sa::vec3<float>(1, height(), 0));
-
-				// TODO: when creating the tab from scratch, read the province for current recruitment requests.
-
+				addRecruitmentOrderIcon(&icons[value]->troopReference);
 				callParent(icons[value]->className, 1);
 			}
 		}
@@ -160,7 +166,7 @@ struct ProvinceRecruitmentTab : public sa::MenuComponent
 			{
 				auto& recruitmentOrderIcon = recruitmentOrders[i];
 				float elementWidth = 0.06f * 1.01f;
-				int elementsPerRow = static_cast<int>(m_worldScale.x / elementWidth);
+				int elementsPerRow = static_cast<int>(m_targetScale.x / elementWidth);
 				int myX = i % elementsPerRow;
 				int myY = i / elementsPerRow;
 				recruitmentOrderIcon->setTargetPosition([this, elementWidth, myX, myY]() {

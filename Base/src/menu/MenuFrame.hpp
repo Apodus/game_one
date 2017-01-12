@@ -21,8 +21,6 @@ namespace sa {
 
 
     void initMesh() {
-
-      // const vec4<float>& limits = TextureHandler::getSingleton().textureLimits(textureID, vec4<float>(0.5f, 0.5f, 1.0f, 1.0f));
       const vec4<float>& limits = TextureHandler::getSingleton().textureLimits(textureID);
 
       float edgeUV_x = edgeSize * limits.data[2];
@@ -65,12 +63,11 @@ namespace sa {
     }
 
 public:
-    MenuFrameBackground(MenuComponent* parent, const std::string& name, const std::string& textureID, const vec4<float>& color = Color::WHITE) : MenuComponent(parent, name, vec3<float>(), vec3<float>()), backgroundMesh(16, 9 * 2 * 3) {
+    MenuFrameBackground(MenuComponent* parent, const std::string& name, const std::string& textureID, const vec4<float>& color = Color::WHITE, float edgeSize = 0.20f) : MenuComponent(parent, name, vec3<float>(), vec3<float>()), backgroundMesh(16, 9 * 2 * 3) {
       this->color = color;
       this->baseColor = color;
       this->textureID = textureID;
-
-      edgeSize = 0.20f;
+			this->edgeSize = edgeSize;
 
       initMesh();
       buildMesh(0.5f, 0.5f);
