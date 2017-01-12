@@ -16,26 +16,24 @@ struct ProvinceRecruitmentTab : public sa::MenuComponent
 {
 	ProvinceRecruitmentTab(sa::MenuComponent* parent, const ProvinceGraph::Province& province, const Game& game);
 
-	struct RecruitmentIcon : public sa::MenuButton
+	struct RecruitmentIcon : public sa::MenuComponent
 	{
 		RecruitmentIcon(sa::MenuComponent* parent, std::string className, const TroopReference& reference, const std::string& componentName)
-			: sa::MenuButton(parent, componentName, []() {return sa::vec3<float>(0, 0, 0); }, sa::vec3<float>(0.1f, 0.1f, 0), "Hero", className)
+			: sa::MenuComponent(parent, componentName, []() {return sa::vec3<float>(0, 0, 0); }, sa::vec3<float>(0.1f, 0.1f, 0))
 			, troopReference(reference)
 		{
 			this->className = className;
-			color = Color::WHITE;
+			this->m_text = className;
+			m_color = Color::WHITE;
 			setPositionUpdateType(true);
+
+			icon = "Hero"; // TODO: take info from troop reference
 		}
 
 		virtual void childComponentCall(const std::string& who, const std::string& what, int = 0) {}
 
 		virtual void update(float dt) override
 		{
-			m_frame.tick(dt);
-
-			m_model.makeTranslationMatrix(getPosition());
-			m_model.scale(getScale());
-
 			if (hasFocus() && isMouseOver())
 			{
 				setTargetScale(m_defaultScale * 1.05f);
@@ -50,10 +48,32 @@ struct ProvinceRecruitmentTab : public sa::MenuComponent
 			else
 			{
 				setTargetScale(m_defaultScale);
-				targetAlpha = 0.3f;
+				targetAlpha = 0.7f;
 			}
 
-			m_color.a += (targetAlpha - m_color.a) * dt;
+			m_color.a += (targetAlpha - m_color.a) * dt * 12;
+		}
+
+		virtual void draw(std::shared_ptr<sa::Graphics> graphics) const override
+		{
+			sa::Matrix4 model;
+			model.makeTranslationMatrix(getPosition());
+			model.scale(getScale() * 0.5f);
+
+			const sa::vec3<float>& m_pos = getPosition();
+			graphics->m_pRenderer->drawRectangle(model, icon, m_color);
+
+			if (!m_text.empty()) {
+				graphics->m_pTextRenderer->drawText(
+					m_text,
+					m_pos.x,
+					m_pos.y - m_worldScale.y * 0.5f,
+					0.035f,
+					Color::GOLDEN,
+					sa::TextRenderer::Align::CENTER,
+					graphics->m_fontConsola
+				);
+			}
 		}
 
 		void noText()
@@ -61,8 +81,12 @@ struct ProvinceRecruitmentTab : public sa::MenuComponent
 			m_text = "";
 		}
 
+		float targetAlpha = 1.0f;
+		std::string icon;
+		std::string m_text;
+
 		int myIndex = -1;
-		sa::vec4<float> color;
+		sa::vec4<float> m_color;
 		std::string className;
 		const TroopReference& troopReference;
 	};
