@@ -30,9 +30,9 @@ public:
 	void insertTexture(const std::string& subTextureID, int slotX, int slotY, int slotCountX, int slotCountY) {
 		vec4<float> texCoord;
 		texCoord[0] = (slotX + 0.0f) / slotCountX + halfPixelWidth;  // x0
-		texCoord[1] = 1.0f - (slotY + 0.0f) / slotCountY + halfPixelHeight; // y0
+		texCoord[1] = 1.0f - ((slotY + 0.0f) / slotCountY + halfPixelHeight); // y0
 		texCoord[2] = (slotX + 1.0f) / slotCountX - halfPixelWidth;  // x1
-		texCoord[3] = 1.0f - (slotY + 1.0f) / slotCountY - halfPixelHeight; // y1
+		texCoord[3] = 1.0f - ((slotY + 1.0f) / slotCountY - halfPixelHeight); // y1
 
 		// Pre-compute subtexture size.
 		texCoord[2] -= texCoord[0]; // x1 - x0
