@@ -24,6 +24,7 @@ Game::Game(
 	militia.hp = 8;
 	militia.leadership = 0;
 	militia.name = "militia";
+	militia.icon = "Hero";
 	militia.strength = 8;
 
 	TroopReference zealot;
@@ -35,6 +36,7 @@ Game::Game(
 	zealot.hp = 10;
 	zealot.leadership = 30; // if promoted to commander by some means, this would take effect.
 	zealot.name = "zealot";
+	zealot.icon = "Hero";
 	zealot.strength = 10;
 
 	TroopReference marksman;
@@ -46,6 +48,7 @@ Game::Game(
 	marksman.hp = 10;
 	marksman.leadership = 10;
 	marksman.name = "marksman";
+	marksman.icon = "Hero";
 	marksman.strength = 9;
 
 	TroopReference rider;
@@ -57,6 +60,7 @@ Game::Game(
 	rider.hp = 10;
 	rider.leadership = 30;
 	rider.name = "rider";
+	rider.icon = "Hero";
 	rider.strength = 10;
 
 	troopReferences.insert(std::make_pair(militia.name, militia));
@@ -117,6 +121,7 @@ void Game::drawProvinces(std::shared_ptr<sa::Graphics> pGraphics)
 
 	sa::TextureHandler::getSingleton().bindTexture(0, "Empty");
 
+	// draw connections between provinces
 	for (const auto& province : provinces)
 	{
 		for (auto connectionIndex : province.m_connections)
@@ -124,12 +129,70 @@ void Game::drawProvinces(std::shared_ptr<sa::Graphics> pGraphics)
 			pGraphics->m_pRenderer->drawLine(
 				province.m_position,
 				provinces[connectionIndex].m_position,
-				0.1f,
+				0.05f,
 				Color::GREEN
 			);
 		}
 	}
 
+	// visualize movement orders
+	for (const auto& province : provinces)
+	{
+		for (const auto& commander : province.commanders)
+		{
+			if (commander.myOrder.orderType == BattleCommander::OrderType::Move)
+			{
+				const auto& targetProvince = provinces[commander.myOrder.moveTo];
+				auto source = province.m_position;
+				auto target = targetProvince.m_position;
+
+				auto direction = target - source;
+				direction *= 0.8f;
+
+				sa::vec4<float> arrowColor = Color::RED;
+				arrowColor.a = 0.7f;
+
+				if (commander.owner == targetProvince.m_owner)
+					arrowColor = Color::GREEN;
+
+				float arrowDensity = 0.075f;
+				if (commander.m_selected)
+				{
+					float modifier = sa::math::sin(2 * 3.1459f * (m_tickID % 60) / 60.0f);
+					direction *= 1.0f + 0.1f * modifier;
+					arrowDensity *= 1.0f + 0.2f * modifier;
+					arrowColor.a = 1.0f;
+				}
+
+				pGraphics->m_pRenderer->drawLine(
+					source,
+					source + direction,
+					arrowDensity,
+					arrowColor
+				);
+
+				auto reverseDirection = source - target;
+				auto arrowPoint1 = sa::math::rotatedXY(reverseDirection, +3.1459f / 6.0f).normalize() * 0.6f;
+				auto arrowPoint2 = sa::math::rotatedXY(reverseDirection, -3.1459f / 6.0f).normalize() * 0.6f;
+
+				pGraphics->m_pRenderer->drawLine(
+					source + direction,
+					source + direction + arrowPoint1,
+					arrowDensity,
+					arrowColor
+				);
+
+				pGraphics->m_pRenderer->drawLine(
+					source + direction,
+					source + direction + arrowPoint2,
+					arrowDensity,
+					arrowColor
+				);
+			}
+		}
+	}
+
+	// draw something to visualize provinces
 	for (const auto& province : provinces)
 	{
 		float scale = 0.4f * province.area() * province.scale() / 100.f;
@@ -155,6 +218,7 @@ void Game::drawProvinces(std::shared_ptr<sa::Graphics> pGraphics)
 		pGraphics->m_pRenderer->drawRectangle(model, "Frame", color);
 	}
 
+	// visualize mouse cursor
 	sa::Matrix4 model;
 	auto worldPos = mouseToWorld(mousePos);
 	model.makeTranslationMatrix(worldPos.x, worldPos.y, 0);
@@ -204,6 +268,8 @@ void Game::tick(long long timeMs)
 		m_sim->Simulate(static_cast<size_t>(delta));
 		m_lastSimUpdate = timeMs;
 	}
+
+	++m_tickID;
 }
 
 void Game::showBattle()

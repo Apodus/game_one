@@ -27,7 +27,7 @@ struct ProvinceRecruitmentTab : public sa::MenuComponent
 			m_color = Color::WHITE;
 			setPositionUpdateType(true);
 
-			icon = "Hero"; // TODO: take info from troop reference
+			icon = reference.icon;
 		}
 
 		virtual void childComponentCall(const std::string& who, const std::string& what, int = 0) {}

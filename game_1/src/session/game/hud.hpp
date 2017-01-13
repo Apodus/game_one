@@ -69,21 +69,46 @@ public:
 		if (province)
 		{
 			activeProvince = province;
-			provinceMenu.emplace_back(std::make_shared<ProvinceCommandersTab>(this, *province));
-			provinceMenu.emplace_back(std::make_shared<ProvinceRecruitmentTab>(this, *province, game));
+			commandersTab = std::make_shared<ProvinceCommandersTab>(this, *province);
+			recruitmentTab = std::make_shared<ProvinceRecruitmentTab>(this, *province, game);
+			provinceMenu.emplace_back(commandersTab);
+			provinceMenu.emplace_back(recruitmentTab);
+		}
+	}
+
+	void orderToProvince(ProvinceGraph::Province* province)
+	{
+		if (province && activeProvince)
+		{
+			if (province == activeProvince)
+			{
+				commandersTab->emptyOrder();
+			}
+			else
+			{
+				commandersTab->orderToProvince(province);
+			}
 		}
 	}
 
 	void unselectProvince()
 	{
+		commandersTab.reset();
+		recruitmentTab.reset();
 		for(auto& entry : provinceMenu)
 			entry->hide();
 		activeProvince = nullptr;
 	}
 
+	const ProvinceGraph::Province* getActiveProvince() const {
+		return activeProvince;
+	}
+
 private:
 
 	Game& game;
+	std::shared_ptr<ProvinceCommandersTab> commandersTab;
+	std::shared_ptr<ProvinceRecruitmentTab> recruitmentTab;
 	std::vector<std::shared_ptr<sa::MenuComponent>> provinceMenu;
 	ProvinceGraph::Province* activeProvince = nullptr;
 

@@ -11,14 +11,17 @@ struct ProvinceCommandersTab : public sa::MenuComponent
 {
 	struct CommanderIcon : public sa::MenuComponent
 	{
-		CommanderIcon(sa::MenuComponent* parent, std::string name, std::string className, size_t id)
+		CommanderIcon(sa::MenuComponent* parent, BattleCommander& commander)
 			: sa::MenuComponent(parent, "CommandersTab", []() {return sa::vec3<float>(0, 0, 0);}, sa::vec3<float>(0.1f, 0.1f, 0))
+			, m_commander(commander)
 		{
-			this->id = id;
-			this->name = name;
-			this->className = className;
+			this->id = commander.id;
+			this->name = commander.name;
+			this->className = commander.reference.name;
+
 			m_color = Color::GREY;
 			setPositionUpdateType(true);
+			m_commander.m_selected = false;
 		}
 
 		virtual void childComponentCall(const std::string& who, const std::string& what, int = 0) {
@@ -30,7 +33,7 @@ struct ProvinceCommandersTab : public sa::MenuComponent
 			model.makeTranslationMatrix(pos.x, pos.y, 0);
 			model.rotate(rot, 0, 0, 1);
 			model.scale(m_worldScale.x * 0.5f, m_worldScale.y * 0.5f, 0);
-			graphics->m_pRenderer->drawRectangle(model, "Hero", m_color);
+			graphics->m_pRenderer->drawRectangle(model, m_commander.reference.icon, m_color);
 			graphics->m_pTextRenderer->drawText(
 				name,
 				pos.x,
@@ -40,8 +43,17 @@ struct ProvinceCommandersTab : public sa::MenuComponent
 				sa::TextRenderer::Align::CENTER,
 				graphics->m_fontConsola
 			);
+
+			std::string actionName = "NoActionName";
+			if (m_commander.myOrder.orderType == BattleCommander::OrderType::Idle) {
+				actionName = "Idle";
+			}
+			else if(m_commander.myOrder.orderType == BattleCommander::OrderType::Move) {
+				actionName = "Move";
+			}
+
 			graphics->m_pTextRenderer->drawText(
-				className,
+				actionName,
 				pos.x,
 				(pos.y - 0.035f),
 				0.04f,
@@ -63,6 +75,8 @@ struct ProvinceCommandersTab : public sa::MenuComponent
 					callParent("click", static_cast<int>(id));
 
 					selected = !selected;
+					m_commander.m_selected = selected;
+
 					float a = m_color.a;
 					if (selected)
 						m_color = Color::WHITE;
@@ -79,6 +93,8 @@ struct ProvinceCommandersTab : public sa::MenuComponent
 			m_color.a += (targetAlpha - m_color.a) * dt * 12;
 		}
 
+		BattleCommander& m_commander;
+
 		float rot = 0; // in case want to make some rotation effect lol
 		float targetAlpha = 1.0f;
 		sa::vec4<float> m_color;
@@ -90,16 +106,16 @@ struct ProvinceCommandersTab : public sa::MenuComponent
 		bool selected = false;
 	};
 
-	ProvinceCommandersTab(sa::MenuComponent* parent, const ProvinceGraph::Province& province)
+	ProvinceCommandersTab(sa::MenuComponent* parent, ProvinceGraph::Province& province)
 		: sa::MenuComponent(parent, "CommandersTab", []() {return sa::vec3<float>(-0.95f, +0.9f, 0);}, sa::vec3<float>(0.5f, 1.0f, 0))
 		, bg(this, "BG", "ButtonBase", sa::vec4<float>(1, 1, 1, 0.4f))
 	{
 		this->positionAlign = sa::MenuComponent::PositionAlign::LEFT | sa::MenuComponent::PositionAlign::TOP;
 		this->m_focus = true;
 
-		for (const auto& commander : province.commanders)
+		for (auto& commander : province.commanders)
 		{
-			auto icon = std::make_shared<CommanderIcon>(this, commander.name, commander.reference.name, commander.id);
+			auto icon = std::make_shared<CommanderIcon>(this, commander);
 
 			if (icons.empty())
 			{
@@ -132,6 +148,23 @@ struct ProvinceCommandersTab : public sa::MenuComponent
 
 			this->addChild(icon);
 			icons.emplace_back(icon);
+		}
+	}
+
+	void emptyOrder() {
+		for (auto& icon : icons)
+			if (icon->selected)
+				icon->m_commander.myOrder.orderType = BattleCommander::OrderType::Idle;
+	}
+
+	void orderToProvince(ProvinceGraph::Province* province) {
+		for (size_t i = 0; i < icons.size(); ++i)
+		{
+			if (icons[i]->selected)
+			{
+				icons[i]->m_commander.myOrder.orderType = BattleCommander::OrderType::Move;
+				icons[i]->m_commander.myOrder.moveTo = province->m_index;
+			}
 		}
 	}
 

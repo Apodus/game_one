@@ -7,6 +7,8 @@
 struct TroopReference
 {
 	std::string name;
+	std::string icon;
+
 	uint32_t hp = 0;
 
 	// these are innate values of the troop, without counting the effects of equipment.
@@ -84,11 +86,13 @@ struct BattleCommander
 	
 	std::string name;
 	const TroopReference& reference;
+	bool m_selected = false; // for menu use only. has no effect on game logic.
 
 	std::vector<Squad> squads;
 	
 	enum class OrderType
 	{
+		Idle,
 		Move,
 		Patrol, // battle outside of fortifications if attacked. pacify region.
 		RunTests, // discover natural resources
@@ -98,9 +102,9 @@ struct BattleCommander
 
 	struct StrategyViewOrder
 	{
-		OrderType orderType;
-		size_t moveTo;
-		size_t spellToCast;
+		OrderType orderType = OrderType::Idle;
+		size_t moveTo = 0;
+		size_t spellToCast = 0;
 	};
 
 	StrategyViewOrder myOrder;
@@ -131,6 +135,7 @@ public:
 		std::vector<int> m_connections;
 		sa::vec2<float> m_position;
 		size_t m_owner = ~size_t(0);
+		size_t m_index = 0; // index of the province in the province vector.
 
 		// province properties
 		size_t m_population = 1000;
@@ -155,8 +160,9 @@ public:
 
 	public:
 		Province() = default;
-		Province(sa::vec2<float> pos) : m_position(pos)
+		Province(size_t index, sa::vec2<float> pos) : m_position(pos)
 		{
+			m_index = index;
 		}
 
 		const std::vector<const TroopReference*> inspectRecruitOrders() const {
@@ -231,6 +237,7 @@ public:
 		{
 			m_provinces.emplace_back(
 				Province(
+					m_provinces.size(),
 					sa::vec2<float>(
 						static_cast<float>(i) - numProvinces / 2,
 						static_cast<float>(i)

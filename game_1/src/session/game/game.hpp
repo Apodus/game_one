@@ -149,14 +149,17 @@ public:
 			if (nearest)
 			{
 				nearest->updatevisual(1.3f, 2.0f);
-			}
 
-			int mouseKeyCode = userio->getMouseKeyCode(0);
-			if (userio->isKeyClicked(mouseKeyCode) && !userio->isKeyConsumed(mouseKeyCode))
-			{
-				if (nearest)
+				int mouseKeyCodePrimary = userio->getMouseKeyCode(0);
+				if (userio->isKeyClicked(mouseKeyCodePrimary) && !userio->isKeyConsumed(mouseKeyCodePrimary))
 				{
 					hud->selectProvince(nearest);
+				}
+
+				int mouseKeyCodeSecondary = userio->getMouseKeyCode(1);
+				if (userio->isKeyClicked(mouseKeyCodeSecondary) && !userio->isKeyConsumed(mouseKeyCodeSecondary))
+				{
+					hud->orderToProvince(nearest);
 				}
 			}
 
@@ -203,7 +206,7 @@ private:
 	void drawBattle(std::shared_ptr<sa::Graphics> pGraphics);
 
 	Scripter m_scripter;
-	size_t m_tickID;
+	size_t m_tickID = 0;
 	std::unique_ptr<bs::BattleSim> m_sim;
 	uint64_t m_lastSimUpdate;
 
