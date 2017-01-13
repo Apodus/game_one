@@ -36,7 +36,6 @@ struct ProvinceRecruitmentTab : public sa::MenuComponent
 		{
 			if (hasFocus() && isMouseOver())
 			{
-				setTargetScale(m_defaultScale * 1.05f);
 				targetAlpha = 1.0f;
 
 				if (m_pUserIO->isKeyClicked(m_pUserIO->getMouseKeyCode(0)))
@@ -47,7 +46,6 @@ struct ProvinceRecruitmentTab : public sa::MenuComponent
 			}
 			else
 			{
-				setTargetScale(m_defaultScale);
 				targetAlpha = 0.7f;
 			}
 
@@ -112,7 +110,7 @@ struct ProvinceRecruitmentTab : public sa::MenuComponent
 		});
 		recruitmentOrderIcon->positionAlign = sa::MenuComponent::LEFT | sa::MenuComponent::TOP;
 		recruitmentOrderIcon->tick(0.5f);
-		recruitmentOrderIcon->setDefaultScale(sa::vec3<float>(elementWidth / 1.01f, elementWidth / 1.01f, 0));
+		recruitmentOrderIcon->setTargetScale(sa::vec3<float>(elementWidth / 1.01f, elementWidth / 1.01f, 0));
 		recruitmentOrderIcon->noText();
 		recruitmentOrders.emplace_back(recruitmentOrderIcon);
 		setTargetScale(sa::vec3<float>(1, height(), 0));

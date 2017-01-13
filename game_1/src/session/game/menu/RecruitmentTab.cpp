@@ -13,7 +13,7 @@ ProvinceRecruitmentTab::ProvinceRecruitmentTab(sa::MenuComponent* parent, const 
 		this,
 		"RecruitmentOpenClose",
 		[this](){ return getExteriorPosition(TOP); },
-		sa::vec3<float>(0.3f, 0.1f, 0),
+		sa::vec3<float>(0.5f, 0.1f, 0),
 		"Frame",
 		"Recruitment",
 		PositionAlign::BOTTOM,
@@ -42,7 +42,7 @@ ProvinceRecruitmentTab::ProvinceRecruitmentTab(sa::MenuComponent* parent, const 
 		if (icons.empty())
 		{
 			icon->setTargetPosition([this]() {
-				return this->getExteriorPosition(sa::MenuComponent::TOP | sa::MenuComponent::LEFT) + sa::vec3<float>(0.03f, -0.2f, 0);
+				return this->getExteriorPosition(sa::MenuComponent::TOP | sa::MenuComponent::LEFT) + sa::vec3<float>(0.03f, -0.2f * m_pWindow->getAspectRatio(), 0);
 			});
 			icon->positionAlign = sa::MenuComponent::TOP | sa::MenuComponent::LEFT;
 		}
