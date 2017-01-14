@@ -16,9 +16,13 @@ void bs::BattleSim::SetArmyCount(size_t size)
 	myArmies.resize(size);
 }
 
-void bs::BattleSim::AddUnitToArmy(Unit& unit, Unit::Detail& detail, size_t armyIndex)
+void bs::BattleSim::AddUnitToArmy(Unit& unit, size_t armyIndex)
 {
-	auto id = myField.Add(unit, detail);
+	// Unit unit;
+	// Unit::Detail detail;
+	unit.team = static_cast<uint8_t>(armyIndex);
+
+	auto id = myField.Add(unit);
 	myArmies[armyIndex].units.emplace_back(id);
 }
 
@@ -31,40 +35,36 @@ void bs::BattleSim::TestSetup()
 		{
 			{
 				Unit u;
-				Unit::Detail d;
-				u.team = 0;
 				if (i % 10 == 0 && y == 0)
 				{
-					u.radius = Real(1, 1);
+					u.radius = Real(10, 10);
 					u.hitpoints = 10;
 				}
 				else
 				{
-					u.radius = Real(1, 2);
+					u.radius = Real(4, 10);
 					u.hitpoints = 5;
 				}
 				u.pos.set(Real(50 + i), Real(50 + y), Real(0));
-				d.moveTarget.set(Real(50 + i + (rand() % 4)), Real(75), Real(0));
-				AddUnitToArmy(u, d, 0);
+				u.moveTarget.set(Real(50 + i + (rand() % 4)), Real(75), Real(0));
+				AddUnitToArmy(u, 0);
 			}
 
 			{
 				Unit u;
-				Unit::Detail d;
-				u.team = 1;
 				if (i % 10 == 0 && y == 9)
 				{
-					u.radius = Real(1, 1);
+					u.radius = Real(10, 10);
 					u.hitpoints = 10;
 				}
 				else
 				{
-					u.radius = Real(1, 2);
+					u.radius = Real(4, 10);
 					u.hitpoints = 5;
 				}
 				u.pos.set(Real(50 + i), Real(100 + y), Real(0));
-				d.moveTarget.set(Real(50 + i + (rand() % 4)), Real(75), Real(0));
-				AddUnitToArmy(u, d, 1);
+				u.moveTarget.set(Real(50 + i + (rand() % 4)), Real(75), Real(0));
+				AddUnitToArmy(u, 1);
 			}
 		}
 	}	

@@ -8,35 +8,34 @@ bs::Field::Field()
 	myFrames.emplace_back();
 }
 
-bs::Unit::Id bs::Field::Add(Unit& unit, Unit::Detail& detail)
+bs::Unit::Id bs::Field::Add(Unit& unit)
 {
-	detail.id = myUnits.size();
+	unit.id = myUnits.size();
 	myUnits.emplace_back(unit);
-	myUnitDetails.emplace_back(detail);
-	myLevels[0].AddUnit(myUnits.back(), myUnitDetails.back());
-	myActiveUnits.emplace_back(detail.id);
-	return detail.id;
+	myLevels[0].AddUnit(myUnits.back());
+	myActiveUnits.emplace_back(unit.id);
+	return unit.id;
 }
 
 void bs::Field::UpdatePriorities()
 {
+	Vector<U16> unitUpdatePriorities;
+	unitUpdatePriorities.resize(myUnits.size());
 	for (size_t i = 0; i < myActiveUnits.size(); i++)
 	{
 		auto& unit = myUnits[myActiveUnits[i]];
-		auto& unitDetails = myUnitDetails[myActiveUnits[i]];
-		auto len = ((unitDetails.moveTarget - unit.pos).lengthSquared().getRawValue() - unit.radius.getRawValue()) >> 18;
+		auto len = ((unit.moveTarget - unit.pos).lengthSquared().getRawValue() - unit.radius.getRawValue()) >> 18;
 		if (len < 0)
 		{
 			len = 0;
 		}
-
 		ASSERT(len <= UINT16_MAX, "Too low priority");
-		unitDetails.updatePriority = static_cast<U16>(len);
+		unitUpdatePriorities[myActiveUnits[i]] = static_cast<U16>(len);
 	}
 
 	std::sort(myActiveUnits.begin(), myActiveUnits.end(), [&](Unit::Id a, Unit::Id b)
 	{
-		return myUnitDetails[a].updatePriority < myUnitDetails[b].updatePriority;
+		return unitUpdatePriorities[a] < unitUpdatePriorities[b];
 	});
 }
 
@@ -132,9 +131,8 @@ void bs::Field::Update()
 	for (size_t i = 0; i < myActiveUnits.size(); i++)
 	{
 		auto& unit = myUnits[myActiveUnits[i]];
-		auto& detail = myUnitDetails[myActiveUnits[i]];
 
-		Vec targetDir = detail.moveTarget - unit.pos;
+		Vec targetDir = unit.moveTarget - unit.pos;
 		auto targetDirLen = targetDir.length();
 		if (targetDirLen > Real(0, 1))
 		{
@@ -146,9 +144,9 @@ void bs::Field::Update()
 		const bs::Real Agility(10);
 		const bs::Real Speed(3);
 		const bs::Real SlowDown(1, 2);
-		detail.acc = targetDir * Agility;
+		unit.acc = targetDir * Agility;
 
-		Vec newVel = detail.acc * TimePerUpdate + detail.vel;
+		Vec newVel = unit.acc * TimePerUpdate + unit.vel;
 		auto speed = newVel.length();
 		if (speed > Speed)
 		{
@@ -158,9 +156,9 @@ void bs::Field::Update()
 			newVel *= (Speed + excessSpeed);
 		}
 
-		Vec newPos = detail.vel * TimePerUpdate + unit.pos;
+		Vec newPos = unit.vel * TimePerUpdate + unit.pos;
 		collisions.clear();
-		FindCollisions(unit, detail.id, newPos, collisions);
+		FindCollisions(unit, unit.id, newPos, collisions);
 
 		Unit::Id collisionId = static_cast<Unit::Id>(-1);
 		for (size_t j = 0; j < collisions.size(); j++)
@@ -169,7 +167,7 @@ void bs::Field::Update()
 			Vec hitPos;
 			if (CollisionCheck(other, unit, newPos, hitPos))
 			{
-				collisionId = myUnitDetails[collisions[j]].id;
+				collisionId = myUnits[collisions[j]].id;
 				newPos = hitPos;
 			}
 		}
@@ -179,8 +177,8 @@ void bs::Field::Update()
 			Vec dir = newPos - unit.pos;
 			auto dp = dir.dotProduct(targetDir);
 			auto& other = myUnits[collisionId];
-			newVel.x = (dp * detail.vel.x) / Real(2, 1);
-			newVel.y = (dp * detail.vel.y) / Real(2, 1);
+			newVel.x = (dp * unit.vel.x) / Real(2, 1);
+			newVel.y = (dp * unit.vel.y) / Real(2, 1);
 			newVel.z = (Real(0, 1));
 
 			if (other.team != unit.team && other.hitpoints > 0)
@@ -191,24 +189,24 @@ void bs::Field::Update()
 					other.hitpoints--;
 					if (other.hitpoints == 0)
 					{
-						deleted.emplace_back(myUnitDetails[collisionId].id);
+						deleted.emplace_back(other.id);
 					}
 				}
 			}
 		}
 
-		if (myLevels[0].IsGridMove(unit, detail, newPos))
+		if (myLevels[0].IsGridMove(unit, newPos))
 		{
-			myLevels[0].RemoveUnit(detail);
+			myLevels[0].RemoveUnit(unit);
 			unit.pos = newPos;
-			myLevels[0].AddUnit(unit, detail);
+			myLevels[0].AddUnit(unit);
 		}
 		else
 		{
 			unit.pos = newPos;
 		}
 
-		detail.vel = newVel;
+		unit.vel = newVel;
 #if 0
 		if (unit.id == 0)
 		{
@@ -222,7 +220,14 @@ void bs::Field::Update()
 
 	}
 	myFrames.push_back(Frame());
-	myFrames.back().units = myUnits;
+	myFrames.back().units.resize(myUnits.size());
+	for (size_t i = 0; i < myUnits.size(); i++)
+	{
+		myFrames.back().units[i].pos = myUnits[i].pos;
+		myFrames.back().units[i].radius = myUnits[i].radius;
+		myFrames.back().units[i].hitpoints = myUnits[i].hitpoints;
+		myFrames.back().units[i].team = myUnits[i].team;
+	}
 
 	// Remove deleted from active. This will change order of active units, but we are 
 	// going to sort active units next update anyway.
@@ -230,7 +235,7 @@ void bs::Field::Update()
 	{
 		auto iter = std::find(myActiveUnits.begin(), myActiveUnits.end(), deleted[i]);
 		ASSERT(iter != myActiveUnits.end(), "Deleted not found");
-		myLevels[0].RemoveUnit(myUnitDetails[*iter]);
+		myLevels[0].RemoveUnit(myUnits[*iter]);
 		*iter = myActiveUnits.back();
 		myActiveUnits.pop_back();
 	}

@@ -12,12 +12,19 @@ namespace bs
 	public:
 		struct Frame
 		{
-			Vector<Unit> units;
+			struct Elem
+			{
+				Vec pos;
+				Real radius;
+				U32 hitpoints;
+				U8 team;
+			};
+			Vector<Elem> units;
 		};
 
 		Field();
 
-		Unit::Id Add(Unit& unit, Unit::Detail& detail);
+		Unit::Id Add(Unit& unit);
 
 		void Update();
 
@@ -50,7 +57,6 @@ namespace bs
 		Array<Level, 1> myLevels;
 		Vector<Unit::Id> myActiveUnits;
 		Vector<Unit> myUnits;
-		Vector<Unit::Detail> myUnitDetails;
 		Deque<Frame> myFrames;
 		double myFrameTime = 0;
 		uint64_t myRand = 1;

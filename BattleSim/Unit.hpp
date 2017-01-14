@@ -26,22 +26,19 @@ namespace bs
 			U32 speed = 0;
 		};
 
-		struct Detail
-		{
-			Vec vel;
-			Vec acc;
-			Vec moveTarget;
-			BoundingBox bb;
 
-			Id id;
+		Vec vel;
+		Vec acc;
+		Vec moveTarget;
+		BoundingBox bb;
 
-			// Attributes
-			U32 speed = 0;
-			U32 agility = 0;
+		Id id;
 
-			// Weapons, TODO: allow multiple weapons
-			U16 weaponId;
-			U16 updatePriority = 0;
-		};
+		// Attributes
+		U32 speed = 0;
+		U32 agility = 0;
+
+		// Weapons, TODO: allow multiple weapons
+		U16 weaponId;
 	};
 }
