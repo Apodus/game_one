@@ -33,13 +33,14 @@ namespace bs
 			Info
 		};
 
-		struct Add
+		struct AddData
 		{
+			Real radius;
 			Id id;
-			uint8_t texture;
+			uint8_t team;
 		};
 
-		struct Remove
+		struct RemoveData
 		{
 			Id id;
 		};

@@ -78,20 +78,20 @@ Game::Game(
 
 	for (auto& province : provinces)
 	{
-		for(int i=0; i<10; ++i)
+		for (int i = 0; i < 10; ++i)
 			province.troopsToRecruit.emplace_back(militia.name);
 	}
 
 	auto& first = provinces.front();
 	first.m_owner = 0;
-	for(int i =0; i<23; ++i)
+	for (int i = 0; i < 23; ++i)
 		first.commanders.emplace_back(troopReferences["zealot"], ++nextUnitId, first.m_owner);
 
 	auto& second = provinces.back();
 	second.m_owner = 1;
-	for (int i = 0; i<23; ++i)
+	for (int i = 0; i < 23; ++i)
 		second.commanders.emplace_back(troopReferences["zealot"], ++nextUnitId, second.m_owner);
-	
+
 	players.emplace_back("Mestari");
 	players.emplace_back("Nubu");
 }
@@ -241,8 +241,8 @@ void Game::drawBattle(std::shared_ptr<sa::Graphics> pGraphics)
 
 	float offsetX = 30.0f;
 	float offsetY = 20.0f;
-	float scale = 1/4.0f;
-	
+	float scale = 1 / 4.0f;
+
 	float unitHeight = 1.5f;
 
 	while (m_simAccu >= m_sim->GetTimePerUpdate())
@@ -250,21 +250,41 @@ void Game::drawBattle(std::shared_ptr<sa::Graphics> pGraphics)
 		const auto* frame = m_sim->GetField().GetFrame();
 		if (frame)
 		{
+			for (size_t i = 0; i < m_units.size(); i++)
+			{
+				m_units[i].current = m_units[i].next;
+			}
 			bs::UpdateData::Reader reader = frame->GetReader();
-			size_t numUpdates = reader.Read<size_t>();
-			m_units.resize(numUpdates);
+
+			// New units
+			uint16_t numStartingUnits = reader.Read<uint16_t>();
+			for (size_t i = 0; i < numStartingUnits; i++)
+			{
+				const auto& unitIn = reader.Read<bs::UpdateData::AddData>();
+				if (unitIn.id >= m_units.size())
+				{
+					m_units.resize(unitIn.id + 1);
+				}
+				auto& unit = m_units[unitIn.id];
+				unit.team = unitIn.team;
+				unit.size = unitIn.radius.toFloat() * scale;
+			}
+
+			// Moving units
+			uint16_t numUpdates = reader.Read<uint16_t>();
 			for (size_t i = 0; i < numUpdates; i++)
 			{
 				const auto& unitIn = reader.Read<bs::Field::Frame::Elem>();
-				auto& unit = m_units[i];
-				unit.current = unit.next;
+				auto& unit = m_units[unitIn.id];
 				unit.next.isValid = true;
 				unit.next.x = unitIn.pos.x.toFloat() * scale - offsetX;
 				unit.next.y = unitIn.pos.y.toFloat() * scale - offsetY;
-				unit.size = unitIn.radius.toFloat() * scale;
 				unit.hitpoints = unitIn.hitpoints;
-				unit.team = unitIn.team;
 			}
+
+			// Old units
+			// TODO
+
 			m_sim->GetField().FreeFrame();
 			m_simAccu -= m_sim->GetTimePerUpdate();
 		}
@@ -293,11 +313,15 @@ void Game::drawBattle(std::shared_ptr<sa::Graphics> pGraphics)
 				continue; // Not yet visible
 			}
 		}
-		else
+		else if (frameFraction <= 0 && unit.current.isValid)
 		{
-			// ASSERT(unit.current.isValid, "At least one frame must be valid");
 			x = unit.current.x;
 			y = unit.current.y;
+		}
+		else
+		{
+			// Not visible anymore, remove from list
+			continue;
 		}
 
 		model.makeTranslationMatrix(x, y, unit.hitpoints == 0 ? 0.0f : unitHeight * scale);
@@ -306,7 +330,7 @@ void Game::drawBattle(std::shared_ptr<sa::Graphics> pGraphics)
 
 		pGraphics->m_pRenderer->drawRectangle(model, "Hero",
 			unit.hitpoints == 0 ? Color::RED :
-			(unit.team == 1 ? Color::GREEN : Color::BLUE));		
+			(unit.team == 1 ? Color::GREEN : Color::BLUE));
 	}
 }
 

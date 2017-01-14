@@ -16,9 +16,8 @@ namespace bs
 			struct Elem
 			{
 				Vec pos;
-				Real radius;
 				U32 hitpoints;
-				U8 team;
+				Unit::Id id;
 			};
 			Vector<Elem> units;
 		};
@@ -44,6 +43,8 @@ namespace bs
 		}
 
 	private:
+		void WriteUpdate();
+
 		void UpdatePriorities();
 
 		void FindCollisions(const Unit& unit, Unit::Id id, const Vec& newPos, std::vector<Unit::Id>& collisions) const;
@@ -58,6 +59,8 @@ namespace bs
 		// E.g. level 0 has underground units, level 1 has ground units and level 2 has flying units
 		Array<Level, 1> myLevels;
 		Vector<Unit::Id> myActiveUnits;
+		Vector<Unit::Id> myStartingUnits;
+		Vector<Unit::Id> myMovingUnits;
 		Vector<Unit> myUnits;
 		Deque<Frame> myFrames;
 		double myFrameTime = 0;

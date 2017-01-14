@@ -18,6 +18,14 @@ namespace bs
 		U8 team;
 		U8 group;
 
+		enum class State : U8
+		{
+			Inactive,
+			Starting,
+			Active,
+			Stopping
+		};
+		State state = State::Inactive;
 
 		// Private data
 		struct Weapon

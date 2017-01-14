@@ -11,9 +11,11 @@ bs::Field::Field()
 bs::Unit::Id bs::Field::Add(Unit& unit)
 {
 	unit.id = myUnits.size();
+	unit.state = Unit::State::Starting;
 	myUnits.emplace_back(unit);
 	myLevels[0].AddUnit(myUnits.back());
 	myActiveUnits.emplace_back(unit.id);
+	myStartingUnits.emplace_back(unit.id);
 	return unit.id;
 }
 
@@ -195,17 +197,25 @@ void bs::Field::Update()
 			}
 		}
 
-		if (myLevels[0].IsGridMove(unit, newPos))
+		if (unit.pos != newPos)
 		{
-			myLevels[0].RemoveUnit(unit);
-			unit.pos = newPos;
-			myLevels[0].AddUnit(unit);
-		}
-		else
-		{
-			unit.pos = newPos;
+			if (myLevels[0].IsGridMove(unit, newPos))
+			{
+				myLevels[0].RemoveUnit(unit);
+				unit.pos = newPos;
+				myLevels[0].AddUnit(unit);
+			}
+			else
+			{
+				unit.pos = newPos;
+			}
+			
 		}
 
+		// if (isMoved)
+		{
+			myMovingUnits.emplace_back(unit.id);
+		}
 		unit.vel = newVel;
 #if 0
 		if (unit.id == 0)
@@ -220,20 +230,7 @@ void bs::Field::Update()
 
 	}
 
-	UpdateData& update = myUpdateSystem.StartUpdate();
-	update.updateStream.resize(sizeof(Field::Frame::Elem) * myUnits.size() + sizeof(size_t));
-	auto writer = update.GetWriter();
-	const size_t numUnits = myUnits.size();
-	writer.Write(numUnits);
-	for (size_t i = 0; i < myUnits.size(); i++)
-	{
-		Field::Frame::Elem& elem = writer.Write<Field::Frame::Elem>();
-		elem.pos = myUnits[i].pos;
-		elem.radius = myUnits[i].radius;
-		elem.hitpoints = myUnits[i].hitpoints;
-		elem.team = myUnits[i].team;
-	}
-	myUpdateSystem.StopUpdate();
+	WriteUpdate();
 
 	// Remove deleted from active. This will change order of active units, but we are 
 	// going to sort active units next update anyway.
@@ -245,6 +242,44 @@ void bs::Field::Update()
 		*iter = myActiveUnits.back();
 		myActiveUnits.pop_back();
 	}
+}
+
+void bs::Field::WriteUpdate()
+{
+	UpdateData& update = myUpdateSystem.StartUpdate();
+
+	const U16 numStartingUnits = static_cast<U16>(myStartingUnits.size());
+	const U16 numUnits = static_cast<U16>(myMovingUnits.size());
+
+	update.updateStream.resize(
+		sizeof(U16) * 2 +
+		sizeof(UpdateData::AddData) * numStartingUnits +
+		sizeof(Field::Frame::Elem) * numUnits);
+	auto writer = update.GetWriter();
+	
+	writer.Write(numStartingUnits);
+	for (size_t i = 0; i < numStartingUnits; i++)
+	{
+		auto& elem = writer.Write<UpdateData::AddData>();
+		elem.id = myStartingUnits[i];
+		auto& unit = myUnits[elem.id];
+		elem.team = unit.team;
+		elem.radius = unit.radius;
+		unit.state = Unit::State::Active;
+	}
+
+	writer.Write(numUnits);
+	for (size_t i = 0; i < numUnits; i++)
+	{
+		Field::Frame::Elem& elem = writer.Write<Field::Frame::Elem>();
+		elem.id = myMovingUnits[i];
+		elem.pos = myUnits[elem.id].pos;
+		elem.hitpoints = myUnits[elem.id].hitpoints;
+	}
+	myUpdateSystem.StopUpdate();
+
+	myStartingUnits.clear();
+	myMovingUnits.clear();
 }
 
 // Cylinder collision check
