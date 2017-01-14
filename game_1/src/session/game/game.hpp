@@ -256,5 +256,6 @@ private:
 	};
 	std::unique_ptr<bs::BattleSim> m_sim;
 	uint64_t m_lastSimUpdate;
+	double m_simAccu;
 	std::vector<Unit> m_units;
 };

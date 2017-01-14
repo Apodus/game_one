@@ -7,16 +7,18 @@
 #include <chrono>
 #include <atomic>
 
+static const size_t SimulationInAdvanceMs = 1000;
+
 bs::BattleSim::BattleSim() :
 	myActiveFlag(true)
 {
-	Run();
 }
 
 bs::BattleSim::~BattleSim()
 {
 	std::atomic_thread_fence(std::memory_order_acquire);
 	myActiveFlag = false;
+	Simulate(0);
 	myThread.join();
 }
 
@@ -77,6 +79,9 @@ void bs::BattleSim::TestSetup()
 			}
 		}
 	}	
+
+	Run();
+	Simulate(SimulationInAdvanceMs);
 }
 
 void bs::BattleSim::Simulate(size_t milliSeconds)
@@ -84,6 +89,7 @@ void bs::BattleSim::Simulate(size_t milliSeconds)
 	myMutex.lock();
 	myTimeToSimulate += milliSeconds;
 	myMutex.unlock();
+	myCV.notify_all();
 }
 
 void bs::BattleSim::Run()
@@ -91,11 +97,17 @@ void bs::BattleSim::Run()
 	myThread = std::thread([this]()
 	{
 		while (myActiveFlag)
-		{			
-			myMutex.lock();
-			double timeToSimulate = static_cast<double>(myTimeToSimulate) / 1000.0;
-			myTimeToSimulate = 0;
-			myMutex.unlock();
+		{
+			double timeToSimulate = 0;
+			{
+				std::unique_lock<std::mutex> lock(myMutex);
+				if (myTimeToSimulate == 0)
+				{
+					myCV.wait(lock);
+				}
+				timeToSimulate = static_cast<double>(myTimeToSimulate) / 1000.0;
+				myTimeToSimulate = 0;
+			}
 			double endTime = myTimeAccu + myTotalTime + timeToSimulate;
 			double step = static_cast<double>(Field::TimePerUpdate.getRawValue()) / Real::s_fpOne;
 			while (myTotalTime + step < endTime && myActiveFlag)
@@ -112,4 +124,9 @@ void bs::BattleSim::Run()
 			myTimeAccu = endTime - myTotalTime;
 		}
 	});
+}
+
+double bs::BattleSim::GetTimePerUpdate() const
+{
+	return myField.TimePerUpdate.toDouble();
 }

@@ -20,7 +20,9 @@ namespace bs
 
 		BATTLESIM_API Field& GetField() { return myField; }
 
-	private:
+		BATTLESIM_API double GetTimePerUpdate() const;
+
+	private:		
 		void Run();
 		
 		void SetArmyCount(size_t size);
@@ -35,6 +37,7 @@ namespace bs
 
 		std::thread myThread;
 		std::mutex myMutex;
+		std::condition_variable myCV;
 		volatile bool myActiveFlag;
 		size_t myTimeToSimulate;
 	};

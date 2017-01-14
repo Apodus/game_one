@@ -237,23 +237,31 @@ void Game::drawBattle(std::shared_ptr<sa::Graphics> pGraphics)
 	
 	float unitHeight = 1.5f;
 
-	const auto* frame = m_sim->GetField().GetFrame();
-	if (frame)
+	while (m_simAccu >= m_sim->GetTimePerUpdate())
 	{
-		bs::UpdateData::Reader reader = frame->GetReader();
-		size_t numUpdates = reader.Read<size_t>();
-		m_units.resize(numUpdates);
-		for (size_t i = 0; i < numUpdates; i++)
+		const auto* frame = m_sim->GetField().GetFrame();
+		if (frame)
 		{
-			const auto& unitIn = reader.Read<bs::Field::Frame::Elem>();
-			auto& unit = m_units[i];
-			unit.x = unitIn.pos.x.toFloat() * scale - offsetX;
-			unit.y = unitIn.pos.y.toFloat() * scale - offsetY;
-			unit.size = unitIn.radius.toFloat() * scale;
-			unit.hitpoints = unitIn.hitpoints;
-			unit.team = unitIn.team;
+			bs::UpdateData::Reader reader = frame->GetReader();
+			size_t numUpdates = reader.Read<size_t>();
+			m_units.resize(numUpdates);
+			for (size_t i = 0; i < numUpdates; i++)
+			{
+				const auto& unitIn = reader.Read<bs::Field::Frame::Elem>();
+				auto& unit = m_units[i];
+				unit.x = unitIn.pos.x.toFloat() * scale - offsetX;
+				unit.y = unitIn.pos.y.toFloat() * scale - offsetY;
+				unit.size = unitIn.radius.toFloat() * scale;
+				unit.hitpoints = unitIn.hitpoints;
+				unit.team = unitIn.team;
+			}
+			m_sim->GetField().FreeFrame();
+			m_simAccu -= m_sim->GetTimePerUpdate();
 		}
-		m_sim->GetField().FreeFrame();
+		else
+		{
+			break;
+		}
 	}
 
 	for (size_t i = 0; i < m_units.size(); i++)
@@ -278,6 +286,7 @@ void Game::tick(long long timeMs)
 	{
 		auto delta = m_lastSimUpdate != 0 ? timeMs - m_lastSimUpdate : 0;
 		m_sim->Simulate(static_cast<size_t>(delta));
+		m_simAccu += static_cast<double>(delta) / 1000.0;
 		m_lastSimUpdate = timeMs;
 	}
 	++m_tickID;
@@ -288,4 +297,5 @@ void Game::showBattle()
 	m_sim = std::make_unique<bs::BattleSim>();
 	m_sim->TestSetup();
 	m_lastSimUpdate = 0;
+	m_simAccu = 0;
 }
