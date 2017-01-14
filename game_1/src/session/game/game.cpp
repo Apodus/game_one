@@ -237,23 +237,35 @@ void Game::drawBattle(std::shared_ptr<sa::Graphics> pGraphics)
 	
 	float unitHeight = 1.5f;
 
-	auto& frame = m_sim->GetField().GetFrame();
-	for (size_t i = 0; i < frame.units.size(); i++)
+	const auto* frame = m_sim->GetField().GetFrame();
+	if (frame)
 	{
-		auto& unit = frame.units[i];
-		float x = unit.pos.x.toFloat() * scale - offsetX;
-		float y = unit.pos.y.toFloat() * scale - offsetY;
+		bs::UpdateData::Reader reader = frame->GetReader();
+		size_t numUpdates = reader.Read<size_t>();
+		m_units.resize(numUpdates);
+		for (size_t i = 0; i < numUpdates; i++)
+		{
+			const auto& unitIn = reader.Read<bs::Field::Frame::Elem>();
+			auto& unit = m_units[i];
+			unit.x = unitIn.pos.x.toFloat() * scale - offsetX;
+			unit.y = unitIn.pos.y.toFloat() * scale - offsetY;
+			unit.size = unitIn.radius.toFloat() * scale;
+			unit.hitpoints = unitIn.hitpoints;
+			unit.team = unitIn.team;
+		}
+		m_sim->GetField().FreeFrame();
+	}
 
-
-		float size = unit.radius.toFloat() * scale;
-
+	for (size_t i = 0; i < m_units.size(); i++)
+	{
+		auto& unit = m_units[i];
 		sa::Matrix4 model;
-		model.makeTranslationMatrix(x, y, unit.hitpoints == 0 ? 0.0f : unitHeight * scale);
+		model.makeTranslationMatrix(unit.x, unit.y, unit.hitpoints == 0 ? 0.0f : unitHeight * scale);
 		model.rotate(0, 0, 0, 1);
-		model.scale(size, size, 1);
+		model.scale(unit.size, unit.size, 1);
 
-		pGraphics->m_pRenderer->drawRectangle(model, "Hero", 
-			unit.hitpoints == 0 ? Color::RED :			 
+		pGraphics->m_pRenderer->drawRectangle(model, "Hero",
+			unit.hitpoints == 0 ? Color::RED :
 			(unit.team == 1 ? Color::GREEN : Color::BLUE));
 	}
 }
@@ -268,7 +280,6 @@ void Game::tick(long long timeMs)
 		m_sim->Simulate(static_cast<size_t>(delta));
 		m_lastSimUpdate = timeMs;
 	}
-
 	++m_tickID;
 }
 

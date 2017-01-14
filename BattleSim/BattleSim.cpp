@@ -5,10 +5,19 @@
 #include "BattleSim.hpp"
 
 #include <chrono>
+#include <atomic>
 
-bs::BattleSim::BattleSim()
+bs::BattleSim::BattleSim() :
+	myActiveFlag(true)
 {
+	Run();
+}
 
+bs::BattleSim::~BattleSim()
+{
+	std::atomic_thread_fence(std::memory_order_acquire);
+	myActiveFlag = false;
+	myThread.join();
 }
 
 void bs::BattleSim::SetArmyCount(size_t size)
@@ -72,19 +81,35 @@ void bs::BattleSim::TestSetup()
 
 void bs::BattleSim::Simulate(size_t milliSeconds)
 {
-	double endTime = myTimeAccu + myTotalTime + static_cast<double>(milliSeconds) / 1000.0;
-	double step = static_cast<double>(Field::TimePerUpdate.getRawValue()) / Real::s_fpOne;
+	myMutex.lock();
+	myTimeToSimulate += milliSeconds;
+	myMutex.unlock();
+}
 
-	while (myTotalTime + step < endTime)
+void bs::BattleSim::Run()
+{
+	myThread = std::thread([this]()
 	{
-		auto start = std::chrono::high_resolution_clock::now();
-		myField.Update();
-		myTotalTime += step;
-		auto stop = std::chrono::high_resolution_clock::now();
-		using ms = std::chrono::duration<float, std::milli>;
-		auto deltaTime = std::chrono::duration_cast<ms>(stop - start).count();
-		LOG("Total time simulated = %f;in accu=%f; step=%f; cpu=%f",
-			myTotalTime, myTimeAccu, step, static_cast<double>(deltaTime) / 1000.0);
-	};
-	myTimeAccu = endTime - myTotalTime;
+		while (myActiveFlag)
+		{			
+			myMutex.lock();
+			double timeToSimulate = static_cast<double>(myTimeToSimulate) / 1000.0;
+			myTimeToSimulate = 0;
+			myMutex.unlock();
+			double endTime = myTimeAccu + myTotalTime + timeToSimulate;
+			double step = static_cast<double>(Field::TimePerUpdate.getRawValue()) / Real::s_fpOne;
+			while (myTotalTime + step < endTime && myActiveFlag)
+			{
+				auto start = std::chrono::high_resolution_clock::now();
+				myField.Update();
+				myTotalTime += step;
+				auto stop = std::chrono::high_resolution_clock::now();
+				using ms = std::chrono::duration<float, std::milli>;
+				auto deltaTime = std::chrono::duration_cast<ms>(stop - start).count();
+				LOG("Total time simulated = %f;in accu=%f; step=%f; cpu=%f",
+					myTotalTime, myTimeAccu, step, static_cast<double>(deltaTime) / 1000.0);
+			};
+			myTimeAccu = endTime - myTotalTime;
+		}
+	});
 }
