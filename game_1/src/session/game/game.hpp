@@ -248,8 +248,15 @@ private:
 	// Battle simulation
 	struct Unit
 	{
-		float x;
-		float y;
+		struct Status
+		{
+			Status() : isValid(false) {}
+			float x;
+			float y;
+			bool isValid;
+		};
+		Status current;
+		Status next;
 		float size;
 		int hitpoints;
 		int team;

@@ -249,8 +249,10 @@ void Game::drawBattle(std::shared_ptr<sa::Graphics> pGraphics)
 			{
 				const auto& unitIn = reader.Read<bs::Field::Frame::Elem>();
 				auto& unit = m_units[i];
-				unit.x = unitIn.pos.x.toFloat() * scale - offsetX;
-				unit.y = unitIn.pos.y.toFloat() * scale - offsetY;
+				unit.current = unit.next;
+				unit.next.isValid = true;
+				unit.next.x = unitIn.pos.x.toFloat() * scale - offsetX;
+				unit.next.y = unitIn.pos.y.toFloat() * scale - offsetY;
 				unit.size = unitIn.radius.toFloat() * scale;
 				unit.hitpoints = unitIn.hitpoints;
 				unit.team = unitIn.team;
@@ -264,17 +266,39 @@ void Game::drawBattle(std::shared_ptr<sa::Graphics> pGraphics)
 		}
 	}
 
+	float frameFraction = min(1.0f, static_cast<float>(m_simAccu / m_sim->GetTimePerUpdate()));
+
 	for (size_t i = 0; i < m_units.size(); i++)
 	{
 		auto& unit = m_units[i];
 		sa::Matrix4 model;
-		model.makeTranslationMatrix(unit.x, unit.y, unit.hitpoints == 0 ? 0.0f : unitHeight * scale);
+		float x, y;
+		if (unit.next.isValid)
+		{
+			if (unit.current.isValid)
+			{
+				x = unit.current.x + ((unit.next.x - unit.current.x) * frameFraction);
+				y = unit.current.y + ((unit.next.y - unit.current.y) * frameFraction);
+			}
+			else
+			{
+				continue; // Not yet visible
+			}
+		}
+		else
+		{
+			// ASSERT(unit.current.isValid, "At least one frame must be valid");
+			x = unit.current.x;
+			y = unit.current.y;
+		}
+
+		model.makeTranslationMatrix(x, y, unit.hitpoints == 0 ? 0.0f : unitHeight * scale);
 		model.rotate(0, 0, 0, 1);
 		model.scale(unit.size, unit.size, 1);
 
 		pGraphics->m_pRenderer->drawRectangle(model, "Hero",
 			unit.hitpoints == 0 ? Color::RED :
-			(unit.team == 1 ? Color::GREEN : Color::BLUE));
+			(unit.team == 1 ? Color::GREEN : Color::BLUE));		
 	}
 }
 
