@@ -207,8 +207,6 @@ private:
 
 	Scripter m_scripter;
 	size_t m_tickID = 0;
-	std::unique_ptr<bs::BattleSim> m_sim;
-	uint64_t m_lastSimUpdate;
 
 	struct Faction
 	{
@@ -246,4 +244,25 @@ private:
 	std::unordered_map<std::string, TroopReference> troopReferences;
 	std::vector<Faction> players;
 	ProvinceGraph graph;
+
+	// Battle simulation
+	struct Unit
+	{
+		struct Status
+		{
+			Status() : isValid(false) {}
+			float x;
+			float y;
+			bool isValid;
+		};
+		Status current;
+		Status next;
+		float size;
+		int hitpoints;
+		int team;
+	};
+	std::unique_ptr<bs::BattleSim> m_sim;
+	uint64_t m_lastSimUpdate;
+	double m_simAccu;
+	std::vector<Unit> m_units;
 };

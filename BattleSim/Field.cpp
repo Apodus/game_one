@@ -219,15 +219,21 @@ void bs::Field::Update()
 #endif
 
 	}
-	myFrames.push_back(Frame());
-	myFrames.back().units.resize(myUnits.size());
+
+	UpdateData& update = myUpdateSystem.StartUpdate();
+	update.updateStream.resize(sizeof(Field::Frame::Elem) * myUnits.size() + sizeof(size_t));
+	auto writer = update.GetWriter();
+	const size_t numUnits = myUnits.size();
+	writer.Write(numUnits);
 	for (size_t i = 0; i < myUnits.size(); i++)
 	{
-		myFrames.back().units[i].pos = myUnits[i].pos;
-		myFrames.back().units[i].radius = myUnits[i].radius;
-		myFrames.back().units[i].hitpoints = myUnits[i].hitpoints;
-		myFrames.back().units[i].team = myUnits[i].team;
+		Field::Frame::Elem& elem = writer.Write<Field::Frame::Elem>();
+		elem.pos = myUnits[i].pos;
+		elem.radius = myUnits[i].radius;
+		elem.hitpoints = myUnits[i].hitpoints;
+		elem.team = myUnits[i].team;
 	}
+	myUpdateSystem.StopUpdate();
 
 	// Remove deleted from active. This will change order of active units, but we are 
 	// going to sort active units next update anyway.

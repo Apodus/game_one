@@ -3,6 +3,7 @@
 #include "Level.hpp"
 #include "Array.hpp"
 #include "Deque.hpp"
+#include "UpdateSystem.h"
 
 namespace bs
 {
@@ -32,13 +33,14 @@ namespace bs
 
 		static const Real TimePerUpdate;
 
-		BATTLESIM_API const Frame& GetFrame()
+		BATTLESIM_API const UpdateData* GetFrame()
+		{	
+			return myUpdateSystem.GetForReading();
+		}
+
+		BATTLESIM_API void FreeFrame()
 		{
-			while (myFrames.size() > 1)
-			{
-				myFrames.pop_front();
-			}
-			return myFrames.front();
+			myUpdateSystem.ConsumeUpdate();
 		}
 
 	private:
@@ -61,6 +63,6 @@ namespace bs
 		double myFrameTime = 0;
 		uint64_t myRand = 1;
 		
-		
+		UpdateSystem myUpdateSystem;
 	};
 }
