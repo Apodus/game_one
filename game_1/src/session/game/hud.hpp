@@ -24,7 +24,7 @@ struct ResourceTab : public sa::MenuComponent
 			parent,
 			"ResourceTab",
 			[parent]() {return parent->getExteriorPosition(TOP); },
-			sa::vec3<float>(1.0f, 0.1f * m_pWindow->getAspectRatio(), 0)
+			sa::vec3<float>(1.0f, 0.1f, 0)
 		)
 		, m_game(game)
 	{
