@@ -17,6 +17,79 @@
 
 class Game;
 
+struct ResourceTab : public sa::MenuComponent
+{
+	ResourceTab(sa::MenuComponent* parent, Game& game)
+		: sa::MenuComponent(
+			parent,
+			"ResourceTab",
+			[parent]() {return parent->getExteriorPosition(TOP); },
+			sa::vec3<float>(1.0f, 0.1f * m_pWindow->getAspectRatio(), 0)
+		)
+	{
+		m_color = Color::WHITE;
+		setPositionUpdateType(true);
+	}
+
+	virtual void childComponentCall(const std::string& who, const std::string& what, int = 0) {}
+
+	virtual void update(float dt) override
+	{
+		if (hasFocus() && isMouseOver())
+		{
+			targetAlpha = 1.0f;
+
+			if (m_pUserIO->isKeyClicked(m_pUserIO->getMouseKeyCode(0)))
+			{
+				m_pUserIO->consume(m_pUserIO->getMouseKeyCode(0));
+				callParent("click", myIndex);
+			}
+		}
+		else
+		{
+			targetAlpha = 0.7f;
+		}
+
+		m_color.a += (targetAlpha - m_color.a) * dt * 12;
+	}
+
+	virtual void draw(std::shared_ptr<sa::Graphics> graphics) const override
+	{
+		sa::Matrix4 model;
+		model.makeTranslationMatrix(getPosition());
+		model.scale(getScale() * 0.5f);
+
+		const sa::vec3<float>& m_pos = getPosition();
+		graphics->m_pRenderer->drawRectangle(model, icon, m_color);
+
+		if (!m_text.empty()) {
+			graphics->m_pTextRenderer->drawText(
+				m_text,
+				m_pos.x,
+				m_pos.y - m_worldScale.y * 0.5f,
+				0.035f,
+				Color::GOLDEN,
+				sa::TextRenderer::Align::CENTER,
+				graphics->m_fontConsola
+			);
+		}
+	}
+
+	void noText()
+	{
+		m_text = "";
+	}
+
+	float targetAlpha = 1.0f;
+	std::string icon;
+	std::string m_text;
+
+	int myIndex = -1;
+	sa::vec4<float> m_color;
+	std::string className;
+	const TroopReference& troopReference;
+};
+
 class Hud : public sa::MenuComponent {
 public:
 	Hud(
@@ -56,6 +129,10 @@ public:
 			"ButtonBase",
 			"^gH^ye^bl^wl^co ^w:)",
 			sa::MenuComponent::BOTTOM | sa::MenuComponent::RIGHT
+		);
+
+		auto resourceTab = std::make_shared<ResourceTab>(
+
 		);
 
 		addChild(button);

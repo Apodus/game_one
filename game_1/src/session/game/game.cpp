@@ -135,6 +135,9 @@ void Game::drawProvinces(std::shared_ptr<sa::Graphics> pGraphics)
 		}
 	}
 
+	// for animation of things.
+	float modifier = sa::math::sin(2 * 3.1459f * (m_tickID % 60) / 60.0f);
+
 	// visualize movement orders
 	for (const auto& province : provinces)
 	{
@@ -158,7 +161,6 @@ void Game::drawProvinces(std::shared_ptr<sa::Graphics> pGraphics)
 				float arrowDensity = 0.075f;
 				if (commander.m_selected)
 				{
-					float modifier = sa::math::sin(2 * 3.1459f * (m_tickID % 60) / 60.0f);
 					direction *= 1.0f + 0.1f * modifier;
 					arrowDensity *= 1.0f + 0.2f * modifier;
 					arrowColor.a = 1.0f;
@@ -196,13 +198,19 @@ void Game::drawProvinces(std::shared_ptr<sa::Graphics> pGraphics)
 	for (const auto& province : provinces)
 	{
 		float scale = 0.4f * province.area() * province.scale() / 100.f;
+		sa::vec4<float> color(0.3f, 0.3f, 0.3f, province.alpha());
+
+		if (&province == hud->getActiveProvince())
+		{
+			scale *= 1.0f + 0.2f * modifier;
+			color.a = 1.0f;
+		}
 
 		sa::Matrix4 model;
 		model.makeTranslationMatrix(province.m_position.x, province.m_position.y, 0);
 		model.rotate(0, 0, 0, 1);
 		model.scale(scale, scale, 1);
 
-		sa::vec4<float> color(0.3f, 0.3f, 0.3f, province.alpha());
 		if (province.m_owner == 0)
 		{
 			color.r = 1;
