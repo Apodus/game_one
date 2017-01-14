@@ -243,7 +243,7 @@ void Game::drawBattle(std::shared_ptr<sa::Graphics> pGraphics)
 	float offsetY = 20.0f;
 	float scale = 1 / 4.0f;
 
-	float unitHeight = 1.5f;
+	float unitHeight = 0.1f;
 
 	while (m_simAccu >= m_sim->GetTimePerUpdate())
 	{

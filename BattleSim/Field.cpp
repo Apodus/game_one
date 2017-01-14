@@ -127,7 +127,7 @@ void bs::Field::Update()
 	UpdatePriorities();
 
 	// Movement
-	std::vector<Unit::Id> deleted;
+	std::vector<Unit::Id> killed;
 	std::vector<Unit::Id> collisions;
 	collisions.reserve(16);
 	for (size_t i = 0; i < myActiveUnits.size(); i++)
@@ -191,7 +191,7 @@ void bs::Field::Update()
 					other.hitpoints--;
 					if (other.hitpoints == 0)
 					{
-						deleted.emplace_back(other.id);
+						killed.emplace_back(other.id);
 					}
 				}
 			}
@@ -232,12 +232,12 @@ void bs::Field::Update()
 
 	WriteUpdate();
 
-	// Remove deleted from active. This will change order of active units, but we are 
+	// Remove killed from active. This will change order of active units, but we are 
 	// going to sort active units next update anyway.
-	for (size_t i = 0; i < deleted.size(); i++)
+	for (size_t i = 0; i < killed.size(); i++)
 	{
-		auto iter = std::find(myActiveUnits.begin(), myActiveUnits.end(), deleted[i]);
-		ASSERT(iter != myActiveUnits.end(), "Deleted not found");
+		auto iter = std::find(myActiveUnits.begin(), myActiveUnits.end(), killed[i]);
+		ASSERT(iter != myActiveUnits.end(), "Killed not found");
 		myLevels[0].RemoveUnit(myUnits[*iter]);
 		*iter = myActiveUnits.back();
 		myActiveUnits.pop_back();
@@ -246,6 +246,7 @@ void bs::Field::Update()
 
 void bs::Field::WriteUpdate()
 {
+	std::sort(myMovingUnits.begin(), myMovingUnits.end());
 	UpdateData& update = myUpdateSystem.StartUpdate();
 
 	const U16 numStartingUnits = static_cast<U16>(myStartingUnits.size());
