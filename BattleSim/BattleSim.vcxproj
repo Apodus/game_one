@@ -163,8 +163,8 @@
     <ClInclude Include="BattleSim.hpp" />
     <ClInclude Include="Deque.hpp" />
     <ClInclude Include="Field.hpp" />
-    <ClInclude Include="UpdateData.h" />
-    <ClInclude Include="UpdateSystem.h" />
+    <ClInclude Include="Visualization.h" />
+    <ClInclude Include="VisualizationSystem.h" />
     <ClInclude Include="GroupAI.hpp" />
     <ClInclude Include="Level.hpp" />
     <ClInclude Include="PriorityQueue.hpp" />

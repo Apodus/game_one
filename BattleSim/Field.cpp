@@ -5,15 +5,16 @@ const bs::Real bs::Field::TimePerUpdate = bs::Real(100, 1000);
 
 bs::Field::Field()
 {
-	myFrames.emplace_back();
 }
 
 bs::Unit::Id bs::Field::Add(Unit& unit)
 {
 	unit.id = myUnits.size();
+	unit.state = Unit::State::Starting;
 	myUnits.emplace_back(unit);
 	myLevels[0].AddUnit(myUnits.back());
 	myActiveUnits.emplace_back(unit.id);
+	myStartingUnits.emplace_back(unit.id);
 	return unit.id;
 }
 
@@ -125,26 +126,35 @@ void bs::Field::Update()
 	UpdatePriorities();
 
 	// Movement
-	std::vector<Unit::Id> deleted;
+	std::vector<Unit::Id> killed;
 	std::vector<Unit::Id> collisions;
 	collisions.reserve(16);
 	for (size_t i = 0; i < myActiveUnits.size(); i++)
 	{
 		auto& unit = myUnits[myActiveUnits[i]];
 
-		Vec targetDir = unit.moveTarget - unit.pos;
-		auto targetDirLen = targetDir.length();
-		if (targetDirLen > Real(0, 1))
-		{
-			targetDir.x /= targetDirLen;
-			targetDir.y /= targetDirLen;
-			targetDir.z /= targetDirLen;
-		}
-
-		const bs::Real Agility(10);
-		const bs::Real Speed(3);
+		bs::Real Speed(3);
 		const bs::Real SlowDown(1, 2);
-		unit.acc = targetDir * Agility;
+		Vec targetDir;
+		if (unit.hitpoints > 0)
+		{
+			targetDir = unit.moveTarget - unit.pos;
+			auto targetDirLen = targetDir.length();
+			if (targetDirLen > Real(0, 1))
+			{
+				targetDir.x /= targetDirLen;
+				targetDir.y /= targetDirLen;
+				targetDir.z /= targetDirLen;
+			}
+
+			const bs::Real Agility(10);
+			unit.acc = targetDir * Agility;
+		}
+		else
+		{
+			unit.acc = bs::Vec();
+			Speed = Real(0,1);
+		}
 
 		Vec newVel = unit.acc * TimePerUpdate + unit.vel;
 		auto speed = newVel.length();
@@ -181,31 +191,49 @@ void bs::Field::Update()
 			newVel.y = (dp * unit.vel.y) / Real(2, 1);
 			newVel.z = (Real(0, 1));
 
-			if (other.team != unit.team && other.hitpoints > 0)
+			if (other.team != unit.team)
 			{
 				myRand = sa::math::rand(myRand);
 				if ((myRand & 1) == 1)
 				{
-					other.hitpoints--;
-					if (other.hitpoints == 0)
-					{
-						deleted.emplace_back(other.id);
-					}
+					other.receivedDamage++;
 				}
 			}
 		}
 
-		if (myLevels[0].IsGridMove(unit, newPos))
+		bool isMoved = unit.state == Unit::State::Starting;
+
+		if ((unit.pos - newPos).lengthSquared().getRawValue() > 1)
 		{
-			myLevels[0].RemoveUnit(unit);
-			unit.pos = newPos;
-			myLevels[0].AddUnit(unit);
+			if (myLevels[0].IsGridMove(unit, newPos))
+			{
+				myLevels[0].RemoveUnit(unit);
+				unit.pos = newPos;
+				myLevels[0].AddUnit(unit);
+			}
+			else
+			{
+				unit.pos = newPos;
+			}
+			isMoved = true;
 		}
-		else
+		else if (unit.hitpoints == 0)
 		{
-			unit.pos = newPos;
+			// Add to killed list only after dead and movement stopped.
+			killed.emplace_back(unit.id);
 		}
 
+		if (unit.receivedDamage > 0)
+		{
+			unit.hitpoints = unit.receivedDamage >= unit.hitpoints ? 0 : unit.hitpoints - unit.receivedDamage;
+			isMoved = true;
+			unit.receivedDamage = 0;
+		}
+
+		if (isMoved)
+		{
+			myMovingUnits.emplace_back(unit.id);
+		}
 		unit.vel = newVel;
 #if 0
 		if (unit.id == 0)
@@ -220,31 +248,57 @@ void bs::Field::Update()
 
 	}
 
-	UpdateData& update = myUpdateSystem.StartUpdate();
-	update.updateStream.resize(sizeof(Field::Frame::Elem) * myUnits.size() + sizeof(size_t));
-	auto writer = update.GetWriter();
-	const size_t numUnits = myUnits.size();
-	writer.Write(numUnits);
-	for (size_t i = 0; i < myUnits.size(); i++)
-	{
-		Field::Frame::Elem& elem = writer.Write<Field::Frame::Elem>();
-		elem.pos = myUnits[i].pos;
-		elem.radius = myUnits[i].radius;
-		elem.hitpoints = myUnits[i].hitpoints;
-		elem.team = myUnits[i].team;
-	}
-	myUpdateSystem.StopUpdate();
+	WriteUpdate();
 
-	// Remove deleted from active. This will change order of active units, but we are 
+	// Remove killed from active. This will change order of active units, but we are 
 	// going to sort active units next update anyway.
-	for (size_t i = 0; i < deleted.size(); i++)
+	for (size_t i = 0; i < killed.size(); i++)
 	{
-		auto iter = std::find(myActiveUnits.begin(), myActiveUnits.end(), deleted[i]);
-		ASSERT(iter != myActiveUnits.end(), "Deleted not found");
+		auto iter = std::find(myActiveUnits.begin(), myActiveUnits.end(), killed[i]);
+		ASSERT(iter != myActiveUnits.end(), "Killed not found");
 		myLevels[0].RemoveUnit(myUnits[*iter]);
 		*iter = myActiveUnits.back();
 		myActiveUnits.pop_back();
 	}
+}
+
+void bs::Field::WriteUpdate()
+{
+	std::sort(myMovingUnits.begin(), myMovingUnits.end());
+	const U16 numStartingUnits = static_cast<U16>(myStartingUnits.size());
+	const U16 numMovingUnits = static_cast<U16>(myMovingUnits.size());
+	
+
+	Visualization& update = myVisualizationSystem.StartWriting(
+		sizeof(U16) * 2 +
+		sizeof(Visualization::Addition) * numStartingUnits +
+		sizeof(Visualization::Movement) * numMovingUnits);
+
+	auto writer = update.GetWriter();
+	
+	writer.Write(numStartingUnits);
+	for (size_t i = 0; i < numStartingUnits; i++)
+	{
+		auto& elem = writer.Write<Visualization::Addition>();
+		elem.id = myStartingUnits[i];
+		auto& unit = myUnits[elem.id];
+		elem.team = unit.team;
+		elem.radius = unit.radius;
+		unit.state = Unit::State::Active;
+	}
+
+	writer.Write(numMovingUnits);
+	for (size_t i = 0; i < numMovingUnits; i++)
+	{
+		auto& elem = writer.Write<Visualization::Movement>();
+		elem.id = myMovingUnits[i];
+		elem.pos = myUnits[elem.id].pos;
+		elem.hitpoints = myUnits[elem.id].hitpoints;
+	}
+	myVisualizationSystem.StopWriting();
+
+	myStartingUnits.clear();
+	myMovingUnits.clear();
 }
 
 // Cylinder collision check

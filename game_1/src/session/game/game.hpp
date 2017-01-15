@@ -257,6 +257,7 @@ private:
 			Status() : isValid(false) {}
 			float x;
 			float y;
+			float z;
 			bool isValid;
 		};
 		Status current;

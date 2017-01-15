@@ -60,10 +60,10 @@
     <ClInclude Include="PriorityQueue.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="UpdateSystem.h">
+    <ClInclude Include="VisualizationSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="UpdateData.h">
+    <ClInclude Include="Visualization.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
