@@ -5,55 +5,36 @@
 
 namespace bs
 {
-	struct UpdateData
+	struct Visualization
 	{
-		typedef uint32_t Id;
-
-		struct Transform
-		{
-			float x;
-			float y;
-			float z;
-			float angle;
-			float angleVel;
-			uint8_t animation;
-		};
-
-		struct Object
-		{
-			Id id;
-			Transform pos;
-		};
-
-		enum Update
-		{
-			Add,
-			Remove,
-			Hitpoints,
-			Info
-		};
-
-		struct AddData
+		struct Addition
 		{
 			Real radius;
-			Id id;
+			Unit::Id id;
 			uint8_t team;
 		};
 
-		struct RemoveData
+		struct Movement
 		{
-			Id id;
+			Vec pos;
+			U32 hitpoints;
+			Unit::Id id;
+		};
+
+		struct Removal
+		{
+			Unit::Id id;
 		};
 
 		struct Hitpoints
 		{
-			Id id;
+			Unit::Id id;
 			uint8_t newValue;
 		};
 
 		struct Reader
 		{
-			Reader(const UpdateData& ud) : 
+			Reader(const Visualization& ud) : 
 				buffer(&ud.updateStream[0]), readPos(0)
 			{
 			}
@@ -72,7 +53,7 @@ namespace bs
 
 		struct Writer
 		{
-			Writer(UpdateData& ud) :
+			Writer(Visualization& ud) :
 				buffer(&ud.updateStream[0]), writePos(0)
 			{
 			}
@@ -110,6 +91,9 @@ namespace bs
 		Writer GetWriter() { return Writer(*this); }
 
 		Reader GetReader() const { return Reader(*this); }
+
+	private:
+		friend class VisualizationSystem;
 
 		Vector<U8> updateStream;
 	};

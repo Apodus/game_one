@@ -117,9 +117,11 @@ void bs::BattleSim::Run()
 				myTotalTime += step;
 				auto stop = std::chrono::high_resolution_clock::now();
 				using ms = std::chrono::duration<float, std::milli>;
+#if 0 // Profiling log
 				auto deltaTime = std::chrono::duration_cast<ms>(stop - start).count();
 				LOG("Total time simulated = %f;in accu=%f; step=%f; cpu=%f",
 					myTotalTime, myTimeAccu, step, static_cast<double>(deltaTime) / 1000.0);
+#endif
 			};
 			myTimeAccu = endTime - myTotalTime;
 		}

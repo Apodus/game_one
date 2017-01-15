@@ -5,7 +5,6 @@ const bs::Real bs::Field::TimePerUpdate = bs::Real(100, 1000);
 
 bs::Field::Field()
 {
-	myFrames.emplace_back();
 }
 
 bs::Unit::Id bs::Field::Add(Unit& unit)
@@ -247,21 +246,21 @@ void bs::Field::Update()
 void bs::Field::WriteUpdate()
 {
 	std::sort(myMovingUnits.begin(), myMovingUnits.end());
-	UpdateData& update = myUpdateSystem.StartUpdate();
-
 	const U16 numStartingUnits = static_cast<U16>(myStartingUnits.size());
 	const U16 numUnits = static_cast<U16>(myMovingUnits.size());
+	
 
-	update.updateStream.resize(
+	Visualization& update = myVisualizationSystem.StartWriting(
 		sizeof(U16) * 2 +
-		sizeof(UpdateData::AddData) * numStartingUnits +
-		sizeof(Field::Frame::Elem) * numUnits);
+		sizeof(Visualization::Addition) * numStartingUnits +
+		sizeof(Visualization::Movement) * numUnits);
+
 	auto writer = update.GetWriter();
 	
 	writer.Write(numStartingUnits);
 	for (size_t i = 0; i < numStartingUnits; i++)
 	{
-		auto& elem = writer.Write<UpdateData::AddData>();
+		auto& elem = writer.Write<Visualization::Addition>();
 		elem.id = myStartingUnits[i];
 		auto& unit = myUnits[elem.id];
 		elem.team = unit.team;
@@ -272,12 +271,12 @@ void bs::Field::WriteUpdate()
 	writer.Write(numUnits);
 	for (size_t i = 0; i < numUnits; i++)
 	{
-		Field::Frame::Elem& elem = writer.Write<Field::Frame::Elem>();
+		auto& elem = writer.Write<Visualization::Movement>();
 		elem.id = myMovingUnits[i];
 		elem.pos = myUnits[elem.id].pos;
 		elem.hitpoints = myUnits[elem.id].hitpoints;
 	}
-	myUpdateSystem.StopUpdate();
+	myVisualizationSystem.StopWriting();
 
 	myStartingUnits.clear();
 	myMovingUnits.clear();

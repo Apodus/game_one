@@ -254,13 +254,13 @@ void Game::drawBattle(std::shared_ptr<sa::Graphics> pGraphics)
 			{
 				m_units[i].current = m_units[i].next;
 			}
-			bs::UpdateData::Reader reader = frame->GetReader();
+			auto reader = frame->GetReader();
 
 			// New units
 			uint16_t numStartingUnits = reader.Read<uint16_t>();
 			for (size_t i = 0; i < numStartingUnits; i++)
 			{
-				const auto& unitIn = reader.Read<bs::UpdateData::AddData>();
+				const auto& unitIn = reader.Read<bs::Visualization::Addition>();
 				if (unitIn.id >= m_units.size())
 				{
 					m_units.resize(unitIn.id + 1);
@@ -274,7 +274,7 @@ void Game::drawBattle(std::shared_ptr<sa::Graphics> pGraphics)
 			uint16_t numUpdates = reader.Read<uint16_t>();
 			for (size_t i = 0; i < numUpdates; i++)
 			{
-				const auto& unitIn = reader.Read<bs::Field::Frame::Elem>();
+				const auto& unitIn = reader.Read<bs::Visualization::Movement>();
 				auto& unit = m_units[unitIn.id];
 				unit.next.isValid = true;
 				unit.next.x = unitIn.pos.x.toFloat() * scale - offsetX;

@@ -3,7 +3,7 @@
 #include "Level.hpp"
 #include "Array.hpp"
 #include "Deque.hpp"
-#include "UpdateSystem.h"
+#include "VisualizationSystem.h"
 
 namespace bs
 {
@@ -11,17 +11,6 @@ namespace bs
 	class Field
 	{
 	public:
-		struct Frame
-		{
-			struct Elem
-			{
-				Vec pos;
-				U32 hitpoints;
-				Unit::Id id;
-			};
-			Vector<Elem> units;
-		};
-
 		Field();
 
 		Unit::Id Add(Unit& unit);
@@ -32,14 +21,14 @@ namespace bs
 
 		static const Real TimePerUpdate;
 
-		BATTLESIM_API const UpdateData* GetFrame()
+		BATTLESIM_API const Visualization* GetFrame()
 		{	
-			return myUpdateSystem.GetForReading();
+			return myVisualizationSystem.GetForReading();
 		}
 
 		BATTLESIM_API void FreeFrame()
 		{
-			myUpdateSystem.ConsumeUpdate();
+			myVisualizationSystem.ConsumeUpdate();
 		}
 
 	private:
@@ -55,6 +44,8 @@ namespace bs
 
 		bool CollisionCheck(const Unit& a, const Unit& b, const Vec& endPos, Vec& hitPos);
 
+		VisualizationSystem myVisualizationSystem;
+
 		// Field is divided into levels in depth-axis. 
 		// E.g. level 0 has underground units, level 1 has ground units and level 2 has flying units
 		Array<Level, 1> myLevels;
@@ -62,10 +53,7 @@ namespace bs
 		Vector<Unit::Id> myStartingUnits;
 		Vector<Unit::Id> myMovingUnits;
 		Vector<Unit> myUnits;
-		Deque<Frame> myFrames;
-		double myFrameTime = 0;
 		uint64_t myRand = 1;
-		
-		UpdateSystem myUpdateSystem;
+	
 	};
 }
