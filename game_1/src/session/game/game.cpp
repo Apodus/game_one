@@ -241,6 +241,7 @@ void Game::drawBattle(std::shared_ptr<sa::Graphics> pGraphics)
 
 	float offsetX = 30.0f;
 	float offsetY = 20.0f;
+	float offsetZ = 0.0f;
 	float scale = 1 / 4.0f;
 
 	float unitHeight = 0.1f;
@@ -279,6 +280,7 @@ void Game::drawBattle(std::shared_ptr<sa::Graphics> pGraphics)
 				unit.next.isValid = true;
 				unit.next.x = unitIn.pos.x.toFloat() * scale - offsetX;
 				unit.next.y = unitIn.pos.y.toFloat() * scale - offsetY;
+				unit.next.z = unitIn.pos.z.toFloat() * scale - offsetZ;
 				unit.hitpoints = unitIn.hitpoints;
 			}
 
@@ -300,13 +302,14 @@ void Game::drawBattle(std::shared_ptr<sa::Graphics> pGraphics)
 	{
 		auto& unit = m_units[i];
 		sa::Matrix4 model;
-		float x, y;
+		float x, y, z;
 		if (unit.next.isValid)
 		{
 			if (unit.current.isValid)
 			{
 				x = unit.current.x + ((unit.next.x - unit.current.x) * frameFraction);
 				y = unit.current.y + ((unit.next.y - unit.current.y) * frameFraction);
+				z = unit.current.z + ((unit.next.z - unit.current.z) * frameFraction);
 			}
 			else
 			{
@@ -317,6 +320,7 @@ void Game::drawBattle(std::shared_ptr<sa::Graphics> pGraphics)
 		{
 			x = unit.current.x;
 			y = unit.current.y;
+			z = unit.current.z;
 		}
 		else
 		{
@@ -324,7 +328,7 @@ void Game::drawBattle(std::shared_ptr<sa::Graphics> pGraphics)
 			continue;
 		}
 
-		model.makeTranslationMatrix(x, y, unit.hitpoints == 0 ? 0.0f : unitHeight * scale);
+		model.makeTranslationMatrix(x, y, z + (unit.hitpoints == 0 ? 0.0f : unitHeight * scale));
 		model.rotate(0, 0, 0, 1);
 		model.scale(unit.size, unit.size, 1);
 

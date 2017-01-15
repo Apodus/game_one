@@ -10,10 +10,10 @@ namespace bs
 
 		typedef U32 Id;
 
-		// Public unit data - visible to UI
 		Vec pos;
 		Real radius;
 		U32 hitpoints = 0;
+		U32 receivedDamage = 0;
 		U32 range = 100;
 		U8 team;
 		U8 group;
