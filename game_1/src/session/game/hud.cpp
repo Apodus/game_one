@@ -32,4 +32,13 @@ void Hud::childComponentCall(const std::string& who, const std::string& what, in
 			ASSERT(false, "value not handled %d", value);
 		}
 	}
+
+	if (who == "EndTurn")
+	{
+		// TODO: Instead of actually processing the turn, should serialize the state
+		// of my troops and send to server.
+		
+		this->unselectProvince();
+		game.processTurn();
+	}
 }

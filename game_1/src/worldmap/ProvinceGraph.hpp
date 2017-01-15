@@ -186,6 +186,11 @@ public:
 			}
 		}
 
+		void clearRecruitmentOrders()
+		{
+			currentRecruitmentRequests.clear();
+		}
+
 		size_t supplies() const
 		{
 			return 1 * m_population;

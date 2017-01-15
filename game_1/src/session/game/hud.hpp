@@ -41,11 +41,11 @@ public:
 
 		auto demoButton = std::make_shared<sa::MenuButton>(
 			this,
-			"PositionFunctionDemo",
+			"EndTurn",
 			[button]() { return button->getExteriorPosition(sa::MenuComponent::TOP | sa::MenuComponent::RIGHT); },
 			sa::vec3<float>(0.4f, 0.10f, 0),
 			"ButtonBase",
-			"^gH^ye^bl^wl^co ^w:)",
+			"End Turn",
 			sa::MenuComponent::BOTTOM | sa::MenuComponent::RIGHT
 		);
 

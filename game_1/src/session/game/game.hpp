@@ -48,21 +48,29 @@ class Game {
 
 	void processRecruitments()
 	{
-		for (auto& player : players)
+		for (auto& province : graph.provinces())
 		{
-			for (auto& recruitment : player.trainings)
+			const auto& orders = province.inspectRecruitOrders();
+			for (const TroopReference* order : orders)
 			{
-				auto& province = graph.provinces()[recruitment.provinceIndex];
-				for (size_t troopIndex : recruitment.unitsToTrainIndices)
+				if(order->isCommander)
 				{
-					auto it = troopReferences.find(province.troopsToRecruit[troopIndex]);
-					province.units.emplace_back(it->second, ++nextUnitId, province.m_owner);
+					province.units.emplace_back(
+						*order,
+						++nextUnitId,
+						province.m_owner
+					);
 				}
-
-				player.currency -= recruitment.currencyCost;
+				else
+				{
+					province.commanders.emplace_back(
+						*order,
+						++nextUnitId,
+						province.m_owner
+					);
+				}
 			}
-
-			player.trainings.clear();
+			province.clearRecruitmentOrders();
 		}
 	}
 
@@ -71,7 +79,7 @@ class Game {
 		const auto& provinces = graph.provinces();
 		for (const auto& province : provinces)
 		{
-			if (province.m_owner != ~0ull)
+			if (province.m_owner != ~size_t(0))
 			{
 				// income from province
 				players[province.m_owner].currency += province.income();
@@ -222,16 +230,6 @@ private:
 		int64_t currency = 200; // can go to negative
 		std::vector<size_t> scienceResources;
 		std::string name;
-
-		struct TrainTroopOrder
-		{
-			size_t provinceIndex = 0;
-			size_t resourceCost = 0; // keep track of total resource costs, not allowed to surpass province output.
-			size_t currencyCost = 0; // keep track of currency costs.
-			std::vector<size_t> unitsToTrainIndices;
-		};
-
-		std::vector<TrainTroopOrder> trainings;
 	};
 
 	sa::vec3<float> mousePos;

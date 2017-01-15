@@ -19,6 +19,7 @@ struct ProvinceCommandersTab : public sa::MenuComponent
 			this->name = commander.name;
 			this->className = commander.reference.name;
 
+			m_icon = commander.reference.icon;
 			m_color = Color::GREY;
 			setPositionUpdateType(true);
 			m_commander.m_selected = false;
@@ -33,7 +34,7 @@ struct ProvinceCommandersTab : public sa::MenuComponent
 			model.makeTranslationMatrix(pos.x, pos.y, 0);
 			model.rotate(rot, 0, 0, 1);
 			model.scale(m_worldScale.x * 0.5f, m_worldScale.y * 0.5f, 0);
-			graphics->m_pRenderer->drawRectangle(model, m_commander.reference.icon, m_color);
+			graphics->m_pRenderer->drawRectangle(model, m_icon, m_color);
 			graphics->m_pTextRenderer->drawText(
 				name,
 				pos.x,
@@ -44,16 +45,8 @@ struct ProvinceCommandersTab : public sa::MenuComponent
 				graphics->m_fontConsola
 			);
 
-			std::string actionName = "NoActionName";
-			if (m_commander.myOrder.orderType == BattleCommander::OrderType::Idle) {
-				actionName = "Idle";
-			}
-			else if(m_commander.myOrder.orderType == BattleCommander::OrderType::Move) {
-				actionName = "Move";
-			}
-
 			graphics->m_pTextRenderer->drawText(
-				actionName,
+				m_actionName,
 				pos.x,
 				(pos.y - 0.035f),
 				0.04f,
@@ -65,29 +58,39 @@ struct ProvinceCommandersTab : public sa::MenuComponent
 
 		virtual void update(float dt) override
 		{
-			if (hasFocus() && isMouseOver())
-			{
-				targetAlpha = 1.0f;
-
-				if (m_pUserIO->isKeyClicked(m_pUserIO->getMouseKeyCode(0)))
-				{
-					m_pUserIO->consume(m_pUserIO->getMouseKeyCode(0));
-					callParent("click", static_cast<int>(id));
-
-					selected = !selected;
-					m_commander.m_selected = selected;
-
-					float a = m_color.a;
-					if (selected)
-						m_color = Color::WHITE;
-					else
-						m_color = Color::GREY;
-					m_color.a = a;
+			if (hasFocus()) {
+				m_actionName = "NoActionName";
+				if (m_commander.myOrder.orderType == BattleCommander::OrderType::Idle) {
+					m_actionName = "Idle";
 				}
-			}
-			else
-			{
-				targetAlpha = 0.8f;
+				else if (m_commander.myOrder.orderType == BattleCommander::OrderType::Move) {
+					m_actionName = "Move";
+				}
+
+				if (isMouseOver())
+				{
+					targetAlpha = 1.0f;
+
+					if (m_pUserIO->isKeyClicked(m_pUserIO->getMouseKeyCode(0)))
+					{
+						m_pUserIO->consume(m_pUserIO->getMouseKeyCode(0));
+						callParent("click", static_cast<int>(id));
+
+						selected = !selected;
+						m_commander.m_selected = selected;
+
+						float a = m_color.a;
+						if (selected)
+							m_color = Color::WHITE;
+						else
+							m_color = Color::GREY;
+						m_color.a = a;
+					}
+				}
+				else
+				{
+					targetAlpha = 0.8f;
+				}
 			}
 
 			m_color.a += (targetAlpha - m_color.a) * dt * 12;
@@ -97,6 +100,9 @@ struct ProvinceCommandersTab : public sa::MenuComponent
 
 		float rot = 0; // in case want to make some rotation effect lol
 		float targetAlpha = 1.0f;
+		
+		std::string m_actionName;
+		std::string m_icon;
 		sa::vec4<float> m_color;
 
 		size_t id;
