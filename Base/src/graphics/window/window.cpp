@@ -99,7 +99,7 @@ void sa::Window::createWindow(int width, int height)
 	// Window hints
 	glfwWindowHint(GLFW_SAMPLES, 4); // FSAA
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3); // Min OpenGL 3.3
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 	// glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
