@@ -46,7 +46,6 @@ m_vertexBuffer(6 * 2 * MAX_TEXT_LENGTH),
 m_texCoordBuffer(6 * 2 * MAX_TEXT_LENGTH),
 m_colorBuffer(6 * 4 * MAX_TEXT_LENGTH)
 {
-
 	auto fontShader = m_shaders->loadShader("font", "../shaders/font_130.vs.glsl", "../shaders/font_130.fs.glsl");
 	m_shaders->switchToShader("font");
 
@@ -156,11 +155,11 @@ int sa::TextRenderer::fillTextBuffers(const std::string& text, const Font& font,
 			++i;
 			skippedCharacters += 2;
 			c = text[i];
-            getColorByCode(c, activeColor);
+			getColorByCode(c, activeColor);
 			continue;
 		}
 
-        custom(text, i, x, y, scaleX, scaleY, activeColor);
+		custom(text, i, x, y, scaleX, scaleY, activeColor);
 
 		float width = font.width(c, scaleX);
 		float height = font.height(c, scaleY);

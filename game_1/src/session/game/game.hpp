@@ -36,14 +36,117 @@ class Game {
 
 	}
 
+	struct MovementBin
+	{
+		struct Move
+		{
+			Move() = default;
+			Move(size_t provinceId, size_t commanderId) : provinceId(provinceId), commanderId(commanderId) {}
+			size_t provinceId;
+			size_t commanderId;
+		};
+
+		MovementBin() = default;
+		MovementBin(size_t playerId, size_t targetProvinceIndex)
+			: targetProvinceIndex(targetProvinceIndex)
+			, playerId(playerId)
+		{}
+
+		std::vector<Move> moves;
+		size_t targetProvinceIndex;
+		size_t playerId;
+	};
+
+	std::vector<MovementBin> movementBins(bool friendlyMovement)
+	{
+		std::vector<MovementBin> bins;
+
+		auto& provinces = graph.provinces();
+		for (auto& province : provinces)
+		{
+			for (size_t i = 0; i < province.commanders.size(); ++i)
+			{
+				auto& commander = province.commanders[i];
+				if (commander.myOrder.orderType == BattleCommander::OrderType::Move)
+				{
+					if ((commander.myOrder.moveTo == province.m_index) != friendlyMovement)
+						continue;
+
+					size_t targetProvince = commander.myOrder.moveTo;
+
+					bool binFound = false;
+					for (auto& bin : bins)
+					{
+						bool correctOwner = bin.playerId == commander.owner;
+						bool correctTarget = bin.targetProvinceIndex == targetProvince;
+						if (correctOwner && correctTarget)
+						{
+							// bin already exists, use that.
+							bin.moves.emplace_back(province.m_index, commander.id);
+							binFound = true;
+							break;
+						}
+					}
+
+					if (!binFound)
+					{
+						// oh no! need to create a new bin.
+						bins.emplace_back(commander.owner, targetProvince);
+						bins.back().moves.emplace_back(province.m_index, commander.id);
+					}
+				}
+			}
+		}
+
+		return std::move(bins);
+	}
+
+	void resolveCombat(size_t provinceIndex)
+	{
+		// TODO
+	}
+
+	void applyMovement(bool isFriendlyMovement)
+	{
+		// TODO: randomize order of elements in bins
+		auto bins = movementBins(isFriendlyMovement);
+		auto& provinces = graph.provinces();
+		
+		for (auto& bin : bins)
+		{
+			for (auto& move : bin.moves)
+			{
+				auto& commanders = provinces[move.provinceId].commanders;
+				for (size_t i = 0; i < commanders.size(); ++i)
+				{
+					if (commanders[i].id == move.commanderId)
+					{
+						// apply move
+						provinces[bin.targetProvinceIndex].commanders.emplace_back(commanders[i]);
+						for (auto& squad : commanders[i].squads)
+						{
+							// TODO
+						}
+
+						provinces[move.provinceId].commanders.erase(commanders.begin() + i);
+						break;
+					}
+				}
+			}
+
+			if(!isFriendlyMovement)
+				resolveCombat(bin.targetProvinceIndex);
+		}
+	}
+
 	void friendlyMovement()
 	{
-
+		applyMovement(true);
 	}
 
 	void offensiveMovement()
 	{
-
+		applyMovement(false);
 	}
 
 	void processRecruitments()

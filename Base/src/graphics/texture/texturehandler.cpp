@@ -178,8 +178,6 @@ unsigned sa::TextureHandler::createTexture(const std::string& name, int width, i
 	
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
 
-	int value;
-	glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_INTERNAL_FORMAT, &value);
 	textureSizes[name] = sa::vec4<short>(width, height, 0, 0);
 	return textures[name];
 }
@@ -195,7 +193,7 @@ unsigned sa::TextureHandler::createDepthTexture(const std::string& name, int wid
 
 #ifndef _WIN32
 	// not really sure if this is 100% necessary anyway..
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_COMPARE_MODE,GL_NONE);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_COMPARE_MODE, GL_NONE);
 #endif
 
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16, width, height, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, 0);
@@ -225,13 +223,9 @@ unsigned sa::TextureHandler::createTexture(const std::string& name, Image& img)
 	glBindTexture(GL_TEXTURE_2D, textures[name]);
 	
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); // scale linearly when image bigger than texture
-//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); // scale linearly when image smaller than texture
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE); // Deprecated in OpenGL >= 3.0.
 
 	// 2d texture, level of detail 0 (normal), 3 components (red, green, blue), x size from image, y size from image, 
 	// border 0 (normal), rgb color data, unsigned byte data, and finally the data itself.
@@ -242,9 +236,10 @@ unsigned sa::TextureHandler::createTexture(const std::string& name, Image& img)
 	else
 	{
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, img.sizeX, img.sizeY, 0, GL_RGB, GL_UNSIGNED_BYTE, img.data);
-//		buildDebugMipmaps(img.sizeX, img.sizeY);
 	}
 	
+	glGenerateMipmap(GL_TEXTURE_2D);
+
 	textureSizes[name] = sa::vec4<short>(static_cast<short>(img.sizeX), static_cast<short>(img.sizeY), 0, 0);
 	img.unload();
 	

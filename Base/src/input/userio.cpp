@@ -155,11 +155,9 @@ void sa::UserIO::onMouseMoveEvent(double xpos, double ypos) {
 
 void sa::UserIO::onMouseEnterEvent(int entered) {
 	if (entered == GL_TRUE) {
-		LOG("mouse entered");
 		m_mouseInScreen = true;
 	}
 	if (entered == GL_FALSE) {
-		LOG("mouse exited");
 		m_mouseInScreen = false;
 	}
 }

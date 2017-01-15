@@ -34,7 +34,7 @@ struct Troop
 		, owner(owner)
 		, commanderId(0)
 		, upkeep(0) // TODO
-		, reference(prototype)
+		, reference(&prototype)
 	{
 	}
 
@@ -43,7 +43,7 @@ struct Troop
 	size_t commanderId = 0; // follows this commander. this is kind of redundant - but makes life easier.
 	size_t upkeep = 0;
 
-	const TroopReference& reference;
+	const TroopReference* reference;
 	
 	// TODO: Afflictions
 };
@@ -51,10 +51,11 @@ struct Troop
 struct BattleCommander
 {
 	BattleCommander() = default;
+	BattleCommander(const BattleCommander&) = default;
 	BattleCommander(const TroopReference& prototype, size_t id, size_t owner)
 		: id(id)
 		, owner(owner)
-		, reference(prototype)
+		, reference(&prototype)
 	{
 		std::vector<std::string> names = {"Paavo", "Irmeli", "Kaapo", "Perse", "Kikkeli", "Kulli", "Pena", "Milla", "Suvi"};
 		name = names[sa::math::rand(id) % names.size()];
@@ -85,7 +86,7 @@ struct BattleCommander
 	size_t upkeep = 0;
 	
 	std::string name;
-	const TroopReference& reference;
+	const TroopReference* reference;
 	bool m_selected = false; // for menu use only. has no effect on game logic.
 
 	std::vector<Squad> squads;

@@ -17,9 +17,9 @@ struct ProvinceCommandersTab : public sa::MenuComponent
 		{
 			this->id = commander.id;
 			this->name = commander.name;
-			this->className = commander.reference.name;
+			this->className = commander.reference->name;
 
-			m_icon = commander.reference.icon;
+			m_icon = commander.reference->icon;
 			m_color = Color::GREY;
 			setPositionUpdateType(true);
 			m_commander.m_selected = false;

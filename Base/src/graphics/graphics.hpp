@@ -21,7 +21,13 @@ public:
 	Font m_fontLenka;
 	Font m_fontConsola;
 
-	Graphics(std::shared_ptr<sa::Shaders> pShaders, std::shared_ptr<sa::MeshRenderer> pRenderer, std::shared_ptr<sa::TextRenderer> pTextRenderer) : m_fontLenka(Fonts::setFontLenka()), m_fontConsola(Fonts::setFontConsolaMono()) {
+	Graphics(
+		std::shared_ptr<sa::Shaders> pShaders,
+		std::shared_ptr<sa::MeshRenderer> pRenderer,
+		std::shared_ptr<sa::TextRenderer> pTextRenderer
+	) : m_fontLenka(Fonts::setFontLenka())
+		, m_fontConsola(Fonts::setFontConsolaMono())
+	{
 		m_pShaders = pShaders;
 		m_pRenderer = pRenderer;
 		m_pTextRenderer = pTextRenderer;
