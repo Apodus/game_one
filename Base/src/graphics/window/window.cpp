@@ -46,6 +46,9 @@ void global_scope_windowResizeCallback(GLFWwindow* window, int width, int height
 
 void sa::Window::onResize(int width, int height)
 {
+	if (width == 0 || height == 0)
+		return;
+
 	m_width = width;
 	m_height = height;
 	m_aspectRatio = static_cast<float>(width) / static_cast<float>(height);

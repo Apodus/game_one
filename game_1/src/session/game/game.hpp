@@ -128,7 +128,7 @@ public:
 
 	inline sa::vec2<float> mouseToWorld(sa::vec3<float> mousePos)
 	{
-		return sa::vec2<float>(cameraPosition.x + mousePos.x * cameraPosition.z * 0.985f, cameraPosition.y + (mousePos.y * cameraPosition.z * 0.985f) / aspectRatio);
+		return sa::vec2<float>(cameraPosition.x + mousePos.x * cameraPosition.z * 0.985f, cameraPosition.y + (mousePos.y * cameraPosition.z * 0.985f) / (aspectRatio + 0.0000001f));
 	}
 
 	sa::vec3<float> getCameraPosition() const
