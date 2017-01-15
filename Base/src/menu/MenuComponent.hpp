@@ -292,7 +292,7 @@ namespace sa {
 			// m_targetScale = sa::vec3<float>(0, 0, 0);
 		}
 
-		sa::vec3<float> getExteriorPosition(PositionAlign positionAlign) {
+		sa::vec3<float> getExteriorPosition(PositionAlign positionAlign) const {
 			sa::vec3<float> result = m_worldPosition;
 			float aspectRatio = m_pWindow->getAspectRatio();
 			if (positionAlign & LEFT)
@@ -310,7 +310,7 @@ namespace sa {
 			return result;
 		}
 
-		sa::vec3<float> getExteriorPositionForChild(PositionAlign positionAlign) {
+		sa::vec3<float> getExteriorPositionForChild(PositionAlign positionAlign) const {
 			sa::vec3<float> result = sa::vec3<float>();
 			float aspectRatio = m_pWindow->getAspectRatio();
 			if (positionAlign & LEFT)
@@ -328,7 +328,7 @@ namespace sa {
 			return result;
 		}
 
-		sa::vec3<float> getLocalExteriorPosition(PositionAlign positionAlign) {
+		sa::vec3<float> getLocalExteriorPosition(PositionAlign positionAlign) const {
 			sa::vec3<float> result = m_worldPosition;
 			float aspectRatio = m_pWindow->getAspectRatio();
 			if (positionAlign & LEFT)

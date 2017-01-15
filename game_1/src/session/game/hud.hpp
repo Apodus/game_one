@@ -12,37 +12,11 @@
 
 #include "session/game/menu/RecruitmentTab.hpp"
 #include "session/game/menu/CommanderTab.hpp"
+#include "session/game/menu/ResourceTab.hpp"
 
 #include <memory>
 
 class Game;
-
-struct ResourceTab : public sa::MenuComponent
-{
-	ResourceTab(sa::MenuComponent* parent, Game& game)
-		: sa::MenuComponent(
-			parent,
-			"ResourceTab",
-			[parent]() {return parent->getExteriorPosition(TOP); },
-			sa::vec3<float>(1.0f, 0.1f, 0)
-		)
-		, m_game(game)
-	{
-		setPositionUpdateType(true);
-	}
-
-	virtual void childComponentCall(const std::string& who, const std::string& what, int = 0) {}
-
-	virtual void update(float dt) override
-	{
-	}
-
-	virtual void draw(std::shared_ptr<sa::Graphics> graphics) const override
-	{
-	}
-
-	Game& m_game;
-};
 
 class Hud : public sa::MenuComponent {
 public:
@@ -85,10 +59,11 @@ public:
 			sa::MenuComponent::BOTTOM | sa::MenuComponent::RIGHT
 		);
 
-		auto resourceTab = std::make_shared<ResourceTab>(
+		resourceTab = std::make_shared<ResourceTab>(
 			this,
 			game
 		);
+		addChild(resourceTab);
 
 		addChild(button);
 		addChild(demoButton);
@@ -141,6 +116,8 @@ private:
 	Game& game;
 	std::shared_ptr<ProvinceCommandersTab> commandersTab;
 	std::shared_ptr<ProvinceRecruitmentTab> recruitmentTab;
+	std::shared_ptr<ResourceTab> resourceTab;
+
 	std::vector<std::shared_ptr<sa::MenuComponent>> provinceMenu;
 	ProvinceGraph::Province* activeProvince = nullptr;
 

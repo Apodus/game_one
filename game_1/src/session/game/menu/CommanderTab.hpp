@@ -107,7 +107,7 @@ struct ProvinceCommandersTab : public sa::MenuComponent
 	};
 
 	ProvinceCommandersTab(sa::MenuComponent* parent, ProvinceGraph::Province& province)
-		: sa::MenuComponent(parent, "CommandersTab", []() {return sa::vec3<float>(-0.95f, +0.9f, 0);}, sa::vec3<float>(0.5f, 1.0f, 0))
+		: sa::MenuComponent(parent, "CommandersTab", []() {return sa::vec3<float>(-0.965f, +0.9f, 0);}, sa::vec3<float>(0.44f, 1.0f, 0))
 		, bg(this, "BG", "ButtonBase", sa::vec4<float>(1, 1, 1, 0.4f))
 	{
 		this->positionAlign = sa::MenuComponent::PositionAlign::LEFT | sa::MenuComponent::PositionAlign::TOP;
@@ -120,7 +120,7 @@ struct ProvinceCommandersTab : public sa::MenuComponent
 			if (icons.empty())
 			{
 				icon->setTargetPosition([this]() {
-					return this->getExteriorPosition(sa::MenuComponent::TOP | sa::MenuComponent::LEFT) + sa::vec3<float>(0.01f, -0.1f * m_pWindow->getAspectRatio(), 0);
+					return this->getExteriorPosition(sa::MenuComponent::TOP | sa::MenuComponent::LEFT) + sa::vec3<float>(0.0178f, -0.1f * m_pWindow->getAspectRatio(), 0);
 				});
 				icon->positionAlign = sa::MenuComponent::TOP | sa::MenuComponent::LEFT;
 			}

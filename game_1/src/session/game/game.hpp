@@ -200,6 +200,10 @@ public:
 		return &(it->second);
 	}
 
+	int64_t gold(size_t player) const {
+		return players[player].currency;
+	}
+
 	void draw(std::shared_ptr<sa::Graphics> pGraphics);
 private:
 	void drawProvinces(std::shared_ptr<sa::Graphics> pGraphics);
@@ -215,7 +219,7 @@ private:
 		{
 		}
 
-		int64_t currency = 0; // can go to negative
+		int64_t currency = 200; // can go to negative
 		std::vector<size_t> scienceResources;
 		std::string name;
 
