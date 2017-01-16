@@ -401,3 +401,17 @@ void Game::toggleBattle()
 		m_sim = nullptr;
 	}
 }
+
+void Game::resolveCombat(size_t provinceIndex)
+{
+	// Add units to battle
+	bs::Battle battle;
+	battle.armies.clear();
+	battle.armies.resize(2);
+
+	// Simulate, thing so huge it makes stack cry
+	auto sim = std::make_unique<bs::BattleSim>(battle, bs::Field::StreamingMode::Disabled);
+	sim->Resolve();
+
+	// Handle results
+}

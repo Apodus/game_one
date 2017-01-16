@@ -104,10 +104,7 @@ class Game {
 		return std::move(bins);
 	}
 
-	void resolveCombat(size_t provinceIndex)
-	{
-		// TODO
-	}
+	void resolveCombat(size_t provinceIndex);
 
 	void applyMovement(bool isFriendlyMovement)
 	{

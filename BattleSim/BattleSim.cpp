@@ -14,10 +14,13 @@ bs::BattleSim::BattleSim(Battle& battle, Field::StreamingMode mode) :
 
 bs::BattleSim::~BattleSim()
 {
-	std::atomic_thread_fence(std::memory_order_acquire);
-	myActiveFlag = false;
-	Simulate(0);
-	myThread.join();
+	if (myActiveFlag)
+	{
+		std::atomic_thread_fence(std::memory_order_acquire);
+		myActiveFlag = false;
+		Simulate(0);
+		myThread.join();
+	}
 }
 
 bs::Battle bs::BattleSim::Generate()
