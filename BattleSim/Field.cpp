@@ -269,7 +269,7 @@ void bs::Field::WriteUpdate()
 	const U16 numMovingUnits = static_cast<U16>(myMovingUnits.size());
 	
 
-	Visualization& update = myVisualizationSystem.StartWriting(
+	ByteBuffer& update = myVisualizationSystem.StartWriting(
 		sizeof(U16) * 2 +
 		sizeof(Visualization::Addition) * numStartingUnits +
 		sizeof(Visualization::Movement) * numMovingUnits);
