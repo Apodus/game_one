@@ -10,7 +10,7 @@ void Hud::childComponentCall(const std::string& who, const std::string& what, in
 		{
 			// hide();
 			// callParent("showMenu", 0);
-			game.showBattle();
+			game.toggleBattle();
 		}
 	}
 

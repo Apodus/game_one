@@ -360,11 +360,18 @@ void Game::tick(long long timeMs)
 	++m_tickID;
 }
 
-void Game::showBattle()
+void Game::toggleBattle()
 {
-	m_renderTime = std::chrono::high_resolution_clock::now();
-	m_sim = std::make_unique<bs::BattleSim>();
-	m_sim->TestSetup();
-	m_lastSimUpdate = 0;
-	m_simAccu = 0;
+	if (m_sim == nullptr)
+	{
+		m_renderTime = std::chrono::high_resolution_clock::now();
+		m_sim = std::make_unique<bs::BattleSim>();
+		m_sim->TestSetup();
+		m_lastSimUpdate = 0;
+		m_simAccu = 0;
+	}
+	else
+	{
+		m_sim = nullptr;
+	}
 }

@@ -218,7 +218,7 @@ public:
 		applyIncome();
 	}
 
-	void showBattle();
+	void toggleBattle();
 
 	void preTick()
 	{
