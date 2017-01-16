@@ -25,6 +25,7 @@
 #include <iterator>
 #include <unordered_map>
 #include <string>
+#include <chrono>
 
 namespace bs { class BattleSim; }
 namespace sa { class MenuRoot; }
@@ -318,7 +319,7 @@ public:
 	void draw(std::shared_ptr<sa::Graphics> pGraphics);
 private:
 	void drawProvinces(std::shared_ptr<sa::Graphics> pGraphics);
-	void drawBattle(std::shared_ptr<sa::Graphics> pGraphics);
+	void drawBattle(std::shared_ptr<sa::Graphics> pGraphics, long long deltaTime);
 
 	Scripter m_scripter;
 	size_t m_tickID = 0;
@@ -369,6 +370,8 @@ private:
 	};
 	std::unique_ptr<bs::BattleSim> m_sim;
 	uint64_t m_lastSimUpdate;
+	std::chrono::time_point<std::chrono::steady_clock> m_renderTime;
 	double m_simAccu;
+
 	std::vector<Unit> m_units;
 };
