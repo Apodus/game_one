@@ -70,50 +70,23 @@ public:
 		addChild(demoButton2);
 	}
 
-	void selectProvince(ProvinceGraph::Province* province)
-	{
-		unselectProvince();
-		if (province)
-		{
-			activeProvince = province;
-			commandersTab = std::make_shared<ProvinceCommandersTab>(this, *province);
-			recruitmentTab = std::make_shared<ProvinceRecruitmentTab>(this, *province, game);
-			provinceMenu.emplace_back(commandersTab);
-			provinceMenu.emplace_back(recruitmentTab);
-		}
-	}
-
-	void orderToProvince(ProvinceGraph::Province* province)
-	{
-		if (province && activeProvince)
-		{
-			if (province == activeProvince)
-			{
-				commandersTab->emptyOrder();
-			}
-			else
-			{
-				commandersTab->orderToProvince(province);
-			}
-		}
-	}
-
-	void unselectProvince()
-	{
-		commandersTab.reset();
-		recruitmentTab.reset();
-		for(auto& entry : provinceMenu)
-			entry->hide();
-		activeProvince = nullptr;
-	}
+	void selectProvince(ProvinceGraph::Province* province);
+	void orderToProvince(ProvinceGraph::Province* province);
+	void unselectProvince();
 
 	const ProvinceGraph::Province* getActiveProvince() const {
 		return activeProvince;
 	}
 
+	void newTurn()
+	{
+		resourceTab->startOfNewTurn();
+	}
+
 private:
 
 	Game& game;
+	size_t m_localPlayer = 0; // TODO: select player index based on what?
 	std::shared_ptr<ProvinceCommandersTab> commandersTab;
 	std::shared_ptr<ProvinceRecruitmentTab> recruitmentTab;
 	std::shared_ptr<ResourceTab> resourceTab;
@@ -122,31 +95,6 @@ private:
 	ProvinceGraph::Province* activeProvince = nullptr;
 
 	virtual void childComponentCall(const std::string& who, const std::string& what, int = 0) override;
-
-	virtual void draw(std::shared_ptr<sa::Graphics> graphics) const override
-	{
-		for (auto& provinceItem : provinceMenu)
-		{
-			provinceItem->visualise(graphics);
-		}
-	}
-
-	virtual void update(float dt) override
-	{
-		for (auto& provinceItem : provinceMenu)
-		{
-			provinceItem->tick(dt);
-		}
-
-		// delete obsolete menus
-		for (size_t i = 0; i < provinceMenu.size(); ++i)
-		{
-			auto& menuItem = provinceMenu[i];
-			if (!menuItem->hasFocus() && !menuItem->inScreen())
-			{
-				provinceMenu[i] = provinceMenu.back();
-				provinceMenu.pop_back();
-			}
-		}
-	}
+	virtual void draw(std::shared_ptr<sa::Graphics> graphics) const override;
+	virtual void update(float dt) override;
 };

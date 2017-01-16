@@ -95,5 +95,8 @@
     <ClInclude Include="src\session\game\menu\ResourceTab.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\session\game\Faction.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

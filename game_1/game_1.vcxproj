@@ -113,6 +113,7 @@
     <ClInclude Include="src\logic\World.h" />
     <ClInclude Include="src\menu\gameline.hpp" />
     <ClInclude Include="src\session\application\session.hpp" />
+    <ClInclude Include="src\session\game\Faction.hpp" />
     <ClInclude Include="src\session\game\game.hpp" />
     <ClInclude Include="src\menu\mainmenu.hpp" />
     <ClInclude Include="src\menu\menuroot.hpp" />

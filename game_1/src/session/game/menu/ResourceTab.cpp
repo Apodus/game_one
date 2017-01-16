@@ -20,7 +20,7 @@ void ResourceTab::draw(std::shared_ptr<sa::Graphics> graphics) const
 	model.scale(iconScale * 0.75f, iconScale * 0.75f, 0);
 	graphics->m_pRenderer->drawRectangle(model, "Gold");
 
-	int64_t gold = m_game.gold(m_localPlayer);
+	int64_t gold = m_faction.currency;
 
 	graphics->m_pTextRenderer->drawText(
 		std::to_string(gold),
@@ -31,4 +31,9 @@ void ResourceTab::draw(std::shared_ptr<sa::Graphics> graphics) const
 		sa::TextRenderer::Align::LEFT,
 		graphics->m_fontConsola
 	);
+}
+
+void ResourceTab::startOfNewTurn()
+{
+	m_faction = m_game.getPlayer(m_localPlayer);
 }
