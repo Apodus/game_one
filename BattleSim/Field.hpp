@@ -4,6 +4,7 @@
 #include "Array.hpp"
 #include "Deque.hpp"
 #include "VisualizationSystem.h"
+#include "Visualization.h"
 
 namespace bs
 {
@@ -21,7 +22,7 @@ namespace bs
 
 		static const Real TimePerUpdate;
 
-		BATTLESIM_API const Visualization* GetFrame()
+		BATTLESIM_API const ByteBuffer* GetFrame()
 		{	
 			return myVisualizationSystem.GetForReading();
 		}

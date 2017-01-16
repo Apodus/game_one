@@ -3,7 +3,7 @@
 #include "Types.hpp"
 #include "Vector.hpp"
 #include "Deque.hpp"
-#include "Visualization.h"
+#include "ByteBuffer.h"
 
 #include <memory>
 #include <mutex>
@@ -38,7 +38,7 @@ namespace bs
 		}
 		
 		// Next update for reading or nullptr if no update available
-		const Visualization* GetForReading()
+		const ByteBuffer* GetForReading()
 		{
 			myMutex.lock();
 			auto ptr = myWriteIndex != 0 ? myUpdates[0] : nullptr;
@@ -47,7 +47,7 @@ namespace bs
 		}
 
 		// Latest update for reading or nullptr if no update available
-		const Visualization* GetLatestForReading()
+		const ByteBuffer* GetLatestForReading()
 		{
 			myMutex.lock();
 			if (myWriteIndex > 1)
@@ -66,7 +66,7 @@ namespace bs
 			myMutex.unlock();
 		}
 
-		Visualization& StartWriting(size_t numBytes)
+		ByteBuffer& StartWriting(size_t numBytes)
 		{
 			// Choose hottest memory for writing - it should be last added
 			myMutex.lock();
@@ -121,7 +121,7 @@ namespace bs
 			myWriteIndex++;
 			if (myWriteIndex >= myUpdates.size())
 			{
-				myUpdates.emplace_back(new Visualization());
+				myUpdates.emplace_back(new ByteBuffer());
 			}
 		}
 
@@ -132,6 +132,7 @@ namespace bs
 			{
 				delete myUpdates[i];
 			}
+			myUpdates.clear();
 			myWriteIndex = static_cast<size_t>(-1);
 			myMutex.unlock();
 		}
@@ -148,7 +149,7 @@ namespace bs
 		}
 
 		size_t myWriteIndex;
-		Deque<Visualization*> myUpdates;
+		Deque<ByteBuffer*> myUpdates;
 		std::mutex myMutex;
 		size_t myNumReallocRequests = 0;
 	};

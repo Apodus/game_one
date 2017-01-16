@@ -104,13 +104,20 @@ Game::~Game()
 
 void Game::draw(std::shared_ptr<sa::Graphics> pGraphics)
 {
+	// TODO: Need to provide delta time for draw method too! 
+	// After that this can be removed:
+	auto renderTime = std::chrono::high_resolution_clock::now();
+	using ms = std::chrono::duration<float, std::milli>;
+	auto deltaTime = static_cast<long long>(std::chrono::duration_cast<ms>(renderTime - m_renderTime).count());
+	m_renderTime = renderTime;
+
 	if (m_sim == nullptr)
 	{
 		drawProvinces(pGraphics);
 	}
 	else
 	{
-		drawBattle(pGraphics);
+		drawBattle(pGraphics, deltaTime);
 	}
 }
 
@@ -235,7 +242,7 @@ void Game::drawProvinces(std::shared_ptr<sa::Graphics> pGraphics)
 	pGraphics->m_pRenderer->drawRectangle(model, "Hero");
 }
 
-void Game::drawBattle(std::shared_ptr<sa::Graphics> pGraphics)
+void Game::drawBattle(std::shared_ptr<sa::Graphics> pGraphics, long long deltaTime)
 {
 	sa::TextureHandler::getSingleton().bindTexture(0, "Empty");
 
@@ -246,6 +253,7 @@ void Game::drawBattle(std::shared_ptr<sa::Graphics> pGraphics)
 
 	float unitHeight = 0.1f;
 
+	m_simAccu += static_cast<double>(deltaTime) / 1000.0;
 	while (m_simAccu >= m_sim->GetTimePerUpdate())
 	{
 		const auto* frame = m_sim->GetField().GetFrame();
@@ -292,6 +300,7 @@ void Game::drawBattle(std::shared_ptr<sa::Graphics> pGraphics)
 		}
 		else
 		{
+			LOG("Sim stalled;fraction=%f", static_cast<float>(m_simAccu / m_sim->GetTimePerUpdate()));
 			break;
 		}
 	}
@@ -346,7 +355,6 @@ void Game::tick(long long timeMs)
 	{
 		auto delta = m_lastSimUpdate != 0 ? timeMs - m_lastSimUpdate : 0;
 		m_sim->Simulate(static_cast<size_t>(delta));
-		m_simAccu += static_cast<double>(delta) / 1000.0;
 		m_lastSimUpdate = timeMs;
 	}
 	++m_tickID;
@@ -354,6 +362,7 @@ void Game::tick(long long timeMs)
 
 void Game::showBattle()
 {
+	m_renderTime = std::chrono::high_resolution_clock::now();
 	m_sim = std::make_unique<bs::BattleSim>();
 	m_sim->TestSetup();
 	m_lastSimUpdate = 0;

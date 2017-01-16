@@ -66,6 +66,9 @@
     <ClInclude Include="Visualization.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ByteBuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
