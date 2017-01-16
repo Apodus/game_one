@@ -79,16 +79,34 @@ void Hud::selectProvince(ProvinceGraph::Province* province)
 	unselectProvince();
 	if (province)
 	{
-		activeProvince = province;
-		commandersTab = std::make_shared<ProvinceCommandersTab>(this, *province);
-		recruitmentTab = std::make_shared<ProvinceRecruitmentTab>(
-			this,
-			*province,
-			game,
-			resourceTab->faction()
-		);
-		provinceMenu.emplace_back(commandersTab);
-		provinceMenu.emplace_back(recruitmentTab);
+		bool locallyOwned = province->m_owner == m_localPlayer;
+		bool unitsPresent = std::any_of(province->units.begin(), province->units.end(), [this](const Troop& troop) {
+			return troop.owner == m_localPlayer;
+		});
+		bool commandersPresent = std::any_of(province->commanders.begin(), province->commanders.end(), [this](const BattleCommander& commander) {
+			return commander.owner == m_localPlayer;
+		});
+
+		// only show menus if province is owned by player.
+		if (locallyOwned) {
+			activeProvince = province;
+			recruitmentTab = std::make_shared<ProvinceRecruitmentTab>(
+				this,
+				*province,
+				game,
+				resourceTab->faction()
+			);
+			provinceMenu.emplace_back(recruitmentTab);
+		}
+		
+		if (commandersPresent) {
+			// if province is hostile but we have people there (spies?),
+			// then maybe show some additional details of province.
+			
+			activeProvince = province;
+			commandersTab = std::make_shared<ProvinceCommandersTab>(this, *province, m_localPlayer);
+			provinceMenu.emplace_back(commandersTab);
+		}
 	}
 }
 

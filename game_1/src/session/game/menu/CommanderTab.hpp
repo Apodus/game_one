@@ -112,7 +112,7 @@ struct ProvinceCommandersTab : public sa::MenuComponent
 		bool selected = false;
 	};
 
-	ProvinceCommandersTab(sa::MenuComponent* parent, ProvinceGraph::Province& province)
+	ProvinceCommandersTab(sa::MenuComponent* parent, ProvinceGraph::Province& province, size_t localPlayer)
 		: sa::MenuComponent(parent, "CommandersTab", []() {return sa::vec3<float>(-0.965f, +0.9f, 0);}, sa::vec3<float>(0.44f, 1.0f, 0))
 		, bg(this, "BG", "ButtonBase", sa::vec4<float>(1, 1, 1, 0.4f))
 	{
@@ -121,6 +121,10 @@ struct ProvinceCommandersTab : public sa::MenuComponent
 
 		for (auto& commander : province.commanders)
 		{
+			// don't show hostile commanders.
+			if (commander.owner != localPlayer)
+				continue;
+
 			auto icon = std::make_shared<CommanderIcon>(this, commander);
 
 			if (icons.empty())
