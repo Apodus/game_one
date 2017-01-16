@@ -3,6 +3,7 @@
 #include "util/vec3.hpp"
 #include "menu/MenuComponent.hpp"
 #include "menu/MenuFrame.hpp"
+#include "session/game/Faction.hpp"
 
 class Game;
 
@@ -29,7 +30,12 @@ struct ResourceTab : public sa::MenuComponent
 	virtual void update(float dt) override;
 	virtual void draw(std::shared_ptr<sa::Graphics> graphics) const override;
 
+	void startOfNewTurn();
+	Faction& faction() { return m_faction; }
+
 	size_t m_localPlayer = 0;
+	Faction m_faction;
+
 	sa::MenuFrameBackground bg;
 	Game& m_game;
 };

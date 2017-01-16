@@ -19,6 +19,8 @@
 #include "worldmap/ProvinceGraph.hpp"
 #include "session/game/hud.hpp"
 
+#include "session/game/Faction.hpp"
+
 #include <atomic>
 #include <cinttypes>
 #include <memory>
@@ -157,6 +159,8 @@ class Game {
 			const auto& orders = province.inspectRecruitOrders();
 			for (const TroopReference* order : orders)
 			{
+				players[province.m_owner].currency -= order->goldCost;
+
 				if(order->isCommander)
 				{
 					province.units.emplace_back(
@@ -191,11 +195,11 @@ class Game {
 				// upkeep of troops
 				for (const auto& commander : province.commanders)
 				{
-					players[province.m_owner].currency -= commander.upkeep;
+					players[province.m_owner].currency -= commander.reference->upkeep;
 				}
 				for (const auto& troop : province.units)
 				{
-					players[province.m_owner].currency -= troop.upkeep;
+					players[province.m_owner].currency -= troop.reference->upkeep;
 				}
 			}
 		}
@@ -216,6 +220,8 @@ public:
 		friendlyMovement();
 		offensiveMovement();
 		applyIncome();
+
+		hud->newTurn();
 	}
 
 	void toggleBattle();
@@ -316,6 +322,10 @@ public:
 		return players[player].currency;
 	}
 
+	const Faction& getPlayer(size_t player) const {
+		return players[player];
+	}
+
 	void draw(std::shared_ptr<sa::Graphics> pGraphics);
 private:
 	void drawProvinces(std::shared_ptr<sa::Graphics> pGraphics);
@@ -323,18 +333,6 @@ private:
 
 	Scripter m_scripter;
 	size_t m_tickID = 0;
-
-	struct Faction
-	{
-		Faction() = default;
-		Faction(std::string name) : name(std::move(name))
-		{
-		}
-
-		int64_t currency = 200; // can go to negative
-		std::vector<size_t> scienceResources;
-		std::string name;
-	};
 
 	sa::vec3<float> mousePos;
 	sa::vec3<float> mousePosPrev;

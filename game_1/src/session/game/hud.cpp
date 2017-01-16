@@ -42,3 +42,76 @@ void Hud::childComponentCall(const std::string& who, const std::string& what, in
 		game.processTurn();
 	}
 }
+
+
+void Hud::draw(std::shared_ptr<sa::Graphics> graphics) const
+{
+	for (auto& provinceItem : provinceMenu)
+	{
+		provinceItem->visualise(graphics);
+	}
+}
+
+void Hud::update(float dt)
+{
+	for (auto& provinceItem : provinceMenu)
+	{
+		provinceItem->tick(dt);
+	}
+
+	// delete obsolete menus
+	for (size_t i = 0; i < provinceMenu.size(); ++i)
+	{
+		auto& menuItem = provinceMenu[i];
+		if (!menuItem->hasFocus() && !menuItem->inScreen())
+		{
+			provinceMenu[i] = provinceMenu.back();
+			provinceMenu.pop_back();
+		}
+	}
+}
+
+
+
+
+void Hud::selectProvince(ProvinceGraph::Province* province)
+{
+	unselectProvince();
+	if (province)
+	{
+		activeProvince = province;
+		commandersTab = std::make_shared<ProvinceCommandersTab>(this, *province);
+		recruitmentTab = std::make_shared<ProvinceRecruitmentTab>(
+			this,
+			*province,
+			game,
+			resourceTab->faction()
+		);
+		provinceMenu.emplace_back(commandersTab);
+		provinceMenu.emplace_back(recruitmentTab);
+	}
+}
+
+void Hud::orderToProvince(ProvinceGraph::Province* province)
+{
+	if (province && activeProvince)
+	{
+		if (province == activeProvince)
+		{
+			commandersTab->emptyOrder();
+		}
+		else
+		{
+			commandersTab->orderToProvince(province);
+		}
+	}
+}
+
+void Hud::unselectProvince()
+{
+	commandersTab.reset();
+	recruitmentTab.reset();
+	for (auto& entry : provinceMenu)
+		entry->hide();
+	activeProvince = nullptr;
+}

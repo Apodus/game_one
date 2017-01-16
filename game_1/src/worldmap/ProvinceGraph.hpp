@@ -21,6 +21,10 @@ struct TroopReference
 	uint32_t leadership = 0; // how many troops can control.
 	uint32_t isCommander = 0; // starts out with commander status?
 
+	//
+	uint32_t goldCost = 10;
+	uint32_t upkeep = 1;
+
 	// TODO: Abilities / Special properties (eg. fire resistant, trampling, regenerating, medic, ...?)
 	// TODO: Equipment definition
 	// TODO: Visual representation definition
@@ -33,7 +37,6 @@ struct Troop
 		: id(id)
 		, owner(owner)
 		, commanderId(0)
-		, upkeep(0) // TODO
 		, reference(&prototype)
 	{
 	}
@@ -41,8 +44,7 @@ struct Troop
 	size_t id = 0;
 	size_t owner = 0;
 	size_t commanderId = 0; // follows this commander. this is kind of redundant - but makes life easier.
-	size_t upkeep = 0;
-
+	
 	const TroopReference* reference;
 	
 	// TODO: Afflictions
@@ -83,7 +85,6 @@ struct BattleCommander
 
 	size_t id = 0;
 	size_t owner = 0;
-	size_t upkeep = 0;
 	
 	std::string name;
 	const TroopReference* reference;
