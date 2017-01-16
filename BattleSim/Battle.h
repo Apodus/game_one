@@ -6,8 +6,12 @@
 
 namespace bs
 {
-	struct Army
+	struct Battle
 	{
-		Vector<Unit::Id> units;
+		struct Army
+		{
+			Vector<Unit> units;
+		};
+		Vector<Army> armies;
 	};
 }

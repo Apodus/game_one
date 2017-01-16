@@ -1,9 +1,11 @@
 #include "stdafx.h"
 #include "Field.hpp"
+#include "Battle.h"
 
 const bs::Real bs::Field::TimePerUpdate = bs::Real(100, 1000);
+const size_t MaxUpdates = 150;
 
-bs::Field::Field()
+bs::Field::Field(StreamingMode streaming) : myStreaming(streaming)
 {
 }
 
@@ -14,7 +16,10 @@ bs::Unit::Id bs::Field::Add(Unit& unit)
 	myUnits.emplace_back(unit);
 	myLevels[0].AddUnit(myUnits.back());
 	myActiveUnits.emplace_back(unit.id);
-	myStartingUnits.emplace_back(unit.id);
+	if (IsStreaming())
+	{
+		myStartingUnits.emplace_back(unit.id);
+	}
 	return unit.id;
 }
 
@@ -121,7 +126,7 @@ void bs::Field::FindClosestEnemy(const Unit& unit, U32 x, U32 y, Real& range, Un
 }
 
 
-void bs::Field::Update()
+bool bs::Field::Update()
 {
 	UpdatePriorities();
 
@@ -230,7 +235,7 @@ void bs::Field::Update()
 			unit.receivedDamage = 0;
 		}
 
-		if (isMoved)
+		if (isMoved && IsStreaming())
 		{
 			myMovingUnits.emplace_back(unit.id);
 		}
@@ -248,7 +253,10 @@ void bs::Field::Update()
 
 	}
 
-	WriteUpdate();
+	if (IsStreaming())
+	{
+		WriteUpdate();
+	}
 
 	// Remove killed from active. This will change order of active units, but we are 
 	// going to sort active units next update anyway.
@@ -260,6 +268,9 @@ void bs::Field::Update()
 		*iter = myActiveUnits.back();
 		myActiveUnits.pop_back();
 	}
+
+	myTotalUpdates++;
+	return myTotalUpdates < MaxUpdates;
 }
 
 void bs::Field::WriteUpdate()
@@ -267,7 +278,6 @@ void bs::Field::WriteUpdate()
 	std::sort(myMovingUnits.begin(), myMovingUnits.end());
 	const U16 numStartingUnits = static_cast<U16>(myStartingUnits.size());
 	const U16 numMovingUnits = static_cast<U16>(myMovingUnits.size());
-	
 
 	ByteBuffer& update = myVisualizationSystem.StartWriting(
 		sizeof(U16) * 2 +
@@ -391,4 +401,31 @@ bool bs::Field::CollisionCheck(const Unit& a, const Unit& b, const Vec& endPos, 
 	N.y = N.y*(dist)+b.pos.y;
 	N.z = N.z*(dist)+b.pos.z;
 	return true;
+}
+
+void bs::Field::InitialUpdate(Battle& battle)
+{
+	for (size_t i = 0; i < battle.armies.size(); i++)
+	{
+		for (size_t j = 0; j < battle.armies[i].units.size(); j++)
+		{
+			auto& unit = battle.armies[i].units[j];
+			unit.team = static_cast<uint8_t>(i);
+			Add(unit);
+		}
+		battle.armies[i].units.clear();
+	}
+}
+
+void bs::Field::FinalUpdate(Battle& battle)
+{
+	battle.armies.resize(2);
+	for (size_t i = 0; i < myUnits.size(); i++)
+	{
+		auto& unit = myUnits[i];
+		if (unit.hitpoints > 0)
+		{
+			battle.armies[unit.team].units.emplace_back(unit);
+		}
+	}
 }

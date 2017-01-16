@@ -7,10 +7,8 @@
 #include <chrono>
 #include <atomic>
 
-static const size_t SimulationInAdvanceMs = 1000;
-
-bs::BattleSim::BattleSim() :
-	myActiveFlag(true)
+bs::BattleSim::BattleSim(Battle& battle, Field::StreamingMode mode) :
+	myBattle(battle), myField(mode), myActiveFlag(true)
 {
 }
 
@@ -22,24 +20,10 @@ bs::BattleSim::~BattleSim()
 	myThread.join();
 }
 
-void bs::BattleSim::SetArmyCount(size_t size)
+bs::Battle bs::BattleSim::Generate()
 {
-	myArmies.resize(size);
-}
-
-void bs::BattleSim::AddUnitToArmy(Unit& unit, size_t armyIndex)
-{
-	// Unit unit;
-	// Unit::Detail detail;
-	unit.team = static_cast<uint8_t>(armyIndex);
-
-	auto id = myField.Add(unit);
-	myArmies[armyIndex].units.emplace_back(id);
-}
-
-void bs::BattleSim::TestSetup()
-{
-	SetArmyCount(2);
+	Battle battle;
+	battle.armies.resize(2);
 	for (int64_t y = 0; y < 10; y++)
 	{
 		for (int64_t i = 0; i < 100; i++)
@@ -58,7 +42,7 @@ void bs::BattleSim::TestSetup()
 				}
 				u.pos.set(Real(50 + i), Real(50 + y), Real(0));
 				u.moveTarget.set(Real(50 + i + (rand() % 4)), Real(75), Real(0));
-				AddUnitToArmy(u, 0);
+				battle.armies[0].units.emplace_back(u);
 			}
 
 			{
@@ -75,13 +59,25 @@ void bs::BattleSim::TestSetup()
 				}
 				u.pos.set(Real(50 + i), Real(100 + y), Real(0));
 				u.moveTarget.set(Real(50 + i + (rand() % 4)), Real(75), Real(0));
-				AddUnitToArmy(u, 1);
+				battle.armies[1].units.emplace_back(u);
 			}
 		}
-	}	
+	}
+	return battle;
+}
 
+void bs::BattleSim::ResolveAsync(size_t milliseconds)
+{
+	myField.InitialUpdate(myBattle);
 	Run();
-	Simulate(SimulationInAdvanceMs);
+	Simulate(milliseconds);
+}
+
+void bs::BattleSim::Resolve()
+{
+	myField.InitialUpdate(myBattle);
+	RunUntilComplete();
+	myField.FinalUpdate(myBattle);
 }
 
 void bs::BattleSim::Simulate(size_t milliSeconds)
@@ -113,7 +109,7 @@ void bs::BattleSim::Run()
 			while (myTotalTime + step < endTime && myActiveFlag)
 			{
 				auto start = std::chrono::high_resolution_clock::now();
-				myField.Update();
+				myActiveFlag = myActiveFlag & myField.Update();
 				myTotalTime += step;
 				auto stop = std::chrono::high_resolution_clock::now();
 				using ms = std::chrono::duration<float, std::milli>;
@@ -126,9 +122,25 @@ void bs::BattleSim::Run()
 			myTimeAccu = endTime - myTotalTime;
 		}
 	});
+	myField.FinalUpdate(myBattle);
+}
+
+void bs::BattleSim::RunUntilComplete()
+{
+	ASSERT(!myField.IsStreaming(), "Do not use streaming when doing synchronous resolve!");
+	while (myActiveFlag)
+	{
+		myActiveFlag = myActiveFlag & myField.Update();
+	}
 }
 
 double bs::BattleSim::GetTimePerUpdate() const
 {
 	return myField.TimePerUpdate.toDouble();
+}
+
+BATTLESIM_API void bs::BattleSim::Cancel()
+{
+	myActiveFlag = false;
+	Simulate(0); // Just in case
 }

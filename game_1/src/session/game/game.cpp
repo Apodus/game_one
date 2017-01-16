@@ -3,6 +3,8 @@
 #include "BattleSim/BattleSim.hpp"
 #include "menu/menuroot.hpp"
 
+static bs::Battle battle;
+
 Game::Game(
 	std::shared_ptr<sa::MenuRoot> menuRootNode,
 	std::shared_ptr<sa::UserIO>)
@@ -319,7 +321,10 @@ void Game::drawBattle(std::shared_ptr<sa::Graphics> pGraphics, long long deltaTi
 		}
 		else
 		{
-			LOG("Sim stalled;fraction=%f", static_cast<float>(m_simAccu / m_sim->GetTimePerUpdate()));
+			if (!m_sim->IsComplete())
+			{
+				LOG("Sim stalled;fraction=%f", static_cast<float>(m_simAccu / m_sim->GetTimePerUpdate()));
+			}
 			break;
 		}
 	}
@@ -384,8 +389,10 @@ void Game::toggleBattle()
 	if (m_sim == nullptr)
 	{
 		m_renderTime = std::chrono::high_resolution_clock::now();
-		m_sim = std::make_unique<bs::BattleSim>();
-		m_sim->TestSetup();
+		battle = bs::BattleSim::Generate();
+		m_sim = std::make_unique<bs::BattleSim>(battle);
+		const size_t SimForwardMillis = 1000;
+		m_sim->ResolveAsync(SimForwardMillis);
 		m_lastSimUpdate = 0;
 		m_simAccu = 0;
 	}

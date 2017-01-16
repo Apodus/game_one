@@ -9,14 +9,22 @@
 namespace bs
 {
 	class Unit;
+	struct Battle;
 	class Field
 	{
 	public:
-		Field();
+		enum StreamingMode // Is frame streaming enabled
+		{
+			Enabled,
+			Disabled
+		};
+
+		Field(StreamingMode streaming);
 
 		Unit::Id Add(Unit& unit);
 
-		void Update();
+		// Returns true if victory conditions not met.
+		bool Update();
 
 		Unit::Id FindClosestEnemy(const Unit& unit, Real& range) const;
 
@@ -31,6 +39,12 @@ namespace bs
 		{
 			myVisualizationSystem.ConsumeUpdate();
 		}
+
+		bool IsStreaming() const { return myStreaming == StreamingMode::Enabled;  }
+
+		void InitialUpdate(Battle& battle);
+
+		void FinalUpdate(Battle& battle);
 
 	private:
 		void WriteUpdate();
@@ -55,6 +69,8 @@ namespace bs
 		Vector<Unit::Id> myMovingUnits;
 		Vector<Unit> myUnits;
 		uint64_t myRand = 1;
+		uint64_t myTotalUpdates = 0;
+		StreamingMode myStreaming; // Is frame streaming enabled
 	
 	};
 }

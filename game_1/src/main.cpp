@@ -37,9 +37,9 @@ int main(int argc, char** argv)
 		// Temporary for testing battle sim
 		if (argc >= 2 && strcmp(argv[1], "sim") == 0)
 		{
-			bs::BattleSim* sim = new bs::BattleSim();
-			sim->TestSetup();
-			sim->Simulate(30*1000);
+			auto battle = bs::BattleSim::Generate();
+			bs::BattleSim* sim = new bs::BattleSim(battle, bs::Field::StreamingMode::Disabled);
+			sim->Resolve();
 			delete sim;
 			return EXIT_SUCCESS;
 		}

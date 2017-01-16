@@ -158,7 +158,7 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Army.hpp" />
+    <ClInclude Include="Battle.h" />
     <ClInclude Include="Array.hpp" />
     <ClInclude Include="BattleSim.hpp" />
     <ClInclude Include="ByteBuffer.h" />

@@ -366,6 +366,7 @@ private:
 		int hitpoints;
 		int team;
 	};
+
 	std::unique_ptr<bs::BattleSim> m_sim;
 	uint64_t m_lastSimUpdate;
 	std::chrono::time_point<std::chrono::steady_clock> m_renderTime;
