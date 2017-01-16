@@ -82,6 +82,8 @@ Game::Game(
 			province.troopsToRecruit.emplace_back(militia.name);
 	}
 
+
+
 	auto& first = provinces.front();
 	first.m_owner = 0;
 	for (int i = 0; i < 23; ++i)
@@ -91,6 +93,23 @@ Game::Game(
 	second.m_owner = 1;
 	for (int i = 0; i < 23; ++i)
 		second.commanders.emplace_back(troopReferences["zealot"], ++nextUnitId, second.m_owner);
+
+	for (auto& province : provinces)
+	{
+		uint32_t plop = sa::math::rand(74892u);
+		if (province.m_owner == ~size_t(0))
+		{
+			province.commanders.emplace_back(troopReferences["zealot"], ++nextUnitId, ~size_t(0));
+			province.commanders.emplace_back(troopReferences["rider"], ++nextUnitId, ~size_t(0));
+			
+			plop = sa::math::rand(plop);
+			for (uint32_t i = 0; i < plop % 10; ++i)
+			{
+				province.units.emplace_back(troopReferences["marksman"], ++nextUnitId, ~size_t(0));
+				province.units.emplace_back(troopReferences["militia"], ++nextUnitId, ~size_t(0));
+			}
+		}
+	}
 
 	players.emplace_back("Mestari");
 	players.emplace_back("Nubu");
