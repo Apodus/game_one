@@ -70,6 +70,9 @@ public:
 		addChild(demoButton2);
 	}
 
+	std::vector<uint32_t> getSelectedCommanders() const;
+	bool isCommanderSelected(uint32_t id) const;
+
 	void selectProvince(ProvinceGraph::Province* province);
 	void orderToProvince(ProvinceGraph::Province* province);
 	void unselectProvince();

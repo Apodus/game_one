@@ -98,6 +98,7 @@
     <ClCompile Include="src\logic\ShapePrototype.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\session\application\session.cpp" />
+    <ClCompile Include="src\session\game\Faction.cpp" />
     <ClCompile Include="src\session\game\game.cpp" />
     <ClCompile Include="src\session\game\hud.cpp" />
     <ClCompile Include="src\session\game\menu\CommanderTab.cpp" />
@@ -123,6 +124,7 @@
     <ClInclude Include="src\session\game\menu\RecruitmentTab.hpp" />
     <ClInclude Include="src\session\game\menu\ResourceTab.hpp" />
     <ClInclude Include="src\session\game\troops\Commander.hpp" />
+    <ClInclude Include="src\session\game\troops\StrategyViewOrder.hpp" />
     <ClInclude Include="src\session\game\troops\Troop.hpp" />
     <ClInclude Include="src\session\game\troops\TroopReference.hpp" />
     <ClInclude Include="src\session\game\worldmap\ProvinceGraph.hpp" />

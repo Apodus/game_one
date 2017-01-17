@@ -171,7 +171,7 @@ void Game::drawProvinces(std::shared_ptr<sa::Graphics> pGraphics)
 	{
 		for (const auto& commander : province.commanders)
 		{
-			if (commander.myOrder.orderType == BattleCommander::OrderType::Move)
+			if (commander.myOrder.orderType == OrderType::Move)
 			{
 				const auto& targetProvince = provinces[commander.myOrder.moveTo];
 				auto source = province.m_position;
@@ -187,7 +187,7 @@ void Game::drawProvinces(std::shared_ptr<sa::Graphics> pGraphics)
 					arrowColor = Color::GREEN;
 
 				float arrowDensity = 0.075f;
-				if (commander.m_selected)
+				if (hud->isCommanderSelected(commander.id))
 				{
 					direction *= 1.0f + 0.1f * modifier;
 					arrowDensity *= 1.0f + 0.2f * modifier;
@@ -202,19 +202,19 @@ void Game::drawProvinces(std::shared_ptr<sa::Graphics> pGraphics)
 				);
 
 				auto reverseDirection = source - target;
-				auto arrowPoint1 = sa::math::rotatedXY(reverseDirection, +3.1459f / 6.0f).normalize() * 0.6f;
-				auto arrowPoint2 = sa::math::rotatedXY(reverseDirection, -3.1459f / 6.0f).normalize() * 0.6f;
+				auto arrowPoint1 = sa::math::rotatedXY(reverseDirection, +3.1459f / 4.0f).normalize();
+				auto arrowPoint2 = sa::math::rotatedXY(reverseDirection, -3.1459f / 4.0f).normalize();
 
 				pGraphics->m_pRenderer->drawLine(
-					source + direction,
-					source + direction + arrowPoint1,
+					source + direction - arrowPoint1 * arrowDensity,
+					source + direction + arrowPoint1 * 0.6f,
 					arrowDensity,
 					arrowColor
 				);
 
 				pGraphics->m_pRenderer->drawLine(
-					source + direction,
-					source + direction + arrowPoint2,
+					source + direction - arrowPoint2 * arrowDensity,
+					source + direction + arrowPoint2 * 0.6f,
 					arrowDensity,
 					arrowColor
 				);

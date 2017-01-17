@@ -1,6 +1,7 @@
 #pragma once
 
 #include "session/game/troops/TroopReference.hpp"
+#include "session/game/troops/StrategyViewOrder.hpp"
 
 #include <string>
 #include <vector>
@@ -9,60 +10,28 @@
 #include <unordered_map>
 #include <memory>
 
-// Turn must be serializable. Therefore, TODO: troopreference pointers -> strings
+// Turn must be serializable. Therefore, TODO: troopreference pointers -> strings, or indices, or something.
 class Turn
 {
 public:
 	Turn() = default;
 
 	std::unordered_map<uint32_t, std::vector<const TroopReference*>> recruitmentRequests;
+	std::unordered_map<uint32_t, std::unordered_map<uint32_t, StrategyViewOrder>> commanderOrders;
 
-	void addRecruitOrder(size_t provinceIndex, const TroopReference* troopReference)
-	{
-		recruitmentRequests[provinceIndex].emplace_back(troopReference);
-	}
-
-	void removeRecruitOrder(size_t provinceIndex, const TroopReference* troopReference)
-	{
-		auto& provinceRequests = recruitmentRequests[provinceIndex];
-		for (size_t i = 0; i < provinceRequests.size(); ++i)
-		{
-			if (provinceRequests[i] == troopReference)
-			{
-				provinceRequests.erase(provinceRequests.begin() + i);
-				return;
-			}
-		}
-	}
-
-	void clearRecruitmentOrders()
-	{
-		recruitmentRequests.clear();
-	}
+	void addMovementOrder(const std::vector<uint32_t>& commanderIds, uint32_t sourceProvince, uint32_t targetProvince);
+	void addRecruitOrder(size_t provinceIndex, const TroopReference* troopReference);
+	void removeRecruitOrder(size_t provinceIndex, const TroopReference* troopReference);
+	void clearRecruitmentOrders();
 };
 
 class Faction
 {
 public:
-	Faction()
-	{
-		turn = std::make_shared<Turn>();
-	}
-
-	Faction(std::string name) : name(std::move(name))
-	{
-		turn = std::make_shared<Turn>();
-	}
-
-	void addRecruitOrder(size_t provinceIndex, const TroopReference* reference)
-	{
-		turn->addRecruitOrder(provinceIndex, reference);
-	}
-
-	void removeRecruitOrder(size_t provinceIndex, const TroopReference* reference)
-	{
-		turn->removeRecruitOrder(provinceIndex, reference);
-	}
+	Faction();
+	Faction(std::string name);
+	void addRecruitOrder(size_t provinceIndex, const TroopReference* reference);
+	void removeRecruitOrder(size_t provinceIndex, const TroopReference* reference);
 
 	int64_t currency = 200; // can go to negative
 	std::vector<size_t> scienceResources;

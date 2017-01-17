@@ -45,6 +45,9 @@
     <ClCompile Include="src\session\game\worldmap\ProvinceGraph.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\session\game\Faction.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\session\game\game.hpp">
@@ -105,6 +108,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\session\game\troops\Commander.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\session\game\troops\StrategyViewOrder.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

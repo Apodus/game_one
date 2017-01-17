@@ -22,7 +22,6 @@ struct ProvinceCommandersTab : public sa::MenuComponent
 			m_icon = commander.reference->icon;
 			m_color = Color::GREY;
 			setPositionUpdateType(true);
-			m_commander.m_selected = false;
 		}
 
 		virtual void childComponentCall(const std::string& who, const std::string& what, int = 0) {
@@ -60,10 +59,10 @@ struct ProvinceCommandersTab : public sa::MenuComponent
 		{
 			if (hasFocus()) {
 				m_actionName = "NoActionName";
-				if (m_commander.myOrder.orderType == BattleCommander::OrderType::Idle) {
+				if (m_commander.myOrder.orderType == OrderType::Idle) {
 					m_actionName = "Idle";
 				}
-				else if (m_commander.myOrder.orderType == BattleCommander::OrderType::Move) {
+				else if (m_commander.myOrder.orderType == OrderType::Move) {
 					m_actionName = "Move";
 				}
 
@@ -77,7 +76,6 @@ struct ProvinceCommandersTab : public sa::MenuComponent
 						callParent("click", static_cast<int>(id));
 
 						selected = !selected;
-						m_commander.m_selected = selected;
 
 						float a = m_color.a;
 						if (selected)
@@ -164,7 +162,7 @@ struct ProvinceCommandersTab : public sa::MenuComponent
 	void emptyOrder() {
 		for (auto& icon : icons)
 			if (icon->selected)
-				icon->m_commander.myOrder.orderType = BattleCommander::OrderType::Idle;
+				icon->m_commander.myOrder.orderType = OrderType::Idle;
 	}
 
 	void orderToProvince(ProvinceGraph::Province* province) {
@@ -172,7 +170,7 @@ struct ProvinceCommandersTab : public sa::MenuComponent
 		{
 			if (icons[i]->selected)
 			{
-				icons[i]->m_commander.myOrder.orderType = BattleCommander::OrderType::Move;
+				icons[i]->m_commander.myOrder.orderType = OrderType::Move;
 				icons[i]->m_commander.myOrder.moveTo = province->m_index;
 			}
 		}

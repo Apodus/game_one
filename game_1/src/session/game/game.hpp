@@ -39,6 +39,30 @@ class Game {
 
 	}
 
+	void updateCommanderOrdersFromTurn()
+	{
+		for (const auto& player : players)
+		{
+			for (const auto& entry : player.turn->commanderOrders)
+			{
+				uint32_t sourceProvince = entry.first;
+				for (const auto& order : entry.second)
+				{
+					uint32_t unitId = order.first;
+					
+					for (BattleCommander& commander : graph.provinces()[sourceProvince].commanders)
+					{
+						if (commander.id == unitId)
+						{
+							commander.myOrder = order.second;
+							break;
+						}
+					}
+				}
+			}
+		}
+	}
+
 	struct MovementBin
 	{
 		struct Move
@@ -70,7 +94,7 @@ class Game {
 			for (size_t i = 0; i < province.commanders.size(); ++i)
 			{
 				auto& commander = province.commanders[i];
-				if (commander.myOrder.orderType == BattleCommander::OrderType::Move)
+				if (commander.myOrder.orderType == OrderType::Move)
 				{
 					if ((commander.myOrder.moveTo == province.m_index) != friendlyMovement)
 						continue;
@@ -215,6 +239,7 @@ public:
 
 	void processTurn()
 	{
+		updateCommanderOrdersFromTurn();
 		processRecruitments();
 		castSpells();
 		friendlyMovement();
@@ -316,10 +341,6 @@ public:
 		if (it == troopReferences.end())
 			return nullptr;
 		return &(it->second);
-	}
-
-	int64_t gold(size_t player) const {
-		return players[player].currency;
 	}
 
 	const Faction& getPlayer(size_t player) const {

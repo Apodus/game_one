@@ -1,6 +1,8 @@
 #pragma once
 
 #include "session/game/troops/TroopReference.hpp"
+#include "session/game/troops/StrategyViewOrder.hpp"
+
 #include "util/vec2.hpp"
 #include <vector>
 #include <string>
@@ -44,26 +46,8 @@ struct BattleCommander
 
 	std::string name;
 	const TroopReference* reference;
-	bool m_selected = false; // for menu use only. has no effect on game logic.
-
+	
 	std::vector<Squad> squads;
-
-	enum class OrderType
-	{
-		Idle,
-		Move,
-		Patrol, // battle outside of fortifications if attacked. pacify region.
-		RunTests, // discover natural resources
-		Research, // discover tech stuff for scientists to perform
-		CastSpell // perform miracles of science
-	};
-
-	struct StrategyViewOrder
-	{
-		OrderType orderType = OrderType::Idle;
-		size_t moveTo = 0;
-		size_t spellToCast = 0;
-	};
 
 	StrategyViewOrder myOrder;
 };

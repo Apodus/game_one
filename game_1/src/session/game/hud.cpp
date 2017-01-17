@@ -53,6 +53,29 @@ void Hud::update(float dt)
 }
 
 
+std::vector<uint32_t> Hud::getSelectedCommanders() const
+{
+	std::vector<uint32_t> selectedCommanders;
+	if (activeProvince && commandersTab)
+	{
+		for (auto& icon : commandersTab->icons)
+			if (icon->selected)
+				selectedCommanders.emplace_back(icon->m_commander.id);
+	}
+	return std::move(selectedCommanders);
+}
+
+bool Hud::isCommanderSelected(uint32_t id) const
+{
+	if (activeProvince && commandersTab)
+	{
+		bool found = false;
+		for (auto& icon : commandersTab->icons)
+			found |= (icon->m_commander.id == id) && icon->selected;
+		return found;
+	}
+	return false;
+}
 
 
 void Hud::selectProvince(ProvinceGraph::Province* province)
@@ -93,15 +116,23 @@ void Hud::selectProvince(ProvinceGraph::Province* province)
 
 void Hud::orderToProvince(ProvinceGraph::Province* province)
 {
-	if (province && activeProvince)
+	if (activeProvince && province)
 	{
-		if (province == activeProvince)
+		std::vector<uint32_t> commanderIds = getSelectedCommanders();
+		std::shared_ptr<Turn> turn = game.getPlayer(m_localPlayer).turn;
+
+		turn->addMovementOrder(commanderIds, activeProvince->m_index, province->m_index);
+
+		if (province && activeProvince)
 		{
-			commandersTab->emptyOrder();
-		}
-		else
-		{
-			commandersTab->orderToProvince(province);
+			if (province == activeProvince)
+			{
+				commandersTab->emptyOrder();
+			}
+			else
+			{
+				commandersTab->orderToProvince(province);
+			}
 		}
 	}
 }
