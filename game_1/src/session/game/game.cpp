@@ -1,7 +1,9 @@
 #include "game.hpp"
 
-#include "BattleSim/BattleSimAsync.h"
+
 #include "menu/menuroot.hpp"
+#include "session/game/Combat.hpp"
+#include "BattleSim/BattleSimAsync.h"
 
 static bs::Battle battle;
 
@@ -404,14 +406,13 @@ void Game::toggleBattle()
 
 void Game::resolveCombat(size_t provinceIndex)
 {
+	auto& provinces = graph.provinces();
+	Combat combat;
 	// Add units to battle
-	bs::Battle battle;
-	battle.armies.clear();
-	battle.armies.resize(2);
-
-	// Simulate, thing so huge it makes stack cry
-	auto sim = std::make_unique<bs::BattleSim>(battle, bs::Field::StreamingMode::Disabled);
-	sim->Resolve();
+	
+	combat.add(provinces[provinceIndex].commanders);
+	combat.resolve();
+	
 
 	// Handle results
 }

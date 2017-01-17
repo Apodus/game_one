@@ -8,35 +8,32 @@ bs::BattleSimAsync::BattleSimAsync(Battle& battle) : BattleSim(battle, Field::St
 
 bs::BattleSimAsync::~BattleSimAsync()
 {
-	if (myActiveFlag)
-	{
-		std::atomic_thread_fence(std::memory_order_acquire);
-		myActiveFlag = false;
-		Simulate(0);
-		myThread.join();
-	}
+	Cancel();
+	myThread.join();
 }
 
 void bs::BattleSimAsync::Resolve(size_t milliseconds)
 {
-	myField.InitialUpdate(myBattle);
 	Run();
 	Simulate(milliseconds);
 }
 
-
 void bs::BattleSimAsync::Simulate(size_t milliSeconds)
 {
-	myMutex.lock();
-	myTimeToSimulate += milliSeconds;
-	myMutex.unlock();
+	{
+		std::unique_lock<std::mutex> lock(myMutex);
+		myTimeToSimulate += milliSeconds;
+	}
 	myCV.notify_all();
 }
 
 void bs::BattleSimAsync::Run()
 {
+	ASSERT(!myActiveFlag, "Already active");
+	myActiveFlag = true;
 	myThread = std::thread([this]()
 	{
+		myField.InitialUpdate(myBattle);
 		while (myActiveFlag)
 		{
 			double timeToSimulate = 0;
@@ -54,7 +51,10 @@ void bs::BattleSimAsync::Run()
 			while (myTotalTime + step < endTime && myActiveFlag)
 			{
 				auto start = std::chrono::high_resolution_clock::now();
-				myActiveFlag = myActiveFlag & myField.Update();
+				if (!myField.Update())
+				{
+					myActiveFlag = false;
+				}
 				myTotalTime += step;
 				auto stop = std::chrono::high_resolution_clock::now();
 				using ms = std::chrono::duration<float, std::milli>;
@@ -66,12 +66,13 @@ void bs::BattleSimAsync::Run()
 			};
 			myTimeAccu = endTime - myTotalTime;
 		}
-	});
-	myField.FinalUpdate(myBattle);
+		myField.FinalUpdate(myBattle);
+	});	
 }
 
 void bs::BattleSimAsync::Cancel()
 {
+	std::atomic_thread_fence(std::memory_order_acquire);
 	myActiveFlag = false;
-	Simulate(0); // Just in case
+	Simulate(0);
 }

@@ -48,6 +48,9 @@
     <ClCompile Include="src\session\game\Faction.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\session\game\Combat.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\session\game\game.hpp">
@@ -111,6 +114,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\session\game\troops\StrategyViewOrder.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\session\game\Combat.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

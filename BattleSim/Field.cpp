@@ -9,20 +9,6 @@ bs::Field::Field(StreamingMode streaming) : myStreaming(streaming)
 {
 }
 
-bs::Unit::Id bs::Field::Add(Unit& unit)
-{
-	unit.id = myUnits.size();
-	unit.state = Unit::State::Starting;
-	myUnits.emplace_back(unit);
-	myLevels[0].AddUnit(myUnits.back());
-	myActiveUnits.emplace_back(unit.id);
-	if (IsStreaming())
-	{
-		myStartingUnits.emplace_back(unit.id);
-	}
-	return unit.id;
-}
-
 void bs::Field::UpdatePriorities()
 {
 	Vector<U16> unitUpdatePriorities;
@@ -405,27 +391,23 @@ bool bs::Field::CollisionCheck(const Unit& a, const Unit& b, const Vec& endPos, 
 
 void bs::Field::InitialUpdate(Battle& battle)
 {
-	for (size_t i = 0; i < battle.armies.size(); i++)
+	ASSERT(myUnits.empty(), "Cannot reuse field");
+	myUnits = battle.Get();// std::move(battle.Get());
+	for (size_t j = 0; j < myUnits.size(); j++)
 	{
-		for (size_t j = 0; j < battle.armies[i].units.size(); j++)
+		auto& unit = myUnits[j];
+		unit.state = Unit::State::Starting;
+		myLevels[0].AddUnit(unit);
+		myActiveUnits.emplace_back(unit.id);
+		if (IsStreaming())
 		{
-			auto& unit = battle.armies[i].units[j];
-			unit.team = static_cast<uint8_t>(i);
-			Add(unit);
+			myStartingUnits.emplace_back(unit.id);
 		}
-		battle.armies[i].units.clear();
 	}
 }
 
 void bs::Field::FinalUpdate(Battle& battle)
 {
-	battle.armies.resize(2);
-	for (size_t i = 0; i < myUnits.size(); i++)
-	{
-		auto& unit = myUnits[i];
-		if (unit.hitpoints > 0)
-		{
-			battle.armies[unit.team].units.emplace_back(unit);
-		}
-	}
+	battle.Set(std::move(myUnits));
+	myUnits = bs::Vector<Unit>();
 }

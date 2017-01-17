@@ -98,6 +98,7 @@
     <ClCompile Include="src\logic\ShapePrototype.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\session\application\session.cpp" />
+    <ClCompile Include="src\session\game\Combat.cpp" />
     <ClCompile Include="src\session\game\Faction.cpp" />
     <ClCompile Include="src\session\game\game.cpp" />
     <ClCompile Include="src\session\game\hud.cpp" />
@@ -114,6 +115,7 @@
     <ClInclude Include="src\logic\World.h" />
     <ClInclude Include="src\menu\gameline.hpp" />
     <ClInclude Include="src\session\application\session.hpp" />
+    <ClInclude Include="src\session\game\Combat.hpp" />
     <ClInclude Include="src\session\game\Faction.hpp" />
     <ClInclude Include="src\session\game\game.hpp" />
     <ClInclude Include="src\menu\mainmenu.hpp" />

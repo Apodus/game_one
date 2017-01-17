@@ -21,8 +21,6 @@ namespace bs
 
 		Field(StreamingMode streaming);
 
-		Unit::Id Add(Unit& unit);
-
 		// Returns true if victory conditions not met.
 		bool Update();
 

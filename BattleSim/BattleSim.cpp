@@ -8,7 +8,7 @@
 #include <atomic>
 
 bs::BattleSim::BattleSim(Battle& battle, Field::StreamingMode mode) :
-	myBattle(battle), myField(mode), myActiveFlag(true)
+	myBattle(battle), myField(mode), myActiveFlag(false)
 {
 }
 
@@ -19,7 +19,7 @@ bs::BattleSim::~BattleSim()
 bs::Battle bs::BattleSim::Generate()
 {
 	Battle battle;
-	battle.armies.resize(2);
+	size_t guid = 0;
 	for (int64_t y = 0; y < 10; y++)
 	{
 		for (int64_t i = 0; i < 100; i++)
@@ -38,7 +38,9 @@ bs::Battle bs::BattleSim::Generate()
 				}
 				u.pos.set(Real(50 + i), Real(50 + y), Real(0));
 				u.moveTarget.set(Real(50 + i + (rand() % 4)), Real(75), Real(0));
-				battle.armies[0].units.emplace_back(u);
+				u.team = 0;
+				battle.Add(u, guid);
+				guid++;
 			}
 
 			{
@@ -55,7 +57,9 @@ bs::Battle bs::BattleSim::Generate()
 				}
 				u.pos.set(Real(50 + i), Real(100 + y), Real(0));
 				u.moveTarget.set(Real(50 + i + (rand() % 4)), Real(75), Real(0));
-				battle.armies[1].units.emplace_back(u);
+				u.team = 1;
+				battle.Add(u, guid);
+				guid++;
 			}
 		}
 	}
@@ -72,10 +76,14 @@ void bs::BattleSim::Resolve()
 
 void bs::BattleSim::RunUntilComplete()
 {
+	myActiveFlag = true;
 	ASSERT(!myField.IsStreaming(), "Do not use streaming when doing synchronous resolve!");
 	while (myActiveFlag)
 	{
-		myActiveFlag = myActiveFlag & myField.Update();
+		if (!myField.Update())
+		{
+			myActiveFlag = false;
+		}
 	}
 }
 
