@@ -27,9 +27,6 @@
     <ClCompile Include="src\logic\ObjectController.hpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\worldmap\ProvinceGraph.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\session\game\game.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -43,6 +40,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\session\game\menu\ResourceTab.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\session\game\worldmap\ProvinceGraph.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -80,9 +80,6 @@
     <ClInclude Include="src\logic\World.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\worldmap\ProvinceGraph.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\session\game\hud.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -96,6 +93,18 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\session\game\Faction.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\session\game\worldmap\ProvinceGraph.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\session\game\troops\TroopReference.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\session\game\troops\Troop.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\session\game\troops\Commander.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

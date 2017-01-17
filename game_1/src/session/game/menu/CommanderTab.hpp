@@ -2,7 +2,7 @@
 
 #include "menu/MenuComponent.hpp"
 #include "menu/MenuFrame.hpp"
-#include "worldmap/ProvinceGraph.hpp"
+#include "session/game/worldmap/ProvinceGraph.hpp"
 
 #include <vector>
 #include <string>

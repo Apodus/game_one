@@ -15,6 +15,8 @@ ProvinceRecruitmentTab::ProvinceRecruitmentTab(
 	this->positionAlign = sa::MenuComponent::PositionAlign::BOTTOM;
 	this->m_focus = true;
 
+	provinceIndex = province.m_index;
+
 	openClose = std::make_shared<sa::MenuButton>(
 		this,
 		"RecruitmentOpenClose",
@@ -80,7 +82,7 @@ ProvinceRecruitmentTab::ProvinceRecruitmentTab(
 	}
 
 	// fill current recruitment orders to recruitment order icons
-	for (const auto* troopReference : province.inspectRecruitOrders()) {
+	for (const auto* troopReference : faction.turn->recruitmentRequests[province.m_index]) {
 		addRecruitmentOrderIcon(troopReference);
 	}
 
@@ -141,15 +143,14 @@ void ProvinceRecruitmentTab::childComponentCall(const std::string& who, const st
 		if (what == "click")
 		{
 			addRecruitmentOrderIcon(&icons[value]->troopReference);
-			callParent(icons[value]->className, 1);
+			m_faction.addRecruitOrder(provinceIndex, &icons[value]->troopReference);
 		}
 	}
 	else if (who == "CancelRecruitment")
 	{
 		if (what == "click")
 		{
-			// inform parent to remove troop recruitment from province orders
-			callParent(icons[value]->className, 2);
+			m_faction.removeRecruitOrder(provinceIndex, &icons[value]->troopReference);
 
 			// remove the icon from recruitment orders menu
 			for (size_t i = 0; i < recruitmentOrders.size(); ++i)

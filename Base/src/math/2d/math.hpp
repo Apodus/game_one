@@ -35,6 +35,10 @@ namespace math {
 		return x;
 	}
 
+	inline uint32_t rand(int32_t x) {
+		return sa::math::rand(static_cast<uint32_t>(x));
+	}
+
 	// xorshift64 - feed the result as the next parameter to get next random number.
 	//              must start with nonzero value.
 	inline uint64_t rand(uint64_t x) {
@@ -42,6 +46,17 @@ namespace math {
 		x ^= x << 25; // b
 		x ^= x >> 27; // c
 		return x * 0x2545F4914F6CDD1D;
+	}
+
+	inline uint64_t rand(int64_t x) {
+		return sa::math::rand(static_cast<uint64_t>(x));
+	}
+
+	template<int iterations, typename T>
+	inline T rand(T x) {
+		for (int i = 0; i < iterations; ++i)
+			x = sa::math::rand(x);
+		return x;
 	}
 
 	inline float sin(const float& f) {

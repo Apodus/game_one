@@ -103,7 +103,7 @@
     <ClCompile Include="src\session\game\menu\CommanderTab.cpp" />
     <ClCompile Include="src\session\game\menu\RecruitmentTab.cpp" />
     <ClCompile Include="src\session\game\menu\ResourceTab.cpp" />
-    <ClCompile Include="src\worldmap\ProvinceGraph.cpp" />
+    <ClCompile Include="src\session\game\worldmap\ProvinceGraph.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\logic\GraphicsPolygon.hpp" />
@@ -122,7 +122,10 @@
     <ClInclude Include="src\session\game\menu\CommanderTab.hpp" />
     <ClInclude Include="src\session\game\menu\RecruitmentTab.hpp" />
     <ClInclude Include="src\session\game\menu\ResourceTab.hpp" />
-    <ClInclude Include="src\worldmap\ProvinceGraph.hpp" />
+    <ClInclude Include="src\session\game\troops\Commander.hpp" />
+    <ClInclude Include="src\session\game\troops\Troop.hpp" />
+    <ClInclude Include="src\session\game\troops\TroopReference.hpp" />
+    <ClInclude Include="src\session\game\worldmap\ProvinceGraph.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Base\Base.vcxproj">

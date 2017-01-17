@@ -151,31 +151,34 @@ class Game {
 
 	void processRecruitments()
 	{
-		for (auto& province : graph.provinces())
+		auto& provinces = graph.provinces();
+		for (auto& player : players)
 		{
-			const auto& orders = province.inspectRecruitOrders();
-			for (const TroopReference* order : orders)
+			for (const auto& ordersForProvince : player.turn->recruitmentRequests)
 			{
-				players[province.m_owner].currency -= order->goldCost;
-
-				if(order->isCommander)
+				for (const auto* order : ordersForProvince.second)
 				{
-					province.units.emplace_back(
-						*order,
-						++nextUnitId,
-						province.m_owner
-					);
-				}
-				else
-				{
-					province.commanders.emplace_back(
-						*order,
-						++nextUnitId,
-						province.m_owner
-					);
+					player.currency -= order->goldCost;
+					if (order->isCommander)
+					{
+						provinces[ordersForProvince.first].commanders.emplace_back(
+							*order,
+							++nextUnitId,
+							provinces[ordersForProvince.first].m_owner
+						);
+					}
+					else
+					{
+						provinces[ordersForProvince.first].units.emplace_back(
+							*order,
+							++nextUnitId,
+							provinces[ordersForProvince.first].m_owner
+						);
+					}
 				}
 			}
-			province.clearRecruitmentOrders();
+
+			player.turn->recruitmentRequests.clear();
 		}
 	}
 

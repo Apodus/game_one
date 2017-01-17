@@ -1,116 +1,15 @@
 #pragma once
 
-#include <vector>
+
+#include "session/game/troops/Commander.hpp"
+#include "session/game/troops/Troop.hpp"
+
 #include "util/vec2.hpp"
 #include "math/2d/math.hpp"
 
-struct TroopReference
-{
-	std::string name;
-	std::string icon;
+#include <vector>
+#include <cinttypes>
 
-	uint32_t hp = 0;
-
-	// these are innate values of the troop, without counting the effects of equipment.
-	uint32_t strength = 0; // melee damage addition
-	uint32_t fitness = 0; // recovery of stamina
-	uint32_t accuracy = 0; // ranged accuracy
-	uint32_t attack = 0; // hit chance
-	uint32_t defence = 0; // evade chance
-	uint32_t armor = 0; // damage mitigation
-	uint32_t leadership = 0; // how many troops can control.
-	uint32_t isCommander = 0; // starts out with commander status?
-
-	//
-	uint32_t goldCost = 10;
-	uint32_t upkeep = 1;
-
-	// TODO: Abilities / Special properties (eg. fire resistant, trampling, regenerating, medic, ...?)
-	// TODO: Equipment definition
-	// TODO: Visual representation definition
-};
-
-struct Troop
-{
-	Troop() = default;
-	Troop(const TroopReference& prototype, size_t id, size_t owner)
-		: id(id)
-		, owner(owner)
-		, commanderId(0)
-		, reference(&prototype)
-	{
-	}
-
-	size_t id = 0;
-	size_t owner = 0;
-	size_t commanderId = 0; // follows this commander. this is kind of redundant - but makes life easier.
-	
-	const TroopReference* reference;
-	
-	// TODO: Afflictions
-};
-
-struct BattleCommander
-{
-	BattleCommander() = default;
-	BattleCommander(const BattleCommander&) = default;
-	BattleCommander(const TroopReference& prototype, size_t id, size_t owner)
-		: id(id)
-		, owner(owner)
-		, reference(&prototype)
-	{
-		std::vector<std::string> names = {"Paavo", "Irmeli", "Kaapo", "Perse", "Kikkeli", "Kulli", "Pena", "Milla", "Suvi"};
-		name = names[sa::math::rand(id) % names.size()];
-	}
-
-	struct Squad
-	{
-		enum class Behaviour
-		{
-			ProtectCaptain,
-			ProtectPosition,
-			AttackClosest,
-			AttackRear
-		};
-
-		// TODO: Targeting priorities (e.g. prefer ranged target, prefer scientist target, prefer armored...)
-		// TODO: Formation handling
-
-		std::vector<size_t> unitIds;
-
-		// battle logic description
-		sa::vec2<int> startPosition;
-		Behaviour behaviour;
-	};
-
-	size_t id = 0;
-	size_t owner = 0;
-	
-	std::string name;
-	const TroopReference* reference;
-	bool m_selected = false; // for menu use only. has no effect on game logic.
-
-	std::vector<Squad> squads;
-	
-	enum class OrderType
-	{
-		Idle,
-		Move,
-		Patrol, // battle outside of fortifications if attacked. pacify region.
-		RunTests, // discover natural resources
-		Research, // discover tech stuff for scientists to perform
-		CastSpell // perform miracles of science
-	};
-
-	struct StrategyViewOrder
-	{
-		OrderType orderType = OrderType::Idle;
-		size_t moveTo = 0;
-		size_t spellToCast = 0;
-	};
-
-	StrategyViewOrder myOrder;
-};
 
 struct Building
 {
@@ -150,8 +49,6 @@ public:
 		std::vector<NaturalResource> resources;
 		std::vector<std::string> troopsToRecruit; // names of available troops.
 
-		std::vector<const TroopReference*> currentRecruitmentRequests;
-
 		struct UIProperties
 		{
 			float alpha = 0.3f;
@@ -165,32 +62,6 @@ public:
 		Province(size_t index, sa::vec2<float> pos) : m_position(pos)
 		{
 			m_index = index;
-		}
-
-		const std::vector<const TroopReference*> inspectRecruitOrders() const {
-			return currentRecruitmentRequests;
-		}
-
-		void addRecruitOrder(const TroopReference* troopReference)
-		{
-			currentRecruitmentRequests.emplace_back(troopReference);
-		}
-
-		void removeRecruitOrder(const TroopReference* troopReference)
-		{
-			for (size_t i = 0; i < currentRecruitmentRequests.size(); ++i)
-			{
-				if (currentRecruitmentRequests[i] == troopReference)
-				{
-					currentRecruitmentRequests.erase(currentRecruitmentRequests.begin() + i);
-					return;
-				}
-			}
-		}
-
-		void clearRecruitmentOrders()
-		{
-			currentRecruitmentRequests.clear();
 		}
 
 		size_t supplies() const

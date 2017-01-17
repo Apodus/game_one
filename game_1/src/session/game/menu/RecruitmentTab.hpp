@@ -5,7 +5,7 @@
 #include "menu/MenuFrame.hpp"
 #include "menu/MenuButton.hpp"
 #include "graphics/graphics.hpp"
-#include "worldmap/ProvinceGraph.hpp"
+#include "session/game/worldmap/ProvinceGraph.hpp"
 
 #include <memory>
 #include <string>
@@ -128,6 +128,7 @@ private:
 	const int iconsPerRow = 8;
 	bool isOpen = false;
 	int removeRecruitmentOrderIndex = -1;
+	size_t provinceIndex = 0;
 
 	sa::MenuFrameBackground bg;
 	Faction& m_faction; // points to temporary data used only for menu visualization.

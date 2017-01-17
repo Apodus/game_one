@@ -14,25 +14,6 @@ void Hud::childComponentCall(const std::string& who, const std::string& what, in
 		}
 	}
 
-	if (who == "RecruitmentTab")
-	{
-		if (value == 1)
-		{
-			// user requested a recruitment action
-			const TroopReference* troopRef = game.troopReference(what);
-			activeProvince->addRecruitOrder(troopRef);
-		}
-		else if(value == 2)
-		{
-			const TroopReference* troopRef = game.troopReference(what);
-			activeProvince->removeRecruitOrder(troopRef);
-		}
-		else
-		{
-			ASSERT(false, "value not handled %d", value);
-		}
-	}
-
 	if (who == "EndTurn")
 	{
 		// TODO: Instead of actually processing the turn, should serialize the state
