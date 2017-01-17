@@ -140,6 +140,9 @@ class Game {
 		{
 			for (auto& move : bin.moves)
 			{
+				if (move.provinceId == bin.targetProvinceIndex)
+					continue;
+
 				auto& commanders = provinces[move.provinceId].commanders;
 				for (size_t i = 0; i < commanders.size(); ++i)
 				{
