@@ -29,7 +29,7 @@
 #include <string>
 #include <chrono>
 
-namespace bs { class BattleSim; }
+namespace bs { class BattleSimAsync; }
 namespace sa { class MenuRoot; }
 
 class Game {
@@ -388,7 +388,7 @@ private:
 		int team;
 	};
 
-	std::unique_ptr<bs::BattleSim> m_sim;
+	std::unique_ptr<bs::BattleSimAsync> m_sim;
 	uint64_t m_lastSimUpdate;
 	std::chrono::time_point<std::chrono::steady_clock> m_renderTime;
 	double m_simAccu;

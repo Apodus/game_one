@@ -1,6 +1,6 @@
 #include "game.hpp"
 
-#include "BattleSim/BattleSim.hpp"
+#include "BattleSim/BattleSimAsync.h"
 #include "menu/menuroot.hpp"
 
 static bs::Battle battle;
@@ -390,9 +390,9 @@ void Game::toggleBattle()
 	{
 		m_renderTime = std::chrono::high_resolution_clock::now();
 		battle = bs::BattleSim::Generate();
-		m_sim = std::make_unique<bs::BattleSim>(battle);
+		m_sim = std::make_unique<bs::BattleSimAsync>(battle);
 		const size_t SimForwardMillis = 1000;
-		m_sim->ResolveAsync(SimForwardMillis);
+		m_sim->Resolve(SimForwardMillis);
 		m_lastSimUpdate = 0;
 		m_simAccu = 0;
 	}

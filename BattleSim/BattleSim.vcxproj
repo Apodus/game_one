@@ -161,6 +161,7 @@
     <ClInclude Include="Battle.h" />
     <ClInclude Include="Array.hpp" />
     <ClInclude Include="BattleSim.hpp" />
+    <ClInclude Include="BattleSimAsync.h" />
     <ClInclude Include="ByteBuffer.h" />
     <ClInclude Include="Deque.hpp" />
     <ClInclude Include="Field.hpp" />
@@ -178,6 +179,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BattleSim.cpp" />
+    <ClCompile Include="BattleSimAsync.cpp" />
     <ClCompile Include="dllmain.cpp">
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</CompileAsManaged>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
