@@ -57,16 +57,19 @@ bool Session::Application::Session::tick() {
 
 		pRenderer->clearScreen();
 
-		// todo: make use of time_alpha?
-		pCamera->setProjection(0.02f, 200.0f, window->getAspectRatio());
-		pCamera->setPosition(sa::vec3<float>(0, 0, 1));
-		pRenderer->cameraToGPU();
-		menuRoot->visualise(pGraphics);
-
+		// draw game
+		pRenderer->setDepthTest(true);
 		pCamera->setProjection(0.02f, 200.0f, window->getAspectRatio());
 		pCamera->setPosition(game->getCameraPosition());
 		pRenderer->cameraToGPU();
 		game->draw(pGraphics);
+
+		// draw menu
+		pRenderer->setDepthTest(false);
+		pCamera->setProjection(0.02f, 200.0f, window->getAspectRatio());
+		pCamera->setPosition(sa::vec3<float>(0, 0, 1));
+		pRenderer->cameraToGPU();
+		menuRoot->visualise(pGraphics);
 
 		window->swap_buffers();
 	}

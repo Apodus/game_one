@@ -285,6 +285,11 @@ public:
 		auto* nearest = graph.getNearestProvince(worldPos);
 		if ((nearest->m_position - worldPos).lengthSquared() > 1.5f * 1.5f)
 			nearest = nullptr;
+		
+		if (hud->capture(mousePos))
+		{
+			nearest = nullptr;
+		}
 
 		for (auto& province : graph.provinces())
 		{

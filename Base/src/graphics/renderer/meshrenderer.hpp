@@ -29,6 +29,8 @@ public:
 	MeshRenderer(std::shared_ptr<sa::Shaders> shaders, std::shared_ptr<sa::Camera> camera);
 	~MeshRenderer();
 
+	void setDepthTest(bool depthTestEnabled);
+
 	void clearScreen();
 	void cameraToGPU();
 	void setCamera(std::shared_ptr<sa::Camera> camera);

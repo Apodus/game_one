@@ -70,6 +70,19 @@ public:
 		addChild(demoButton2);
 	}
 
+	bool capture(sa::vec3<float> mousePos) const
+	{
+		mousePos.y /= m_pWindow->getAspectRatio();
+		bool inHud = false;
+		if (commandersTab)
+			inHud |= commandersTab->inComponent(mousePos.x, mousePos.y);
+		if (recruitmentTab)
+			inHud |= recruitmentTab->inComponent(mousePos.x, mousePos.y);
+		if (resourceTab)
+			inHud |= resourceTab->inComponent(mousePos.x, mousePos.y);
+		return inHud;
+	}
+
 	std::vector<uint32_t> getSelectedCommanders() const;
 	bool isCommanderSelected(uint32_t id) const;
 

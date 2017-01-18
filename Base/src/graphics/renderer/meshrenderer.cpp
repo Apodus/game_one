@@ -22,10 +22,10 @@ void sa::MeshRenderer::init() {
 
 	glEnable(GL_DEPTH_TEST);
 	glDepthMask(GL_TRUE);
-	glDepthFunc(GL_LEQUAL);
-	glDepthRange(0.0f, 1.0f);
-	glClearDepth(1.f);
-
+	glDepthFunc(GL_LESS);
+	glDepthRange(0, 1);
+	glClearDepth(1);
+	
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -46,6 +46,14 @@ void sa::MeshRenderer::init() {
 
 	m_texSamplerUniform = shader2d->uniform("tex");
 	glUniform1i(m_texSamplerUniform, 0);
+}
+
+void sa::MeshRenderer::setDepthTest(bool depthTestEnabled)
+{
+	if (depthTestEnabled)
+		glEnable(GL_DEPTH_TEST);
+	else
+		glDisable(GL_DEPTH_TEST);
 }
 
 void sa::MeshRenderer::clearScreen() {
