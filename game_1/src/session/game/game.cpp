@@ -1,7 +1,9 @@
+
 #include "game.hpp"
 
-
 #include "menu/menuroot.hpp"
+#include "session/game/worldmap/Terrain.hpp"
+
 #include "session/game/Combat.hpp"
 #include "BattleSim/BattleSimAsync.h"
 
@@ -30,7 +32,8 @@ Game::Game(
 	militia.name = "militia";
 	militia.icon = "Hero";
 	militia.strength = 8;
-
+	militia.terrainFast |= Terrain::Fields | Terrain::Woods;
+	
 	TroopReference zealot;
 	zealot.accuracy = 10;
 	zealot.armor = 5;
@@ -42,6 +45,7 @@ Game::Game(
 	zealot.name = "zealot";
 	zealot.icon = "Hero";
 	zealot.strength = 10;
+	zealot.terrainFast |= Terrain::Fields | Terrain::Woods;
 
 	TroopReference marksman;
 	marksman.accuracy = 13;
@@ -54,6 +58,7 @@ Game::Game(
 	marksman.name = "marksman";
 	marksman.icon = "Hero";
 	marksman.strength = 9;
+	marksman.terrainFast |= Terrain::Fields | Terrain::Woods;
 
 	TroopReference rider;
 	rider.accuracy = 10;
@@ -66,6 +71,7 @@ Game::Game(
 	rider.name = "rider";
 	rider.icon = "Hero";
 	rider.strength = 10;
+	rider.terrainFast |= Terrain::Fields | Terrain::Hills;
 
 	troopReferences.insert(std::make_pair(militia.name, militia));
 	troopReferences.insert(std::make_pair(zealot.name, zealot));

@@ -130,6 +130,7 @@
     <ClInclude Include="src\session\game\troops\Troop.hpp" />
     <ClInclude Include="src\session\game\troops\TroopReference.hpp" />
     <ClInclude Include="src\session\game\worldmap\ProvinceGraph.hpp" />
+    <ClInclude Include="src\session\game\worldmap\Terrain.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Base\Base.vcxproj">

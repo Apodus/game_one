@@ -1,6 +1,5 @@
 #pragma once
 
-
 #include "session/game/troops/Commander.hpp"
 #include "session/game/troops/Troop.hpp"
 
@@ -32,6 +31,7 @@ public:
 	{
 		// Todo: Would be nice if these were private.
 	public:
+		
 		// graph properties
 		std::vector<int> m_connections;
 		sa::vec2<float> m_position;
@@ -40,7 +40,7 @@ public:
 
 		// province properties
 		size_t m_population = 1000;
-		size_t m_type = 0;
+		uint32_t m_terrainType = 0;
 		size_t m_area = 0;
 
 		std::vector<BattleCommander> commanders;
@@ -103,6 +103,12 @@ public:
 
 	ProvinceGraph()
 	{
+	}
+
+	//TODO: Take owners of provinces into account.
+	bool canTravel(int moves, uint32_t terrainFast, size_t startProvince, size_t endProvince) {
+		auto result = countDistances(terrainFast, startProvince, endProvince);
+		return result[endProvince] <= moves;
 	}
 
 	void random(size_t numProvinces = 60)
@@ -213,5 +219,45 @@ public:
 	}
 
 private:
+	std::vector<int> countDistances(uint32_t terrainFastTravel, size_t sourceProvince, size_t targetProvince) {
+		std::vector<int> moveCosts;
+		moveCosts.resize(m_provinces.size(), 10000);
+		moveCosts[sourceProvince] = 0;
+
+		std::vector<int> fringe;
+		fringe.emplace_back(sourceProvince);
+
+		while (!fringe.empty()) {
+			int next = fringe.back();
+			fringe.pop_back();
+
+			int currentCost = moveCosts[next];
+			auto& province = m_provinces[next];
+
+			uint32_t firstTerrain = province.m_terrainType;
+			bool fastFirst = (firstTerrain & terrainFastTravel) == firstTerrain;
+
+			for (size_t i = 0; i < province.m_connections.size(); ++i)
+			{
+				size_t targetProvinceIndex = province.m_connections[i];
+				auto& secondProvince = m_provinces[targetProvinceIndex];
+				bool fastSecond = (secondProvince.m_terrainType & terrainFastTravel) == secondProvince.m_terrainType;
+
+				int cost = 2;
+				if (!fastFirst)
+					cost += 1;
+				if (!fastSecond)
+					cost += 1;
+
+				if (currentCost + cost < moveCosts[targetProvinceIndex]) {
+					moveCosts[targetProvinceIndex] = currentCost + cost;
+					fringe.push_back(targetProvinceIndex);
+				}
+			}
+		}
+
+		return std::move(moveCosts);
+	}
+
 	std::vector<Province> m_provinces;
 };

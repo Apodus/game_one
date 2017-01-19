@@ -5,9 +5,6 @@
 #include "graphics/camera/Camera.hpp"
 #include "math/matrix/matrix4.hpp"
 
-#include "util/logging.hpp"
-#include "util/timer.hpp"
-
 #include <memory>
 
 namespace sa {

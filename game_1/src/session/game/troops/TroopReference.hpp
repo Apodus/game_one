@@ -19,7 +19,7 @@ struct TroopReference
 	uint32_t armor = 0; // damage mitigation
 	uint32_t leadership = 0; // how many troops can control.
 	uint32_t isCommander = 0; // starts out with commander status?
-
+	uint32_t terrainFast = 0; // terrain types of fast travel.
 														//
 	uint32_t goldCost = 10;
 	uint32_t upkeep = 1;
