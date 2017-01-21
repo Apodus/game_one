@@ -259,33 +259,7 @@ bool bs::Field::Update()
 			if (myTick >= unit.nextAttackAllowed)
 			{
 				unit.nextAttackAllowed = myTick + 10;
-				Unit::Id attackId;
-				if (!myFreeUnitIds.empty())
-				{
-					attackId = myFreeUnitIds.back();
-					myFreeUnitIds.pop_back();
-				}
-				else
-				{
-					attackId = myUnits.size();
-					myUnits.emplace_back(Unit());
-					myUnits.back().id = attackId;
-				}
-				if (attackId < MaxUnits)
-				{
-					myStartingUnits.emplace_back(attackId);
-					Unit& attack = myUnits[attackId];
-					attack.type = Unit::Type::Projectile;
-					
-					Vec aimDir = unit.aimTarget - unit.pos;
-					aimDir.normalize();
-					attack.pos = unit.pos + (aimDir * unit.radius);
-					attack.vel = aimDir * Real(100, 1);
-					attack.hitpoints = 20;
-					attack.radius = Real(1, 10);
-					attack.team = unit.team;
-					attack.nextAttackAllowed = Unit::InvalidTick;
-				}
+				Shoot(unit);
 			}
 		}
 	}
@@ -348,10 +322,12 @@ void bs::Field::WriteUpdate()
 	std::sort(myMovingUnits.begin(), myMovingUnits.end());
 	const U16 numStartingUnits = static_cast<U16>(myStartingUnits.size());
 	const U16 numMovingUnits = static_cast<U16>(myMovingUnits.size());
+	const U16 numStoppingUnits = static_cast<U16>(myStoppingUnits.size());
 
 	ByteBuffer& update = myVisualizationSystem.StartWriting(
 		sizeof(U16) * 2 +
 		sizeof(Visualization::Addition) * numStartingUnits +
+		sizeof(Visualization::Removal) * numStoppingUnits +
 		sizeof(Visualization::Movement) * numMovingUnits);
 
 	auto writer = update.GetWriter();
@@ -373,6 +349,13 @@ void bs::Field::WriteUpdate()
 		elem.id = myMovingUnits[i];
 		elem.pos = myUnits[elem.id].pos;
 		elem.hitpoints = myUnits[elem.id].hitpoints;
+	}
+
+	writer.Write(numStoppingUnits);
+	for (size_t i = 0; i < numStoppingUnits; i++)
+	{
+		auto& elem = writer.Write<Visualization::Removal>();
+		elem.id = myStoppingUnits[i];
 	}
 	myVisualizationSystem.StopWriting();
 	myMovingUnits.clear();
@@ -496,4 +479,37 @@ void bs::Field::StopAttacks()
 		auto& unit = myUnits[j];
 		unit.nextAttackAllowed = Unit::InvalidTick;
 	}
+}
+
+void bs::Field::Shoot(const Unit& unit)
+{
+	Unit::Id attackId;
+	if (!myFreeUnitIds.empty())
+	{
+		attackId = myFreeUnitIds.back();
+		myFreeUnitIds.pop_back();
+	}
+	else
+	{
+		attackId = myUnits.size();
+		if (attackId == MaxUnits)
+		{
+			return;
+		}
+		myUnits.emplace_back(Unit());
+		myUnits.back().id = attackId;
+	}
+
+	myStartingUnits.emplace_back(attackId);
+	Unit& attack = myUnits[attackId];
+	attack.type = Unit::Type::Projectile;
+
+	Vec aimDir = unit.aimTarget - unit.pos;
+	aimDir.normalize();
+	attack.pos = unit.pos + (aimDir * unit.radius);
+	attack.vel = aimDir * Real(100, 1);
+	attack.hitpoints = 20;
+	attack.radius = Real(1, 10);
+	attack.team = unit.team;
+	attack.nextAttackAllowed = Unit::InvalidTick;
 }

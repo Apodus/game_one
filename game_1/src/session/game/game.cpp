@@ -295,7 +295,7 @@ void Game::drawBattle(std::shared_ptr<sa::Graphics> pGraphics, long long deltaTi
 			}
 			auto reader = frame->GetReader();
 
-			// New units
+			// Starting units
 			uint16_t numStartingUnits = reader.Read<uint16_t>();
 			for (size_t i = 0; i < numStartingUnits; i++)
 			{
@@ -322,8 +322,14 @@ void Game::drawBattle(std::shared_ptr<sa::Graphics> pGraphics, long long deltaTi
 				unit.hitpoints = unitIn.hitpoints;
 			}
 
-			// Old units
-			// TODO
+			// Stopping units
+			uint16_t numStopping = reader.Read<uint16_t>();
+			for (size_t i = 0; i < numStopping; i++)
+			{
+				const auto& unitIn = reader.Read<bs::Visualization::Removal>();
+				auto& unit = m_units[unitIn.id];
+				unit.next.isValid = false;
+			}
 
 			m_sim->GetField().FreeFrame();
 			m_simAccu -= m_sim->GetTimePerUpdate();

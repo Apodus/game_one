@@ -61,6 +61,8 @@ namespace bs
 
 		void StopAttacks();
 
+		void Shoot(const Unit& unit);
+
 		VisualizationSystem myVisualizationSystem;
 
 
