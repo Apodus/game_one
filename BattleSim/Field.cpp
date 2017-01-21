@@ -17,13 +17,20 @@ void bs::Field::UpdatePriorities()
 	for (size_t i = 0; i < myActiveUnits.size(); i++)
 	{
 		auto& unit = myUnits[myActiveUnits[i]];
-		auto len = ((unit.moveTarget - unit.pos).lengthSquared().getRawValue() - unit.radius.getRawValue()) >> 18;
-		if (len < 0)
+		if (unit.type == Unit::Type::Character)
 		{
-			len = 0;
+			auto len = ((unit.moveTarget - unit.pos).lengthSquared().getRawValue() - unit.radius.getRawValue()) >> 18;
+			if (len < 0)
+			{
+				len = 0;
+			}
+			ASSERT(len <= UINT16_MAX, "Too low priority");
+			unitUpdatePriorities[myActiveUnits[i]] = static_cast<U16>(len);
 		}
-		ASSERT(len <= UINT16_MAX, "Too low priority");
-		unitUpdatePriorities[myActiveUnits[i]] = static_cast<U16>(len);
+		else
+		{
+			unitUpdatePriorities[myActiveUnits[i]] = 0;
+		}
 	}
 
 	std::sort(myActiveUnits.begin(), myActiveUnits.end(), [&](Unit::Id a, Unit::Id b)
