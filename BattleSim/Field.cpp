@@ -513,6 +513,15 @@ void bs::Field::Shoot(const Unit& unit)
 
 	Vec aimDir = unit.aimTarget - unit.pos;
 	aimDir.normalize();
+
+	myRand = sa::math::rand(myRand);
+	Real errorX(static_cast<int32_t>(myRand & 0xFFFF) - (0xFFFF/2), 0x10000);
+	Real errorY((static_cast<int32_t>(myRand >> 16) & 0xFFFF) - (0xFFFF / 2), 0x10000);
+	
+	aimDir.x += errorX * Real(40, 100);
+	aimDir.y += errorY * Real(40, 100);
+	aimDir.normalize();
+
 	attack.pos = unit.pos + (aimDir * unit.radius);
 	attack.vel = aimDir * Real(100, 1);
 	attack.hitpoints = 20;
