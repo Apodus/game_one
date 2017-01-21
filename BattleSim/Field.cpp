@@ -132,11 +132,12 @@ bool bs::Field::Update()
 	{
 		auto& unit = myUnits[myActiveUnits[i]];
 
-		bs::Real Speed(3);
+		bs::Real Speed;
 		const bs::Real SlowDown(1, 2);
 		Vec targetDir;
 		if (unit.type == Unit::Type::Character)
 		{
+			Speed = Real(3);
 			if (unit.hitpoints > 0)
 			{
 				targetDir = unit.moveTarget - unit.pos;
@@ -156,6 +157,10 @@ bool bs::Field::Update()
 				unit.acc = bs::Vec();
 				Speed = Real(0, 1);
 			}
+		}
+		else
+		{
+			Speed = Real(10);
 		}
 
 		Vec newVel = unit.acc * TimePerUpdate + unit.vel;
@@ -202,7 +207,7 @@ bool bs::Field::Update()
 				myRand = sa::math::rand(myRand);
 				if ((myRand & 1) == 1)
 				{
-					other.receivedDamage++;
+					other.receivedDamage += 10;
 				}
 			}
 		}
@@ -265,8 +270,12 @@ bool bs::Field::Update()
 		{
 			if (myTick >= unit.nextAttackAllowed)
 			{
-				unit.nextAttackAllowed = myTick + 10;
-				Shoot(unit);
+				unit.nextAttackAllowed = myTick + (unit.weaponId == 1 ? 1 : 10);
+				const size_t numShots = unit.weaponId == 1 ? 5 : 1;
+				for (size_t k = 0; k < numShots; k++)
+				{
+					Shoot(unit);
+				}
 			}
 		}
 	}

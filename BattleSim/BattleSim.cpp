@@ -28,7 +28,8 @@ bs::Battle bs::BattleSim::Generate()
 				if (i % 10 == 0 && y == 0)
 				{
 					u.radius = Real(10, 10);
-					u.hitpoints = 10;
+					u.hitpoints = 100;
+					u.weaponId = 1;
 				}
 				else
 				{
@@ -47,7 +48,8 @@ bs::Battle bs::BattleSim::Generate()
 				if (i % 10 == 0 && y == 9)
 				{
 					u.radius = Real(10, 10);
-					u.hitpoints = 10;
+					u.hitpoints = 100;
+					u.weaponId = 1;
 				}
 				else
 				{
