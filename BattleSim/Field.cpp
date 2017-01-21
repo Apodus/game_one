@@ -135,11 +135,12 @@ bool bs::Field::Update()
 		bs::Real Speed;
 		const bs::Real SlowDown(1, 2);
 		Vec targetDir;
-		if (unit.type == Unit::Type::Character)
+
+		if (unit.hitpoints > 0)
 		{
-			Speed = Real(3);
-			if (unit.hitpoints > 0)
+			if (unit.type == Unit::Type::Character)
 			{
+				Speed = Real(3);
 				targetDir = unit.moveTarget - unit.pos;
 				auto targetDirLen = targetDir.length();
 				if (targetDirLen > Real(0, 1))
@@ -154,14 +155,15 @@ bool bs::Field::Update()
 			}
 			else
 			{
-				unit.acc = bs::Vec();
-				Speed = Real(0, 1);
+				Speed = Real(10);
 			}
 		}
 		else
 		{
-			Speed = Real(10);
+			unit.acc = bs::Vec();
+			Speed = Real(0, 1);
 		}
+
 
 		Vec newVel = unit.acc * TimePerUpdate + unit.vel;
 		auto speed = newVel.length();
@@ -225,19 +227,22 @@ bool bs::Field::Update()
 				isMoved = true;
 			}
 		}
-		else if ((unit.pos - newPos).lengthSquared().getRawValue() > 1)
+		else 
 		{
-			if (myLevels[0].IsGridMove(unit, newPos))
+			if ((unit.pos - newPos).lengthSquared().getRawValue() > 8)
 			{
-				myLevels[0].RemoveUnit(unit);
-				unit.pos = newPos;
-				myLevels[0].AddUnit(unit);
+				if (myLevels[0].IsGridMove(unit, newPos))
+				{
+					myLevels[0].RemoveUnit(unit);
+					unit.pos = newPos;
+					myLevels[0].AddUnit(unit);
+				}
+				else
+				{
+					unit.pos = newPos;
+				}
+				isMoved = true;
 			}
-			else
-			{
-				unit.pos = newPos;
-			}
-			isMoved = true;
 		}
 
 		if (!isMoved && unit.hitpoints == 0)
