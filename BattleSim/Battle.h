@@ -11,18 +11,16 @@ namespace bs
 	struct Battle
 	{
 	public:
-		void Add(const Unit& unit, size_t guid)
+		void Add(const Unit& unit)
 		{
 			auto id = static_cast<Unit::Id>(myUnits.size());
 			myUnits.emplace_back(unit);			
 			myUnits.back().id = id;
-			ASSERT(myGuidToUnitId.find(guid) == myGuidToUnitId.end(), "Duplicate GUID 0x%zx", guid);
-			myGuidToUnitId[guid] = id;
 		}
 
-		const Unit& Get(size_t guid) const 
+		const Unit& Get(size_t index) const 
 		{ 
-			return myUnits[myGuidToUnitId.find(guid)->second]; 
+			return myUnits[index];
 		}
 
 		Vector<Unit> Get() 
@@ -39,7 +37,5 @@ namespace bs
 
 	private:
 		Vector<Unit> myUnits;
-		std::unordered_map<size_t, Unit::Id> myGuidToUnitId;
-
 	};
 }

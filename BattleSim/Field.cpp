@@ -3,7 +3,7 @@
 #include "Battle.h"
 
 const bs::Real bs::Field::TimePerUpdate = bs::Real(100, 1000);
-const size_t MaxUpdates = 150;
+const size_t MaxUpdates = 1500;
 
 bs::Field::Field(StreamingMode streaming) : myStreaming(streaming)
 {

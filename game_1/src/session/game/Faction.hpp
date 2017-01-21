@@ -2,6 +2,7 @@
 
 #include "session/game/troops/TroopReference.hpp"
 #include "session/game/troops/StrategyViewOrder.hpp"
+#include "session/game/Combat.hpp"
 
 #include <string>
 #include <vector>
@@ -23,6 +24,8 @@ public:
 	void addRecruitOrder(size_t provinceIndex, const TroopReference* troopReference);
 	void removeRecruitOrder(size_t provinceIndex, const TroopReference* troopReference);
 	void clearRecruitmentOrders();
+
+	std::vector<Combat> m_combats;
 };
 
 class Faction

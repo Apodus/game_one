@@ -19,7 +19,6 @@ bs::BattleSim::~BattleSim()
 bs::Battle bs::BattleSim::Generate()
 {
 	Battle battle;
-	size_t guid = 0;
 	for (int64_t y = 0; y < 10; y++)
 	{
 		for (int64_t i = 0; i < 100; i++)
@@ -39,8 +38,7 @@ bs::Battle bs::BattleSim::Generate()
 				u.pos.set(Real(50 + i), Real(50 + y), Real(0));
 				u.moveTarget.set(Real(50 + i + (rand() % 4)), Real(75), Real(0));
 				u.team = 0;
-				battle.Add(u, guid);
-				guid++;
+				battle.Add(u);
 			}
 
 			{
@@ -58,8 +56,7 @@ bs::Battle bs::BattleSim::Generate()
 				u.pos.set(Real(50 + i), Real(100 + y), Real(0));
 				u.moveTarget.set(Real(50 + i + (rand() % 4)), Real(75), Real(0));
 				u.team = 1;
-				battle.Add(u, guid);
-				guid++;
+				battle.Add(u);
 			}
 		}
 	}

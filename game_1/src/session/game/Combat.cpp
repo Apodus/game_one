@@ -27,15 +27,16 @@ void Combat::resolve()
 	bs::Battle battle;
 	for (size_t i = 0; i < m_commanders.size(); i++)
 	{
-		size_t factionIndex = m_ownerToIndex[m_commanders[i].owner];
+		auto& cmdr = m_commanders[i];
+		size_t factionIndex = m_ownerToIndex[cmdr.owner];
 		bs::Unit u;
 		ASSERT(factionIndex <= UINT8_MAX, "Num factions not supported");
 		u.team = static_cast<bs::U8>(factionIndex);
 		u.radius = bs::Real(4, 10);
-		u.hitpoints = 10;
+		u.hitpoints = cmdr.reference->hp;
 		u.pos.set(bs::Real(50), bs::Real(50+static_cast<int64_t>(i)), bs::Real(0));
 		u.moveTarget.set(bs::Real(100), bs::Real(100), bs::Real(0));
-		battle.Add(u, m_commanders[i].id);
+		battle.Add(u);
 	}
 
 	// Simulate
@@ -43,5 +44,14 @@ void Combat::resolve()
 	auto sim = std::make_unique<bs::BattleSim>(battle);
 	sim->Resolve();
 
+	for (size_t i = 0; i < m_commanders.size(); i++)
+	{
+		auto& cmdr = m_commanders[i];
+		auto& unit = battle.Get(i);
+		Status status;
+		status.hitpoints = unit.hitpoints;
+		LOG("Commander %zu (team=%u) hitpoints=%u/%u", i, cmdr.owner, status.hitpoints, cmdr.reference->hp);
+		m_status.emplace_back(status);
+	}
 }
 

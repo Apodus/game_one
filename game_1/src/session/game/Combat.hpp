@@ -15,8 +15,22 @@ public:
 
 	void resolve();
 
+	struct Status
+	{
+		uint16_t hitpoints;
+	};
+
+	const Status& getPostBattleCommander(size_t index) const { return getPostBattleStatus(index); }
+
+	const Status& getPostBattleTroop(size_t index) const { return getPostBattleStatus(index + m_commanders.size()); }
+
 private:
+	const Status& getPostBattleStatus(size_t index) const { return m_status[index]; }
+
 	std::vector<BattleCommander> m_commanders;
+
+	// Status of units after battle
+	std::vector<Status> m_status;
 
 	std::unordered_map<size_t, size_t> m_ownerToIndex;
 };

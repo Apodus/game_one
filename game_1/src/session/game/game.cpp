@@ -413,12 +413,31 @@ void Game::toggleBattle()
 void Game::resolveCombat(size_t provinceIndex)
 {
 	auto& provinces = graph.provinces();
-	Combat combat;
-	// Add units to battle
-	
-	combat.add(provinces[provinceIndex].commanders);
-	combat.resolve();
-	
+	auto& commanders = provinces[provinceIndex].commanders;
 
-	// Handle results
+	Combat combat;
+	combat.add(commanders);
+	// TODO add troops
+	combat.resolve();
+
+	// just copying combat for everyone... 
+	// TODO: filter it to relevat parties
+	for (const auto& player : players)
+	{
+		player.turn->m_combats.emplace_back(combat);
+	}
+
+	// Handle result
+	std::vector<size_t> killed;
+	for (size_t i = 0; i < commanders.size(); i++)
+	{
+		if (combat.getPostBattleCommander(i).hitpoints == 0)
+		{
+			killed.emplace_back(i);
+		}
+	}
+	for (auto iter = killed.rbegin(); iter != killed.rend(); ++iter)
+	{
+		commanders.erase(commanders.begin() + *iter);
+	}
 }

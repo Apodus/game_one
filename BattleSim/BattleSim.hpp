@@ -35,6 +35,6 @@ namespace bs
 
 		Field myField;
 		Battle& myBattle;
-		volatile std::atomic<bool> myActiveFlag;
+		std::atomic<bool> myActiveFlag;
 	};
 }
