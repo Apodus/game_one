@@ -4,6 +4,7 @@
 
 const bs::Real bs::Field::TimePerUpdate = bs::Real(100, 1000);
 const size_t MaxUpdates = static_cast<size_t>(15 * 60 / bs::Field::TimePerUpdate.toDouble());
+const size_t MaxUnits = 20000;
 
 bs::Field::Field(StreamingMode streaming) : myStreaming(streaming)
 {
@@ -127,24 +128,27 @@ bool bs::Field::Update()
 		bs::Real Speed(3);
 		const bs::Real SlowDown(1, 2);
 		Vec targetDir;
-		if (unit.hitpoints > 0)
+		if (unit.type == Unit::Type::Character)
 		{
-			targetDir = unit.moveTarget - unit.pos;
-			auto targetDirLen = targetDir.length();
-			if (targetDirLen > Real(0, 1))
+			if (unit.hitpoints > 0)
 			{
-				targetDir.x /= targetDirLen;
-				targetDir.y /= targetDirLen;
-				targetDir.z /= targetDirLen;
-			}
+				targetDir = unit.moveTarget - unit.pos;
+				auto targetDirLen = targetDir.length();
+				if (targetDirLen > Real(0, 1))
+				{
+					targetDir.x /= targetDirLen;
+					targetDir.y /= targetDirLen;
+					targetDir.z /= targetDirLen;
+				}
 
-			const bs::Real Agility(10);
-			unit.acc = targetDir * Agility;
-		}
-		else
-		{
-			unit.acc = bs::Vec();
-			Speed = Real(0,1);
+				const bs::Real Agility(10);
+				unit.acc = targetDir * Agility;
+			}
+			else
+			{
+				unit.acc = bs::Vec();
+				Speed = Real(0, 1);
+			}
 		}
 
 		Vec newVel = unit.acc * TimePerUpdate + unit.vel;
@@ -174,16 +178,20 @@ bool bs::Field::Update()
 		}
 
 		if (collisionId != static_cast<Unit::Id>(-1))
-		{
-			Vec dir = newPos - unit.pos;
-			auto dp = dir.dotProduct(targetDir);
+		{			
 			auto& other = myUnits[collisionId];
-			newVel.x = (dp * unit.vel.x) / Real(2, 1);
-			newVel.y = (dp * unit.vel.y) / Real(2, 1);
-			newVel.z = (Real(0, 1));
+			if (unit.type == Unit::Type::Character)
+			{
+				Vec dir = newPos - unit.pos;
+				auto dp = dir.dotProduct(targetDir);
+				newVel.x = (dp * unit.vel.x) / Real(2, 1);
+				newVel.y = (dp * unit.vel.y) / Real(2, 1);
+				newVel.z = (Real(0, 1));
+			}
 
 			if (other.team != unit.team)
 			{
+				unit.receivedDamage++;
 				myRand = sa::math::rand(myRand);
 				if ((myRand & 1) == 1)
 				{
@@ -192,9 +200,20 @@ bool bs::Field::Update()
 			}
 		}
 
-		bool isMoved = unit.state == Unit::State::Starting;
+		unit.vel = newVel;
 
-		if ((unit.pos - newPos).lengthSquared().getRawValue() > 1)
+		bool isMoved = false;
+
+		if (unit.type == Unit::Type::Projectile)
+		{
+			if (unit.hitpoints != 0)
+			{
+				unit.hitpoints--;
+				unit.pos = newPos;
+				isMoved = true;
+			}
+		}
+		else if ((unit.pos - newPos).lengthSquared().getRawValue() > 1)
 		{
 			if (myLevels[0].IsGridMove(unit, newPos))
 			{
@@ -208,24 +227,23 @@ bool bs::Field::Update()
 			}
 			isMoved = true;
 		}
-		else if (unit.hitpoints == 0)
+
+		if (!isMoved && unit.hitpoints == 0)
 		{
 			// Add to killed list only after dead and movement stopped.
 			killed.emplace_back(unit.id);
 		}
-
-		if (unit.receivedDamage > 0)
+		else if (unit.receivedDamage > 0)
 		{
 			unit.hitpoints = unit.receivedDamage >= unit.hitpoints ? 0 : unit.hitpoints - unit.receivedDamage;
 			isMoved = true;
 			unit.receivedDamage = 0;
 		}
 
-		if (isMoved && IsStreaming())
+		if (IsStreaming() && isMoved)
 		{
 			myMovingUnits.emplace_back(unit.id);
 		}
-		unit.vel = newVel;
 #if 0
 		if (unit.id == 0)
 		{
@@ -236,34 +254,93 @@ bool bs::Field::Update()
 				RToF(unit.vel.x), RToF(unit.vel.y));
 		}
 #endif
-
+		if (unit.hitpoints != 0)
+		{
+			if (myTick >= unit.nextAttackAllowed)
+			{
+				unit.nextAttackAllowed = myTick + 10;
+				Unit::Id attackId;
+				if (!myFreeUnitIds.empty())
+				{
+					attackId = myFreeUnitIds.back();
+					myFreeUnitIds.pop_back();
+				}
+				else
+				{
+					attackId = myUnits.size();
+					myUnits.emplace_back(Unit());
+					myUnits.back().id = attackId;
+				}
+				if (attackId < MaxUnits)
+				{
+					myStartingUnits.emplace_back(attackId);
+					Unit& attack = myUnits[attackId];
+					attack.type = Unit::Type::Projectile;
+					
+					Vec aimDir = unit.aimTarget - unit.pos;
+					aimDir.normalize();
+					attack.pos = unit.pos + (aimDir * unit.radius);
+					attack.vel = aimDir * Real(100, 1);
+					attack.hitpoints = 20;
+					attack.radius = Real(1, 10);
+					attack.team = unit.team;
+					attack.nextAttackAllowed = Unit::InvalidTick;
+				}
+			}
+		}
 	}
 
-	if (IsStreaming())
+	for (size_t i = 0; i < myStartingUnits.size(); i++)
 	{
-		WriteUpdate();
+		auto& unit = myUnits[myStartingUnits[i]];
+		if (unit.type == Unit::Type::Character)
+		{
+			myLevels[0].AddUnit(unit);
+			myTeamUnitsLeft[unit.team]++;
+		}
+		myActiveUnits.emplace_back(myStartingUnits[i]);
+		if (IsStreaming())
+		{
+			myMovingUnits.emplace_back(myStartingUnits[i]);
+		}
 	}
 
 	// Remove killed from active. This will change order of active units, but we are 
 	// going to sort active units next update anyway.
-	myTotalUpdates++;
-	bool continueBattle = myTotalUpdates < MaxUpdates;
+	myTick++;
+	bool isActive = myTick < MaxUpdates;
 	for (size_t i = 0; i < killed.size(); i++)
 	{
 		auto iter = std::find(myActiveUnits.begin(), myActiveUnits.end(), killed[i]);
 		ASSERT(iter != myActiveUnits.end(), "Killed not found");
 		auto& unit = myUnits[*iter];
-		myTeamUnitsLeft[unit.team]--;
-		if (myTeamUnitsLeft[unit.team] == 0)
+		if (unit.type == Unit::Type::Character)
 		{
-			continueBattle = false;
+			myTeamUnitsLeft[unit.team]--;
+			if (myTeamUnitsLeft[unit.team] == 0)
+			{
+				isActive = false;
+				StopAttacks();
+			}
+			myLevels[0].RemoveUnit(unit);
 		}
-
-		myLevels[0].RemoveUnit(unit);
+		else
+		{
+			myStoppingUnits.emplace_back(unit.id);
+			myFreeUnitIds.emplace_back(unit.id);
+		}
 		*iter = myActiveUnits.back();
 		myActiveUnits.pop_back();
 	}	
-	return continueBattle;
+
+	if (IsStreaming())
+	{
+		WriteUpdate();
+	}
+	myStartingUnits.clear();
+	myStoppingUnits.clear();
+
+	return isActive;
 }
 
 void bs::Field::WriteUpdate()
@@ -287,7 +364,6 @@ void bs::Field::WriteUpdate()
 		auto& unit = myUnits[elem.id];
 		elem.team = unit.team;
 		elem.radius = unit.radius;
-		unit.state = Unit::State::Active;
 	}
 
 	writer.Write(numMovingUnits);
@@ -299,8 +375,6 @@ void bs::Field::WriteUpdate()
 		elem.hitpoints = myUnits[elem.id].hitpoints;
 	}
 	myVisualizationSystem.StopWriting();
-
-	myStartingUnits.clear();
 	myMovingUnits.clear();
 }
 
@@ -403,20 +477,23 @@ void bs::Field::InitialUpdate(Battle& battle)
 	for (size_t j = 0; j < myUnits.size(); j++)
 	{
 		auto& unit = myUnits[j];
-		unit.state = Unit::State::Starting;
-		myLevels[0].AddUnit(unit);
-		myActiveUnits.emplace_back(unit.id);
-		myTeamUnitsLeft[unit.team]++;
-		if (IsStreaming())
-		{
-			myStartingUnits.emplace_back(unit.id);
-		}
+		myStartingUnits.emplace_back(unit.id);
 	}
+	myUnits.reserve(MaxUnits);
 }
 
 void bs::Field::FinalUpdate(Battle& battle)
 {
 	battle.Set(std::move(myUnits));
-	battle.totalMilliseconds = static_cast<size_t>(TimePerUpdate.toDouble() * 1000.0 * myTotalUpdates);
+	battle.totalMilliseconds = static_cast<size_t>(TimePerUpdate.toDouble() * 1000.0 * myTick);
 	myUnits = bs::Vector<Unit>();
+}
+
+void bs::Field::StopAttacks()
+{
+	for (size_t j = 0; j < myUnits.size(); j++)
+	{
+		auto& unit = myUnits[j];
+		unit.nextAttackAllowed = Unit::InvalidTick;
+	}
 }

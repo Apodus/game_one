@@ -39,11 +39,14 @@ void Combat::setup(bs::Battle& battle)
 		{
 		case 0:
 			u.pos.set(x, bs::Real(50), bs::Real(0));
+			u.aimTarget.set(x, bs::Real(100), bs::Real(0));
 			break;
 		case 1:
 			u.pos.set(x, bs::Real(100), bs::Real(0));
+			u.aimTarget.set(x, bs::Real(50), bs::Real(0));
 		default:
 			u.pos.set(x, bs::Real(75), bs::Real(0));
+			u.aimTarget.set(x, bs::Real(0), bs::Real(0));
 			break;
 		}
 

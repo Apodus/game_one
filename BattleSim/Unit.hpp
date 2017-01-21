@@ -9,23 +9,25 @@ namespace bs
 	public:
 
 		typedef U32 Id;
+		typedef U16 Tick;
+		static const Tick InvalidTick = UINT16_MAX;
 
-		Vec pos;
-		Real radius;
+		enum class Type : U8
+		{
+			Character,
+			Projectile
+		};
+
+		
+		Vec pos = Vec();
+		Real radius = Real(10,1);
 		U32 hitpoints = 0;
 		U32 receivedDamage = 0;
 		U32 range = 100;
-		U8 team;
-		U8 group;
-
-		enum class State : U8
-		{
-			Inactive,
-			Starting,
-			Active,
-			Stopping
-		};
-		State state = State::Inactive;
+		U8 team = 0;
+		U8 group = 0;
+		Type type = Type::Character;
+		Tick nextAttackAllowed = 10;
 
 		// Private data
 		struct Weapon
@@ -35,9 +37,10 @@ namespace bs
 		};
 
 
-		Vec vel;
-		Vec acc;
+		Vec vel = Vec();
+		Vec acc = Vec();
 		Vec moveTarget;
+		Vec aimTarget;
 		BoundingBox bb;
 
 		Id id;

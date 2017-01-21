@@ -59,6 +59,8 @@ namespace bs
 
 		bool CollisionCheck(const Unit& a, const Unit& b, const Vec& endPos, Vec& hitPos);
 
+		void StopAttacks();
+
 		VisualizationSystem myVisualizationSystem;
 
 
@@ -70,9 +72,11 @@ namespace bs
 		Vector<Unit::Id> myActiveUnits;
 		Vector<Unit::Id> myStartingUnits;
 		Vector<Unit::Id> myMovingUnits;
+		Vector<Unit::Id> myStoppingUnits;
+		Vector<Unit::Id> myFreeUnitIds;
 		Vector<Unit> myUnits;
 		uint64_t myRand = 1;
-		uint64_t myTotalUpdates = 0;
+		Unit::Tick myTick = 0;
 		StreamingMode myStreaming; // Is frame streaming enabled
 	
 	};

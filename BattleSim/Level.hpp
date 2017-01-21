@@ -64,6 +64,7 @@ namespace bs
 
 inline void bs::Level::RemoveUnit(Unit& unit)
 {
+	ASSERT(unit.type == Unit::Type::Character, "Only character allowed");
 	for (U32 y = unit.bb.top; y <= unit.bb.bottom; y++)
 	{
 		for (U32 x = unit.bb.left; x <= unit.bb.right; x++)
@@ -91,6 +92,7 @@ inline void bs::Level::RemoveUnit(Unit& unit)
 
 inline void bs::Level::AddUnit(Unit& unit)
 {
+	ASSERT(unit.type == Unit::Type::Character, "Only character allowed");
 	FindBoundingBox(unit.pos, unit.radius, unit.bb);
 	for (U32 y = unit.bb.top; y <= unit.bb.bottom; y++)
 	{
