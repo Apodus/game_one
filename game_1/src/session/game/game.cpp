@@ -7,6 +7,7 @@
 #include "session/game/Combat.hpp"
 #include "BattleSim/BattleSimAsync.h"
 
+static Combat ourNextCombatToShow;
 static bs::Battle battle;
 
 Game::Game(
@@ -397,12 +398,20 @@ void Game::toggleBattle()
 	if (m_sim == nullptr)
 	{
 		m_renderTime = std::chrono::high_resolution_clock::now();
-		battle = bs::BattleSim::Generate();
+
+		battle = bs::Battle();
+		ourNextCombatToShow.setup(battle);			
+		if (battle.NumUnits() == 0)
+		{
+			battle = bs::BattleSim::Generate();
+		}
+
 		m_sim = std::make_unique<bs::BattleSimAsync>(battle);
 		const size_t SimForwardMillis = 1000;
 		m_sim->Resolve(SimForwardMillis);
 		m_lastSimUpdate = 0;
 		m_simAccu = 0;
+		m_units.clear();
 	}
 	else
 	{
@@ -427,6 +436,8 @@ void Game::resolveCombat(size_t provinceIndex)
 		player.turn->m_combats.emplace_back(combat);
 	}
 
+	ourNextCombatToShow = combat;
+
 	// Handle result
 	std::vector<size_t> killed;
 	for (size_t i = 0; i < commanders.size(); i++)
@@ -434,7 +445,7 @@ void Game::resolveCombat(size_t provinceIndex)
 		if (combat.getPostBattleCommander(i).hitpoints == 0)
 		{
 			killed.emplace_back(i);
-		}
+		}	
 	}
 	for (auto iter = killed.rbegin(); iter != killed.rend(); ++iter)
 	{

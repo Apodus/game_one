@@ -14,6 +14,8 @@ public:
 	void add(const std::vector<BattleCommander>& commanders);
 
 	void resolve();
+	
+	void setup(bs::Battle& battle);
 
 	struct Status
 	{

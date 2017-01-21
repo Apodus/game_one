@@ -22,9 +22,8 @@ void Combat::add(const std::vector<BattleCommander>& commanders)
 	}
 }
 
-void Combat::resolve()
+void Combat::setup(bs::Battle& battle)
 {
-	bs::Battle battle;
 	for (size_t i = 0; i < m_commanders.size(); i++)
 	{
 		auto& cmdr = m_commanders[i];
@@ -34,10 +33,16 @@ void Combat::resolve()
 		u.team = static_cast<bs::U8>(factionIndex);
 		u.radius = bs::Real(4, 10);
 		u.hitpoints = cmdr.reference->hp;
-		u.pos.set(bs::Real(50), bs::Real(50+static_cast<int64_t>(i)), bs::Real(0));
+		u.pos.set(bs::Real(50), bs::Real(50 + static_cast<int64_t>(i)), bs::Real(0));
 		u.moveTarget.set(bs::Real(100), bs::Real(100), bs::Real(0));
 		battle.Add(u);
 	}
+}
+
+void Combat::resolve()
+{
+	bs::Battle battle;
+	setup(battle);
 
 	// Simulate
 	LOG("Owners entering battle: %lu", m_ownerToIndex.size());

@@ -35,6 +35,8 @@ namespace bs
 			myUnits = std::move(units);
 		}
 
+		size_t NumUnits() const { return myUnits.size(); }
+
 	private:
 		Vector<Unit> myUnits;
 	};
