@@ -17,6 +17,8 @@ public:
 	
 	void setup(bs::Battle& battle);
 
+	size_t factionCount() const { return m_ownerToIndex.size(); }
+
 	struct Status
 	{
 		uint16_t hitpoints;

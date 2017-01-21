@@ -433,28 +433,36 @@ void Game::resolveCombat(size_t provinceIndex)
 	Combat combat;
 	combat.add(commanders);
 	// TODO add troops
-	combat.resolve();
 
-	// just copying combat for everyone... 
-	// TODO: filter it to relevat parties
-	for (const auto& player : players)
+	if (combat.factionCount() > 1)
 	{
-		player.turn->m_combats.emplace_back(combat);
-	}
+		combat.resolve();
 
-	ourNextCombatToShow = combat;
-
-	// Handle result
-	std::vector<size_t> killed;
-	for (size_t i = 0; i < commanders.size(); i++)
-	{
-		if (combat.getPostBattleCommander(i).hitpoints == 0)
+		// just copying combat for everyone... 
+		// TODO: filter it to relevat parties
+		for (const auto& player : players)
 		{
-			killed.emplace_back(i);
-		}	
+			player.turn->m_combats.emplace_back(combat);
+		}
+
+		ourNextCombatToShow = combat;
+
+		// Handle result
+		std::vector<size_t> killed;
+		for (size_t i = 0; i < commanders.size(); i++)
+		{
+			if (combat.getPostBattleCommander(i).hitpoints == 0)
+			{
+				killed.emplace_back(i);
+			}
+		}
+		for (auto iter = killed.rbegin(); iter != killed.rend(); ++iter)
+		{
+			commanders.erase(commanders.begin() + *iter);
+		}
 	}
-	for (auto iter = killed.rbegin(); iter != killed.rend(); ++iter)
+	else
 	{
-		commanders.erase(commanders.begin() + *iter);
+		LOG("Combat skipped - not enough factions!");
 	}
 }
