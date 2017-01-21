@@ -3,7 +3,7 @@
 #include "Battle.h"
 
 const bs::Real bs::Field::TimePerUpdate = bs::Real(100, 1000);
-const size_t MaxUpdates = 1500;
+const size_t MaxUpdates = static_cast<size_t>(15 * 60 / bs::Field::TimePerUpdate.toDouble());
 
 bs::Field::Field(StreamingMode streaming) : myStreaming(streaming)
 {
@@ -246,17 +246,24 @@ bool bs::Field::Update()
 
 	// Remove killed from active. This will change order of active units, but we are 
 	// going to sort active units next update anyway.
+	myTotalUpdates++;
+	bool continueBattle = myTotalUpdates < MaxUpdates;
 	for (size_t i = 0; i < killed.size(); i++)
 	{
 		auto iter = std::find(myActiveUnits.begin(), myActiveUnits.end(), killed[i]);
 		ASSERT(iter != myActiveUnits.end(), "Killed not found");
-		myLevels[0].RemoveUnit(myUnits[*iter]);
+		auto& unit = myUnits[*iter];
+		myTeamUnitsLeft[unit.team]--;
+		if (myTeamUnitsLeft[unit.team] == 0)
+		{
+			continueBattle = false;
+		}
+
+		myLevels[0].RemoveUnit(unit);
 		*iter = myActiveUnits.back();
 		myActiveUnits.pop_back();
-	}
-
-	myTotalUpdates++;
-	return myTotalUpdates < MaxUpdates;
+	}	
+	return continueBattle;
 }
 
 void bs::Field::WriteUpdate()
@@ -399,6 +406,7 @@ void bs::Field::InitialUpdate(Battle& battle)
 		unit.state = Unit::State::Starting;
 		myLevels[0].AddUnit(unit);
 		myActiveUnits.emplace_back(unit.id);
+		myTeamUnitsLeft[unit.team]++;
 		if (IsStreaming())
 		{
 			myStartingUnits.emplace_back(unit.id);
@@ -409,5 +417,6 @@ void bs::Field::InitialUpdate(Battle& battle)
 void bs::Field::FinalUpdate(Battle& battle)
 {
 	battle.Set(std::move(myUnits));
+	battle.totalMilliseconds = static_cast<size_t>(TimePerUpdate.toDouble() * 1000.0 * myTotalUpdates);
 	myUnits = bs::Vector<Unit>();
 }

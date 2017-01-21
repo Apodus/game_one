@@ -10,6 +10,7 @@ namespace bs
 {
 	struct Battle
 	{
+		friend class Field;
 	public:
 		void Add(const Unit& unit)
 		{
@@ -30,14 +31,17 @@ namespace bs
 			return tmp;
 		}
 
-		void Set(Vector<Unit>&& units) 		
-		{ 
+		size_t NumUnits() const { return myUnits.size(); }
+
+		size_t TotalTimeMS() const { return totalMilliseconds; }
+
+	private:
+		void Set(Vector<Unit>&& units)
+		{
 			myUnits = std::move(units);
 		}
 
-		size_t NumUnits() const { return myUnits.size(); }
-
-	private:
+		size_t totalMilliseconds;
 		Vector<Unit> myUnits;
 	};
 }

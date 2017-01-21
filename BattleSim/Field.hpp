@@ -28,6 +28,8 @@ namespace bs
 
 		static const Real TimePerUpdate;
 
+		static const size_t MaxTeams = 8;
+
 		BATTLESIM_API const ByteBuffer* GetFrame()
 		{	
 			return myVisualizationSystem.GetForReading();
@@ -59,9 +61,12 @@ namespace bs
 
 		VisualizationSystem myVisualizationSystem;
 
+
+
 		// Field is divided into levels in depth-axis. 
 		// E.g. level 0 has underground units, level 1 has ground units and level 2 has flying units
 		Array<Level, 1> myLevels;
+		Array<size_t, MaxTeams> myTeamUnitsLeft;
 		Vector<Unit::Id> myActiveUnits;
 		Vector<Unit::Id> myStartingUnits;
 		Vector<Unit::Id> myMovingUnits;

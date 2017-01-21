@@ -61,6 +61,7 @@ void Combat::resolve()
 	LOG("Owners entering battle: %lu", m_ownerToIndex.size());
 	auto sim = std::make_unique<bs::BattleSim>(battle);
 	sim->Resolve();
+	LOG("Total battle length %f seconds", static_cast<double>(battle.TotalTimeMS()) / 1000.0 )
 
 	for (size_t i = 0; i < m_commanders.size(); i++)
 	{
