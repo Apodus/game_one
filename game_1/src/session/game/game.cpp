@@ -280,14 +280,23 @@ void Game::drawProvinces(std::shared_ptr<sa::Graphics> pGraphics)
 					color = Color::YELLOW;
 				else if (value == 3)
 					color = Color::ORANGE;
-				color.a = 0.3f;
+				color.a = 0.6f;
 
 				sa::Matrix4 model;
 				auto pos = graph.provinces()[i].m_position;
 				float s = graph.provinces()[i].scale();
 				model.makeTranslationMatrix(pos.x, pos.y, 0);
+				model.rotate(2.0f * 3.1459f * (m_tickID % 60) / 60.0f, 0, 0, 1);
 				model.scale(s, s, s);
-				pGraphics->m_pRenderer->drawRectangle(model, "Empty", color);
+				pGraphics->m_pRenderer->drawRectangle(model, "Swirl", color);
+
+				s *= 0.8f;
+				color.a = 0.2f;
+
+				model.makeTranslationMatrix(pos.x, pos.y, 0);
+				model.rotate(-2.0f * 3.1459f * (m_tickID % 40) / 40.0f, 0, 0, 1);
+				model.scale(s, s, s);
+				pGraphics->m_pRenderer->drawRectangle(model, "Swirl", color);
 			}
 		}
 	}
@@ -493,5 +502,12 @@ void Game::resolveCombat(size_t provinceIndex)
 	else
 	{
 		LOG("Combat skipped - not enough factions!");
+	}
+
+	// TODO: Combat should provide winner player ID
+	// If there's a scout in the province who didn't fight, then commander owner is not reliable.
+	if (!provinces[provinceIndex].commanders.empty())
+	{
+		provinces[provinceIndex].m_owner = provinces[provinceIndex].commanders.front().owner;
 	}
 }

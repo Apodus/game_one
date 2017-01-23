@@ -161,8 +161,10 @@ class Game {
 				}
 			}
 
-			if(!isFriendlyMovement)
+			if (!isFriendlyMovement)
+			{
 				resolveCombat(bin.targetProvinceIndex);
+			}
 		}
 	}
 
