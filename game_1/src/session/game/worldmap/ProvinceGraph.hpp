@@ -2,6 +2,7 @@
 
 #include "session/game/troops/Commander.hpp"
 #include "session/game/troops/Troop.hpp"
+#include "session/game/worldmap/Terrain.hpp"
 
 #include "util/vec2.hpp"
 #include "math/2d/math.hpp"
@@ -157,6 +158,12 @@ public:
 			);
 			radii.emplace_back(1.0f + (rand() % 256u) / 256.0f); // todo: nonlinear distribution?
 			m_provinces.back().area(static_cast<size_t>(radii.back() * 100));
+
+			if((m_provinces.size() % 3) == 1)
+				m_provinces.back().m_terrainType = static_cast<int>(Terrain::Fields);
+			else
+				m_provinces.back().m_terrainType = static_cast<int>(Terrain::Woods);
+			
 			offsets.emplace_back();
 		}
 		

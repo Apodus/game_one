@@ -75,7 +75,7 @@ Game::Game(
 	rider.name = "rider";
 	rider.icon = "Hero";
 	rider.strength = 10;
-	militia.strategyMovement = 10;
+	rider.strategyMovement = 8;
 	rider.terrainFast |= Terrain::Fields | Terrain::Hills;
 
 	troopReferences.insert(std::make_pair(militia.name, militia));
@@ -102,12 +102,12 @@ Game::Game(
 	auto& first = provinces.front();
 	first.m_owner = 0;
 	for (int i = 0; i < 23; ++i)
-		first.commanders.emplace_back(troopReferences["zealot"], ++nextUnitId, first.m_owner);
+		first.commanders.emplace_back(troopReferences["rider"], ++nextUnitId, first.m_owner);
 
 	auto& second = provinces.back();
 	second.m_owner = 1;
 	for (int i = 0; i < 23; ++i)
-		second.commanders.emplace_back(troopReferences["zealot"], ++nextUnitId, second.m_owner);
+		second.commanders.emplace_back(troopReferences["rider"], ++nextUnitId, second.m_owner);
 
 	for (auto& province : provinces)
 	{
@@ -426,7 +426,7 @@ void Game::drawBattle(std::shared_ptr<sa::Graphics> pGraphics, long long deltaTi
 
 void Game::tick(long long timeMs)
 {
-	cameraPosition += (targetCameraPosition - cameraPosition) * 100.0f / 1000.0f;
+	cameraPosition += (targetCameraPosition - cameraPosition) * 200.0f / 1000.0f;
 
 	if (m_sim)
 	{

@@ -155,6 +155,11 @@ void Hud::orderToProvince(ProvinceGraph::Province* province)
 {
 	if (activeProvince && province)
 	{
+		if (movementPossibilities.empty())
+			return;
+		if (movementPossibilities[province->m_index] > 1)
+			return;
+
 		std::vector<uint32_t> commanderIds = getSelectedCommanders();
 		std::shared_ptr<Turn> turn = game.getPlayer(m_localPlayer).turn;
 

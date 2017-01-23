@@ -343,7 +343,6 @@ public:
 			int mouseKeyCode = userio->getMouseKeyCode(1);
 			if (userio->isKeyPressed(mouseKeyCode))
 			{
-				LOG("clicked mouse 1");
 			}
 		}
 
