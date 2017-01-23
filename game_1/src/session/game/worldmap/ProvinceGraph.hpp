@@ -105,10 +105,37 @@ public:
 	{
 	}
 
-	//TODO: Take owners of provinces into account.
-	bool canTravel(int moves, uint32_t terrainFast, size_t startProvince, size_t endProvince) {
-		auto result = countDistances(terrainFast, startProvince, endProvince);
-		return result[endProvince] <= moves;
+	std::vector<int> movementInTurns(uint32_t playerId, int moves, uint32_t terrainFast, size_t startProvince) {
+		std::vector<int> finalOutput;
+		finalOutput.resize(m_provinces.size(), 10000);
+		finalOutput[startProvince] = 0;
+
+		std::vector<int> fringe;
+		fringe.emplace_back(startProvince);
+
+		for (int iterationCount = 0; iterationCount < static_cast<int>(m_provinces.size()); ++iterationCount)
+		{
+			std::vector<int> nextFringe;
+
+			for (int currentStartPos : fringe)
+			{
+				auto result = countDistances(playerId, terrainFast, currentStartPos);
+				std::transform(result.begin(), result.end(), result.begin(), [&](int movementCost) {
+					return movementCost <= moves ? (iterationCount + 1) : 10000;
+				});
+
+				for (size_t i = 0; i < finalOutput.size(); ++i) {
+					if (result[i] < finalOutput[i]) {
+						finalOutput[i] = result[i];
+						nextFringe.emplace_back(i);
+					}
+				}
+			}
+
+			std::swap(fringe, nextFringe);
+		}
+
+		return std::move(finalOutput);
 	}
 
 	void random(size_t numProvinces = 60)
@@ -219,7 +246,7 @@ public:
 	}
 
 private:
-	std::vector<int> countDistances(uint32_t terrainFastTravel, size_t sourceProvince, size_t targetProvince) {
+	std::vector<int> countDistances(uint32_t playerId, uint32_t terrainFastTravel, size_t sourceProvince) {
 		std::vector<int> moveCosts;
 		moveCosts.resize(m_provinces.size(), 10000);
 		moveCosts[sourceProvince] = 0;
@@ -251,7 +278,9 @@ private:
 
 				if (currentCost + cost < moveCosts[targetProvinceIndex]) {
 					moveCosts[targetProvinceIndex] = currentCost + cost;
-					fringe.push_back(targetProvinceIndex);
+					if (m_provinces[targetProvinceIndex].m_owner == playerId) { // enemy territory prevents continuing.
+						fringe.push_back(targetProvinceIndex);
+					}
 				}
 			}
 		}
