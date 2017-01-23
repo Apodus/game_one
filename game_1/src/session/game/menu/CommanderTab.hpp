@@ -73,9 +73,9 @@ struct ProvinceCommandersTab : public sa::MenuComponent
 					if (m_pUserIO->isKeyClicked(m_pUserIO->getMouseKeyCode(0)))
 					{
 						m_pUserIO->consume(m_pUserIO->getMouseKeyCode(0));
-						callParent("SelectionModified", static_cast<int>(id));
 
 						selected = !selected;
+						callParent("SelectionModified", static_cast<int>(id));
 
 						float a = m_color.a;
 						if (selected)
