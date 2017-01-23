@@ -274,6 +274,11 @@ public:
 		return cameraPosition;
 	}
 
+	const std::vector<ProvinceGraph::Province>& provinces() const
+	{
+		return graph.provinces();
+	}
+
 	void update(std::shared_ptr<sa::UserIO> userio, float aspectRatio)
 	{
 		this->aspectRatio = aspectRatio;
@@ -357,6 +362,8 @@ public:
 
 	void draw(std::shared_ptr<sa::Graphics> pGraphics);
 private:
+	friend class Hud;
+
 	void drawProvinces(std::shared_ptr<sa::Graphics> pGraphics);
 	void drawBattle(std::shared_ptr<sa::Graphics> pGraphics, long long deltaTime);
 

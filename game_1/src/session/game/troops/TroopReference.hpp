@@ -24,6 +24,8 @@ struct TroopReference
 	uint32_t goldCost = 10;
 	uint32_t upkeep = 1;
 
+	uint32_t strategyMovement = 2;
+
 	// TODO: Abilities / Special properties (eg. fire resistant, trampling, regenerating, medic, ...?)
 	// TODO: Equipment definition
 	// TODO: Visual representation definition

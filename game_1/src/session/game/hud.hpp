@@ -83,6 +83,11 @@ public:
 		return inHud;
 	}
 
+	const std::vector<int>& movementOptions() const
+	{
+		return movementPossibilities;
+	}
+
 	std::vector<uint32_t> getSelectedCommanders() const;
 	bool isCommanderSelected(uint32_t id) const;
 
@@ -100,12 +105,13 @@ public:
 	}
 
 private:
-
 	Game& game;
 	size_t m_localPlayer = 0; // TODO: select player index based on what?
 	std::shared_ptr<ProvinceCommandersTab> commandersTab;
 	std::shared_ptr<ProvinceRecruitmentTab> recruitmentTab;
 	std::shared_ptr<ResourceTab> resourceTab;
+
+	std::vector<int> movementPossibilities;
 
 	std::vector<std::shared_ptr<sa::MenuComponent>> provinceMenu;
 	ProvinceGraph::Province* activeProvince = nullptr;

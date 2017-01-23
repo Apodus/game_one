@@ -12,7 +12,7 @@ struct ProvinceCommandersTab : public sa::MenuComponent
 	struct CommanderIcon : public sa::MenuComponent
 	{
 		CommanderIcon(sa::MenuComponent* parent, BattleCommander& commander)
-			: sa::MenuComponent(parent, "CommandersTab", []() {return sa::vec3<float>(0, 0, 0);}, sa::vec3<float>(0.1f, 0.1f, 0))
+			: sa::MenuComponent(parent, "CommanderIcon", []() {return sa::vec3<float>(0, 0, 0);}, sa::vec3<float>(0.1f, 0.1f, 0))
 			, m_commander(commander)
 		{
 			this->id = commander.id;
@@ -73,7 +73,7 @@ struct ProvinceCommandersTab : public sa::MenuComponent
 					if (m_pUserIO->isKeyClicked(m_pUserIO->getMouseKeyCode(0)))
 					{
 						m_pUserIO->consume(m_pUserIO->getMouseKeyCode(0));
-						callParent("click", static_cast<int>(id));
+						callParent("SelectionModified", static_cast<int>(id));
 
 						selected = !selected;
 
@@ -177,6 +177,14 @@ struct ProvinceCommandersTab : public sa::MenuComponent
 	}
 
 	virtual void childComponentCall(const std::string& who, const std::string& what, int = 0) {
+		if (who == "CommanderIcon")
+		{
+			if (what == "SelectionModified")
+			{
+				// update possible movement visualization
+				callParent("UpdatePossibleMovement");
+			}
+		}
 	}
 
 	virtual void draw(std::shared_ptr<sa::Graphics> graphics) const override {

@@ -33,6 +33,7 @@ Game::Game(
 	militia.name = "militia";
 	militia.icon = "Hero";
 	militia.strength = 8;
+	militia.strategyMovement = 4;
 	militia.terrainFast |= Terrain::Fields | Terrain::Woods;
 	
 	TroopReference zealot;
@@ -46,6 +47,7 @@ Game::Game(
 	zealot.name = "zealot";
 	zealot.icon = "Hero";
 	zealot.strength = 10;
+	militia.strategyMovement = 6;
 	zealot.terrainFast |= Terrain::Fields | Terrain::Woods;
 
 	TroopReference marksman;
@@ -59,6 +61,7 @@ Game::Game(
 	marksman.name = "marksman";
 	marksman.icon = "Hero";
 	marksman.strength = 9;
+	militia.strategyMovement = 5;
 	marksman.terrainFast |= Terrain::Fields | Terrain::Woods;
 
 	TroopReference rider;
@@ -72,6 +75,7 @@ Game::Game(
 	rider.name = "rider";
 	rider.icon = "Hero";
 	rider.strength = 10;
+	militia.strategyMovement = 10;
 	rider.terrainFast |= Terrain::Fields | Terrain::Hills;
 
 	troopReferences.insert(std::make_pair(militia.name, militia));
@@ -261,6 +265,31 @@ void Game::drawProvinces(std::shared_ptr<sa::Graphics> pGraphics)
 			color.b = 1;
 		}
 		pGraphics->m_pRenderer->drawRectangle(model, "Frame", color);
+	}
+
+	// visualize selected units' movement options
+	{
+		const auto& movementPossibilities = hud->movementOptions();
+		for (size_t i = 0; i < movementPossibilities.size(); ++i)
+		{
+			int value = movementPossibilities[i];
+			if (value < 4 && value > 0)
+			{
+				sa::vec4<float> color = Color::GREEN;
+				if (value == 2)
+					color = Color::YELLOW;
+				else if (value == 3)
+					color = Color::ORANGE;
+				color.a = 0.3f;
+
+				sa::Matrix4 model;
+				auto pos = graph.provinces()[i].m_position;
+				float s = graph.provinces()[i].scale();
+				model.makeTranslationMatrix(pos.x, pos.y, 0);
+				model.scale(s, s, s);
+				pGraphics->m_pRenderer->drawRectangle(model, "Empty", color);
+			}
+		}
 	}
 
 	// visualize mouse cursor

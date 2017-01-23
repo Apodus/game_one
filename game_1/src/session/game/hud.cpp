@@ -4,6 +4,43 @@
 
 void Hud::childComponentCall(const std::string& who, const std::string& what, int value)
 {
+	if (who == "CommandersTab")
+	{
+		if (what == "UpdatePossibleMovement")
+		{
+			if (activeProvince)
+			{
+				// refresh movement possibilities visualization.
+				std::vector<uint32_t> selectedCommanders = getSelectedCommanders();
+				
+				if (selectedCommanders.empty())
+				{
+					movementPossibilities.clear();
+					return;
+				}
+
+				uint32_t fastMovement = ~0;
+				int32_t movement = 1000;
+				for (uint32_t commanderId : selectedCommanders)
+				{
+					for (auto& commander : activeProvince->commanders)
+					{
+						if (commander.id == commanderId)
+						{
+							fastMovement &= commander.reference->terrainFast;
+							int mov = commander.strategyMovement();
+							if (mov < movement)
+								movement = mov;
+							break;
+						}
+					}
+				}
+				
+				movementPossibilities = game.graph.movementInTurns(m_localPlayer, movement, fastMovement, activeProvince->m_index);
+			}
+		}
+	}
+
 	if (who == "RunBattleTest")
 	{
 		if (what == "click")
@@ -144,4 +181,6 @@ void Hud::unselectProvince()
 	for (auto& entry : provinceMenu)
 		entry->hide();
 	activeProvince = nullptr;
+
+	movementPossibilities.clear();
 }

@@ -41,6 +41,12 @@ struct BattleCommander
 		Behaviour behaviour;
 	};
 
+	int strategyMovement() const
+	{
+		// TODO: Take afflictions into account.
+		return reference->strategyMovement;
+	}
+
 	size_t id = 0;
 	size_t owner = 0;
 
