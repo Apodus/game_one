@@ -18,6 +18,8 @@ bs::BattleSim::~BattleSim()
 
 bs::Battle bs::BattleSim::Generate()
 {
+	const Vec Offset(Real(10, 1), Real(10, 1), Real(0, 1));
+
 	Battle battle;
 	for (int64_t y = 0; y < 10; y++)
 	{
@@ -39,6 +41,11 @@ bs::Battle bs::BattleSim::Generate()
 				u.pos.set(Real(50 + i), Real(50 + y), Real(0));
 				u.moveTarget.set(Real(50 + i), Real(75), Real(0));
 				u.aimTarget.set(Real(50 + i), Real(175), Real(0));
+
+				u.pos += Offset;
+				u.moveTarget += Offset;
+				u.aimTarget += Offset;
+
 				u.team = 0;
 				battle.Add(u);
 			}
@@ -59,6 +66,11 @@ bs::Battle bs::BattleSim::Generate()
 				u.pos.set(Real(50 + i), Real(100 + y), Real(0));
 				u.moveTarget.set(Real(50 + i), Real(75), Real(0));
 				u.aimTarget.set(Real(50 + i), Real(0), Real(0));
+
+				u.pos += Offset;
+				u.moveTarget += Offset;
+				u.aimTarget += Offset;
+
 				u.team = 1;
 				battle.Add(u);
 			}

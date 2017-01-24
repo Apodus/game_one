@@ -54,6 +54,12 @@ void bs::Field::FindCollisions(
 	bb.top = start.top < end.top ? start.top : end.top;
 	bb.bottom = start.bottom > end.bottom ? start.bottom : end.bottom;
 
+	ASSERT(bb.left >= 0, "Out of range"); // TODO: Set proper range
+	ASSERT(bb.top >= 0, "Out of range"); // TODO: Set proper range
+	ASSERT(bb.bottom <= 1000, "Out of range");
+	ASSERT(bb.right <= 1000, "Out of range");
+	ASSERT(bb.top <= bb.bottom, "Invalid bounding box");
+	ASSERT(bb.left <= bb.right, "Invalid bounding box");
 	for (U32 y = bb.top; y <= bb.bottom; y++)
 	{
 		for (U32 x = bb.left; x <= bb.right; x++)
@@ -202,14 +208,17 @@ bool bs::Field::Update()
 				newVel.y = (dp * unit.vel.y) / Real(2, 1);
 				newVel.z = (Real(0, 1));
 			}
-
-			if (other.team != unit.team)
+			else
 			{
-				unit.receivedDamage++;
-				myRand = sa::math::rand(myRand);
-				if ((myRand & 1) == 1)
+				newVel = Vec();
+				unit.receivedDamage = unit.hitpoints;
+				if (other.team != unit.team)
 				{
-					other.receivedDamage += 10;
+					myRand = sa::math::rand(myRand);
+					if ((myRand & 1) == 1)
+					{
+						other.receivedDamage += 10;
+					}
 				}
 			}
 		}
@@ -222,7 +231,7 @@ bool bs::Field::Update()
 		{
 			if (unit.hitpoints != 0)
 			{
-				unit.hitpoints--;
+				unit.receivedDamage++;
 				unit.pos = newPos;
 				isMoved = true;
 			}
@@ -383,6 +392,7 @@ void bs::Field::WriteUpdate()
 }
 
 // Cylinder collision check
+// http://www.gamasutra.com/view/feature/131424/pool_hall_lessons_fast_accurate_.php?print=1
 bool bs::Field::CollisionCheck(const Unit& a, const Unit& b, const Vec& endPos, Vec& N)
 {
 	Real radii = a.radius + b.radius;
@@ -393,7 +403,7 @@ bool bs::Field::CollisionCheck(const Unit& a, const Unit& b, const Vec& endPos, 
 	Real bottom = b.pos.y > endPos.y ? b.pos.y + radii : endPos.y + radii;
 	if (a.pos.x < left || a.pos.x > right || a.pos.y < top || a.pos.y > bottom)
 	{
-		// No in bounding box
+		// Not in bounding box
 		return false;
 	}
 
@@ -410,8 +420,13 @@ bool bs::Field::CollisionCheck(const Unit& a, const Unit& b, const Vec& endPos, 
 	C.z = Real(0, 1); /* Ignore Z: used for sphere collision */
 	Real length_C = sa::math::sqrt((C.x*C.x + C.y*C.y)); 
 
-	if (length_C == Real(0,1))
+	if (length_C == Real(0, 1))
 	{
+		if (b.type == Unit::Type::Projectile)
+		{
+			N = (a.pos + b.pos) / Real(2, 1);
+			return true;
+		}
 		// Inside each other, don't consider collision though
 		return false;
 	}
@@ -429,12 +444,8 @@ bool bs::Field::CollisionCheck(const Unit& a, const Unit& b, const Vec& endPos, 
 	N.x /= length_N;
 	N.y /= length_N;
 	N.z = Real(0, 1);
-	
-	C.x /= length_C;
-	C.y /= length_C;
-	C.z = Real(0,1);
 
-	Real D = C.dotProduct(N);
+	Real D = N.dotProduct(C);
 	if (D <= Real(0, 1))
 	{
 		return false;
@@ -452,6 +463,8 @@ bool bs::Field::CollisionCheck(const Unit& a, const Unit& b, const Vec& endPos, 
 		return false;
 	}
 
+	// F and min dist form a right triangle (minDist the hypotenuse) with a
+	// third line we'll call square of T.
 	Real T = (radii2) - F;
 	if (T < Real(0,1) )
 	{
@@ -536,10 +549,10 @@ void bs::Field::Shoot(const Unit& unit)
 	aimDir.y += errorY * Real(40, 100);
 	aimDir.normalize();
 
-	attack.pos = unit.pos + (aimDir * unit.radius);
+	attack.radius = Real(1, 10);
+	attack.pos = unit.pos + (aimDir * (unit.radius + Real(2,1)*attack.radius));
 	attack.vel = aimDir * Real(100, 1);
 	attack.hitpoints = 20;
-	attack.radius = Real(1, 10);
 	attack.team = unit.team;
 	attack.nextAttackAllowed = Unit::InvalidTick;
 }

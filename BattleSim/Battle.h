@@ -15,17 +15,17 @@ namespace bs
 		void Add(const Unit& unit)
 		{
 			auto id = static_cast<Unit::Id>(myUnits.size());
-			myUnits.emplace_back(unit);			
+			myUnits.emplace_back(unit);
 			myUnits.back().id = id;
 		}
 
-		const Unit& Get(size_t index) const 
-		{ 
+		const Unit& Get(size_t index) const
+		{
 			return myUnits[index];
 		}
 
-		Vector<Unit> Get() 
-		{ 
+		Vector<Unit> Get()
+		{
 			auto tmp = std::move(myUnits);
 			myUnits = Vector<Unit>();
 			return tmp;
