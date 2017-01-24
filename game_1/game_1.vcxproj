@@ -105,6 +105,7 @@
     <ClCompile Include="src\session\game\menu\CommanderTab.cpp" />
     <ClCompile Include="src\session\game\menu\RecruitmentTab.cpp" />
     <ClCompile Include="src\session\game\menu\ResourceTab.cpp" />
+    <ClCompile Include="src\session\game\menu\TroopManagementTab.cpp" />
     <ClCompile Include="src\session\game\worldmap\ProvinceGraph.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -125,6 +126,7 @@
     <ClInclude Include="src\session\game\menu\CommanderTab.hpp" />
     <ClInclude Include="src\session\game\menu\RecruitmentTab.hpp" />
     <ClInclude Include="src\session\game\menu\ResourceTab.hpp" />
+    <ClInclude Include="src\session\game\menu\TroopManagementTab.hpp" />
     <ClInclude Include="src\session\game\troops\Commander.hpp" />
     <ClInclude Include="src\session\game\troops\StrategyViewOrder.hpp" />
     <ClInclude Include="src\session\game\troops\Troop.hpp" />

@@ -51,6 +51,9 @@
     <ClCompile Include="src\session\game\Combat.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\session\game\menu\TroopManagementTab.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\session\game\game.hpp">
@@ -120,6 +123,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\session\game\worldmap\Terrain.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\session\game\menu\TroopManagementTab.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
