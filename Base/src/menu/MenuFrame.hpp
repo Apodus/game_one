@@ -11,14 +11,12 @@
 
 namespace sa {
   class MenuFrameBackground : public MenuComponent {
-
-    vec4<float> color;
-    vec4<float> baseColor;
-    std::string textureID;
+    
+		vec4<float> color;
+		std::string textureID;
     Matrix4 modelMatrix;
     Mesh backgroundMesh;
     float edgeSize;
-
 
     void initMesh() {
       const vec4<float>& limits = TextureHandler::getSingleton().textureLimits(textureID);
@@ -65,7 +63,6 @@ namespace sa {
 public:
     MenuFrameBackground(MenuComponent* parent, const std::string& name, const std::string& textureID, const vec4<float>& color = Color::WHITE, float edgeSize = 0.20f) : MenuComponent(parent, name, vec3<float>(), vec3<float>()), backgroundMesh(16, 9 * 2 * 3) {
       this->color = color;
-      this->baseColor = color;
       this->textureID = textureID;
 			this->edgeSize = edgeSize;
 
@@ -104,9 +101,9 @@ public:
       backgroundMesh.rebuildVertexBuffer();
     }
 
-    const vec4<float>& getColor()
+    vec4<float>& getColor()
     {
-      return baseColor;
+      return color;
     }
 
     virtual void childComponentCall(const std::string&, const std::string&, int = 0) override
@@ -115,13 +112,11 @@ public:
 
     virtual void update(float) override
     {
-      color.a = baseColor.a;
-
       const auto& parentPosition = m_pParent->getPosition();
       const auto& parentDimensions = m_pParent->getScale();
 
-	  setPosition(parentPosition);
-	  setScale(parentDimensions);
+			setPosition(parentPosition);
+			setScale(parentDimensions);
 
       buildMesh(parentDimensions.x, parentDimensions.y);
       modelMatrix.makeTranslationMatrix(parentPosition.x, parentPosition.y, 0);

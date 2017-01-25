@@ -8,6 +8,7 @@
 #include <string>
 
 class TroopsTab;
+class Game;
 
 class ProvinceCommandersTab : public sa::MenuComponent
 {
@@ -35,7 +36,7 @@ public:
 		bool selected = false;
 	};
 
-	ProvinceCommandersTab(sa::MenuComponent* parent, ProvinceGraph::Province& province, size_t localPlayer);
+	ProvinceCommandersTab(sa::MenuComponent* parent, Game& game, ProvinceGraph::Province& province, size_t localPlayer);
 	virtual ~ProvinceCommandersTab();
 	
 	void emptyOrder();

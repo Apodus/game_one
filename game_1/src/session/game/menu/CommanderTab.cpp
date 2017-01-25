@@ -1,5 +1,6 @@
 #include "CommanderTab.hpp"
 #include "session/game/menu/TroopManagementTab.hpp"
+#include "session/game/game.hpp"
 
 ProvinceCommandersTab::CommanderIcon::CommanderIcon(sa::MenuComponent* parent, BattleCommander& commander)
 	: sa::MenuComponent(parent, "CommanderIcon", []() {return sa::vec3<float>(0, 0, 0);}, sa::vec3<float>(0.1f, 0.1f, 0))
@@ -83,7 +84,7 @@ void ProvinceCommandersTab::CommanderIcon::update(float dt)
 
 
 
-ProvinceCommandersTab::ProvinceCommandersTab(sa::MenuComponent* parent, ProvinceGraph::Province& province, size_t localPlayer)
+ProvinceCommandersTab::ProvinceCommandersTab(sa::MenuComponent* parent, Game& game, ProvinceGraph::Province& province, size_t localPlayer)
 	: sa::MenuComponent(parent, "CommandersTab", []() {return sa::vec3<float>(-0.965f, +0.9f, 0);}, sa::vec3<float>(0.44f, 1.0f, 0))
 	, bg(this, "BG", "ButtonBase", sa::vec4<float>(1, 1, 1, 0.4f))
 {
@@ -130,6 +131,24 @@ ProvinceCommandersTab::ProvinceCommandersTab(sa::MenuComponent* parent, Province
 		this->addChild(icon);
 		icons.emplace_back(icon);
 	}
+
+	troopManagement = std::make_shared<TroopsTab>(this, game, *this);
+	addChild(troopManagement);
+
+	addChild(
+		std::make_shared<sa::MenuButton>(
+			this,
+			"Troops",
+			[=]() { return this->getExteriorPosition(BOTTOM); },
+			sa::vec3<float>(0.4f, 0.065f, 0),
+			"texture",
+			"Troop Management",
+			BOTTOM,
+			sa::TextRenderer::CENTER,
+			Color::WHITE,
+			Color::WHITE
+		)
+	);
 }
 
 ProvinceCommandersTab::~ProvinceCommandersTab() {
@@ -163,6 +182,10 @@ void ProvinceCommandersTab::childComponentCall(const std::string& who, const std
 			// update possible movement visualization
 			callParent("UpdatePossibleMovement");
 		}
+	}
+	else if (who == "Troops")
+	{
+		troopManagement->toggle();
 	}
 }
 

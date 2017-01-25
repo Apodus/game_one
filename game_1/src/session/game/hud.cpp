@@ -145,7 +145,7 @@ void Hud::selectProvince(ProvinceGraph::Province* province)
 			// then maybe show some additional details of province.
 			
 			activeProvince = province;
-			commandersTab = std::make_shared<ProvinceCommandersTab>(this, *province, m_localPlayer);
+			commandersTab = std::make_shared<ProvinceCommandersTab>(this, game, *province, m_localPlayer);
 			provinceMenu.emplace_back(commandersTab);
 		}
 	}
