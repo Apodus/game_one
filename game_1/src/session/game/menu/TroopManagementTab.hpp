@@ -1,30 +1,16 @@
 
 #pragma once
 
-#include "session/game/menu/CommanderTab.hpp"
+#include "menu/MenuComponent.hpp"
+#include "menu/MenuFrame.hpp"
 #include "session/game/Faction.hpp"
 
 class Game;
+class ProvinceCommandersTab;
 
-struct TroopsTab : public sa::MenuComponent
+class TroopsTab : public sa::MenuComponent
 {
-	TroopsTab(sa::MenuComponent* parent, Game& game, ProvinceCommandersTab& commandersTab)
-		: sa::MenuComponent(
-			parent,
-			"TroopsTab",
-			[this, parent]() {
-				return sa::vec3<float>(0, 1, 0);
-			},
-			sa::vec3<float>(1.0f, 0.1f, 0)
-		)
-		, bg(this, "bg", "Frame")
-		, commandersTab(commandersTab)
-		, m_game(game)
-	{
-		positionAlign = TOP;
-		setPositionUpdateType(true);
-		bg.update(0);
-	}
+	TroopsTab(sa::MenuComponent* parent, Game& game, ProvinceCommandersTab& commandersTab);
 
 	virtual void childComponentCall(const std::string& who, const std::string& what, int = 0)
 	{}
