@@ -8,6 +8,25 @@
 #include <string>
 #include <cinttypes>
 
+struct CombatOrder
+{
+	struct Action
+	{
+		/*
+		Needs to describe:
+		- Wait
+		- Hold ground
+		- Attack (close range) TARGET_TYPE (closest, rear, armored, least hp, most hp, ...?)
+		- Fire TARGET_TYPE
+		- Use Science SPELL (spell should pick target autonomously, or give user freedom to pick?)
+		- ???
+		*/
+	};
+
+	sa::vec2<int> startPos;
+	std::vector<Action> actions;
+};
+
 struct BattleCommander
 {
 	BattleCommander() = default;
@@ -55,5 +74,6 @@ struct BattleCommander
 	
 	std::vector<Squad> squads;
 
-	StrategyViewOrder myOrder;
+	CombatOrder combatOrder;
+	StrategyViewOrder strategyOrder;
 };

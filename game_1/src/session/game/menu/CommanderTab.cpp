@@ -47,10 +47,10 @@ void ProvinceCommandersTab::CommanderIcon::update(float dt)
 {
 	if (hasFocus()) {
 		m_actionName = "NoActionName";
-		if (m_commander.myOrder.orderType == OrderType::Idle) {
+		if (m_commander.strategyOrder.orderType == OrderType::Idle) {
 			m_actionName = "Idle";
 		}
-		else if (m_commander.myOrder.orderType == OrderType::Move) {
+		else if (m_commander.strategyOrder.orderType == OrderType::Move) {
 			m_actionName = "Move";
 		}
 
@@ -132,7 +132,7 @@ ProvinceCommandersTab::ProvinceCommandersTab(sa::MenuComponent* parent, Game& ga
 		icons.emplace_back(icon);
 	}
 
-	troopManagement = std::make_shared<TroopsTab>(this, game, *this);
+	troopManagement = std::make_shared<TroopsTab>(this, province, *this);
 	addChild(troopManagement);
 
 	addChild(
@@ -159,7 +159,7 @@ ProvinceCommandersTab::~ProvinceCommandersTab() {
 void ProvinceCommandersTab::emptyOrder() {
 	for (auto& icon : icons)
 		if (icon->selected)
-			icon->m_commander.myOrder.orderType = OrderType::Idle;
+			icon->m_commander.strategyOrder.orderType = OrderType::Idle;
 }
 
 void ProvinceCommandersTab::orderToProvince(ProvinceGraph::Province* province) {
@@ -167,8 +167,8 @@ void ProvinceCommandersTab::orderToProvince(ProvinceGraph::Province* province) {
 	{
 		if (icons[i]->selected)
 		{
-			icons[i]->m_commander.myOrder.orderType = OrderType::Move;
-			icons[i]->m_commander.myOrder.moveTo = province->m_index;
+			icons[i]->m_commander.strategyOrder.orderType = OrderType::Move;
+			icons[i]->m_commander.strategyOrder.moveTo = province->m_index;
 		}
 	}
 }
@@ -208,6 +208,8 @@ void ProvinceCommandersTab::hide()
 	m_targetPosition = [this]() { return getRelativePosition() + sa::vec3<float>(-0.5f, -0.05f / m_pWindow->getAspectRatio(), 0); };
 	for (auto& elem : icons)
 		elem->setFocus(false);
+	troopManagement->setFocus(false);
+	troopManagement->hide();
 }
 
 void ProvinceCommandersTab::update(float dt) {

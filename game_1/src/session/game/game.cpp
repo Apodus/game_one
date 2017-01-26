@@ -184,9 +184,9 @@ void Game::drawProvinces(std::shared_ptr<sa::Graphics> pGraphics)
 	{
 		for (const auto& commander : province.commanders)
 		{
-			if (commander.myOrder.orderType == OrderType::Move)
+			if (commander.strategyOrder.orderType == OrderType::Move)
 			{
-				const auto& targetProvince = provinces[commander.myOrder.moveTo];
+				const auto& targetProvince = provinces[commander.strategyOrder.moveTo];
 				auto source = province.m_position;
 				auto target = targetProvince.m_position;
 

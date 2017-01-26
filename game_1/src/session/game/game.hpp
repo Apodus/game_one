@@ -54,7 +54,7 @@ class Game {
 					{
 						if (commander.id == unitId)
 						{
-							commander.myOrder = order.second;
+							commander.strategyOrder = order.second;
 							break;
 						}
 					}
@@ -94,12 +94,12 @@ class Game {
 			for (size_t i = 0; i < province.commanders.size(); ++i)
 			{
 				auto& commander = province.commanders[i];
-				if (commander.myOrder.orderType == OrderType::Move)
+				if (commander.strategyOrder.orderType == OrderType::Move)
 				{
-					if ((commander.myOrder.moveTo == province.m_index) != friendlyMovement)
+					if ((commander.strategyOrder.moveTo == province.m_index) != friendlyMovement)
 						continue;
 
-					size_t targetProvince = commander.myOrder.moveTo;
+					size_t targetProvince = commander.strategyOrder.moveTo;
 
 					bool binFound = false;
 					for (auto& bin : bins)
