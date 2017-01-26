@@ -38,15 +38,22 @@ int main(int argc, char** argv)
 		if (argc >= 2 && strcmp(argv[1], "sim") == 0)
 		{
 			auto battle = bs::BattleSim::Generate();
-			bs::BattleSim* sim = new bs::BattleSim(battle, bs::Field::StreamingMode::Disabled);
+
 			LOG("Running test");
 			auto startTime = std::chrono::high_resolution_clock::now();
+			bs::BattleSim* sim = new bs::BattleSim(battle, bs::Field::StreamingMode::Disabled);
 			sim->Resolve();
+			size_t checksum = 0;
+			for (size_t i = 0; i < battle.NumUnits(); i++)
+			{
+				checksum += battle.Get(i).hitpoints;
+			}
+			delete sim;
 			auto endTime = std::chrono::high_resolution_clock::now();
 			using ms = std::chrono::duration<float, std::milli>;
 			auto deltaTime = static_cast<long long>(std::chrono::duration_cast<ms>(endTime - startTime).count());
-			LOG("Total simulation time: %f seconds", static_cast<double>(deltaTime) / 1000);
-			delete sim;			
+			LOG("Total sim time: %f seconds (checksum=%zu)",
+				static_cast<double>(deltaTime) / 1000, checksum);
 			return EXIT_SUCCESS;
 		}
 

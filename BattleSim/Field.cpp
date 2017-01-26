@@ -299,6 +299,7 @@ bool bs::Field::Update()
 		{
 			myLevels[0].AddUnit(unit);
 			myTeamUnitsLeft[unit.team]++;
+			myTimerSystem.Create(unit.id, myTick + 1);
 		}
 		myActiveUnits.emplace_back(myStartingUnits[i]);
 		if (IsStreaming())
@@ -329,7 +330,7 @@ bool bs::Field::Update()
 		else
 		{
 			myStoppingUnits.emplace_back(unit.id);
-			myFreeUnitIds.emplace_back(unit.id);
+			myFreeUnitIds.Free(unit.id);
 		}
 		*iter = myActiveUnits.back();
 		myActiveUnits.pop_back();
@@ -492,6 +493,8 @@ void bs::Field::InitialUpdate(Battle& battle)
 	for (size_t j = 0; j < myUnits.size(); j++)
 	{
 		auto& unit = myUnits[j];
+		auto id = myFreeUnitIds.Reserve();
+		ASSERT(id == unit.id, "Invalid id given");
 		myStartingUnits.emplace_back(unit.id);
 	}
 	myUnits.reserve(MaxUnits);
@@ -515,17 +518,12 @@ void bs::Field::StopAttacks()
 
 void bs::Field::Shoot(const Unit& unit)
 {
-	Unit::Id attackId;
-	if (!myFreeUnitIds.empty())
+	Unit::Id attackId = myFreeUnitIds.Reserve();
+	if (attackId == myUnits.size())
 	{
-		attackId = myFreeUnitIds.back();
-		myFreeUnitIds.pop_back();
-	}
-	else
-	{
-		attackId = myUnits.size();
 		if (attackId == MaxUnits)
 		{
+			myFreeUnitIds.Free(attackId);
 			return;
 		}
 		myUnits.emplace_back(Unit());

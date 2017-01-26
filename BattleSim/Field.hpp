@@ -5,6 +5,7 @@
 #include "Deque.hpp"
 #include "VisualizationSystem.h"
 #include "Visualization.h"
+#include "TimerSystem.h"
 
 namespace bs
 {
@@ -75,8 +76,9 @@ namespace bs
 		Vector<Unit::Id> myStartingUnits;
 		Vector<Unit::Id> myMovingUnits;
 		Vector<Unit::Id> myStoppingUnits;
-		Vector<Unit::Id> myFreeUnitIds;
+		IdPool<Unit::Id> myFreeUnitIds;
 		Vector<Unit> myUnits;
+		TimerSystem<Unit::Id> myTimerSystem;
 		uint64_t myRand = 1;
 		Unit::Tick myTick = 0;
 		StreamingMode myStreaming; // Is frame streaming enabled

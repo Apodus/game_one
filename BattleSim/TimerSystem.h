@@ -7,19 +7,29 @@
 
 namespace bs
 {
+	template<typename T>
 	class TimerSystem
 	{
 	public:
-		static const U16 MaxTimers = 1024*16;
+		static const U16 MaxTimers = 1024 * 16;
 		typedef U16 TimerId;
-		static const U16 InvalidTrigger = 0;
-		typedef U16 TriggerId;
+		static const T InvalidTrigger = 0;
 
-		TimerSystem();
+		TimerSystem() {}
 
-		TimerId Create(const TriggerId& id, U32 time);
+		TimerId Create(const T& triggerId, U32 time)
+		{
+			auto id = myIdPool.Reserve();
+			myData[id].trigger = triggerId;
+			myData[id].flags = 0;
+			myQueue.push(Timer(id, time));
+			return id;
+		}
 
-		void Cancel(const TimerId& id);
+		void Cancel(const TimerId& id)
+		{
+			myData[id].flags = UINT8_MAX;
+		}
 
 		template<typename TCallback>
 		void Update(U32 time, TCallback&& callback)
@@ -35,7 +45,7 @@ namespace bs
 
 	private:
 
-		TriggerId GetTrigger(const TimerId& id) const
+		T GetTrigger(const TimerId& id) const
 		{
 			if (myData[id].flags != UINT8_MAX)
 			{
@@ -46,7 +56,7 @@ namespace bs
 
 		struct TimerData
 		{
-			TriggerId trigger;
+			T trigger;
 			U8 flags;
 		};
 
