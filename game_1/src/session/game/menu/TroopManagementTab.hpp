@@ -33,6 +33,8 @@ public:
 	ProvinceCommandersTab& m_commandersTab;
 	ProvinceGraph::Province& m_province;
 
-	float alpha;
-	float targetAlpha;
+	bool m_dragActive = false;
+
+	float m_alpha = 0;
+	float m_targetAlpha = 0;
 };

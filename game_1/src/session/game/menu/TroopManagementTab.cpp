@@ -22,16 +22,23 @@ TroopsTab::TroopsTab(
 	setPositionUpdateType(true);
 	bg.update(0);
 
-	alpha = 0;
-	targetAlpha = 0;
+	m_alpha = 0;
+	m_targetAlpha = 0;
 }
 
 void TroopsTab::update(float dt)
 {
-	alpha += (targetAlpha - alpha) > 0 ? 0.05f : -0.05f;
-	if ((targetAlpha - alpha) * (targetAlpha - alpha) < 0.05f * 0.05f)
-		alpha = targetAlpha;
-	bg.getColor().a = alpha;
+	m_alpha += (m_targetAlpha - m_alpha) > 0 ? 0.05f : -0.05f;
+	if ((m_targetAlpha - m_alpha) * (m_targetAlpha - m_alpha) < 0.05f * 0.05f)
+		m_alpha = m_targetAlpha;
+	bg.getColor().a = m_alpha;
+
+	int mouseCode = m_pUserIO->getMouseKeyCode(0);
+
+	if (m_pUserIO->isKeyReleased(mouseCode))
+	{
+		m_dragActive = false;
+	}
 
 	if (troopTabEnabled())
 	{
@@ -39,6 +46,10 @@ void TroopsTab::update(float dt)
 
 		if(hasFocus() && isMouseOver())
 		{
+			if (m_pUserIO->isKeyPressed(mouseCode))
+			{
+				m_dragActive = true;
+			}
 			// handle input
 		}
 	}
@@ -46,12 +57,12 @@ void TroopsTab::update(float dt)
 
 void TroopsTab::toggle()
 {
-	targetAlpha = 1 - targetAlpha;
+	m_targetAlpha = 1 - m_targetAlpha;
 }
 
 bool TroopsTab::troopTabEnabled() const
 {
-	return alpha > 0.001f;
+	return m_alpha > 0.001f;
 }
 
 void TroopsTab::draw(std::shared_ptr<sa::Graphics> graphics) const
@@ -68,7 +79,7 @@ void TroopsTab::draw(std::shared_ptr<sa::Graphics> graphics) const
 			sa::Matrix4 model;
 			model.makeTranslationMatrix(battleAreaPos);
 			model.scale(battleAreaScale);
-			graphics->m_pRenderer->drawRectangle(model, "Empty", sa::vec4<float>(1, 1, 1, alpha));
+			graphics->m_pRenderer->drawRectangle(model, "Empty", sa::vec4<float>(1, 1, 1, m_alpha));
 		}
 
 		// draw commanders and squads.
@@ -88,7 +99,7 @@ void TroopsTab::draw(std::shared_ptr<sa::Graphics> graphics) const
 			graphics->m_pRenderer->drawRectangle(
 				commanderModel,
 				commander.reference->icon,
-				sa::vec4<float>(1, 1, 1, alpha)
+				sa::vec4<float>(1, 1, 1, m_alpha)
 			);
 		}
 
@@ -97,5 +108,5 @@ void TroopsTab::draw(std::shared_ptr<sa::Graphics> graphics) const
 
 void TroopsTab::hide()
 {
-	targetAlpha = 0;
+	m_targetAlpha = 0;
 }
