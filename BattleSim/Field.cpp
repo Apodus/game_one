@@ -12,6 +12,7 @@ bs::Field::Field(StreamingMode streaming) : myStreaming(streaming)
 
 void bs::Field::UpdatePriorities()
 {
+	// TODO: Can refactor unitUpdatePriorities out, store priority to unit data
 	Vector<U16> unitUpdatePriorities;
 	unitUpdatePriorities.resize(myUnits.size());
 	for (size_t i = 0; i < myActiveUnits.size(); i++)
@@ -69,10 +70,7 @@ void bs::Field::FindCollisions(
 			{
 				if (list.at(i) != id)
 				{
-					// if (std::find(collisions.begin(), collisions.end(), list.at(i)) == collisions.end())
-					{
-						collisions.emplace_back(list.at(i));
-					}
+					collisions.emplace_back(list.at(i));
 				}
 			}
 		}
@@ -131,8 +129,8 @@ bool bs::Field::Update()
 	UpdatePriorities();
 
 	// Movement
-	std::vector<Unit::Id> killed;
-	std::vector<Unit::Id> collisions;
+	Vector<Unit::Id> killed;
+	Vector<Unit::Id> collisions;
 	collisions.reserve(16);
 	for (size_t i = 0; i < myActiveUnits.size(); i++)
 	{
@@ -301,6 +299,7 @@ bool bs::Field::Update()
 		{
 			myLevels[0].AddUnit(unit);
 			myTeamUnitsLeft[unit.team]++;
+			myTimerSystem.Create(unit.id, myTick + 1);
 		}
 		myActiveUnits.emplace_back(myStartingUnits[i]);
 		if (IsStreaming())
@@ -331,7 +330,7 @@ bool bs::Field::Update()
 		else
 		{
 			myStoppingUnits.emplace_back(unit.id);
-			myFreeUnitIds.emplace_back(unit.id);
+			myFreeUnitIds.Free(unit.id);
 		}
 		*iter = myActiveUnits.back();
 		myActiveUnits.pop_back();
@@ -494,6 +493,8 @@ void bs::Field::InitialUpdate(Battle& battle)
 	for (size_t j = 0; j < myUnits.size(); j++)
 	{
 		auto& unit = myUnits[j];
+		auto id = myFreeUnitIds.Reserve();
+		ASSERT(id == unit.id, "Invalid id given");
 		myStartingUnits.emplace_back(unit.id);
 	}
 	myUnits.reserve(MaxUnits);
@@ -517,17 +518,12 @@ void bs::Field::StopAttacks()
 
 void bs::Field::Shoot(const Unit& unit)
 {
-	Unit::Id attackId;
-	if (!myFreeUnitIds.empty())
+	Unit::Id attackId = myFreeUnitIds.Reserve();
+	if (attackId == myUnits.size())
 	{
-		attackId = myFreeUnitIds.back();
-		myFreeUnitIds.pop_back();
-	}
-	else
-	{
-		attackId = myUnits.size();
 		if (attackId == MaxUnits)
 		{
+			myFreeUnitIds.Free(attackId);
 			return;
 		}
 		myUnits.emplace_back(Unit());

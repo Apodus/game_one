@@ -165,6 +165,8 @@
     <ClInclude Include="ByteBuffer.h" />
     <ClInclude Include="Deque.hpp" />
     <ClInclude Include="Field.hpp" />
+    <ClInclude Include="IdPool.h" />
+    <ClInclude Include="TimerSystem.h" />
     <ClInclude Include="Visualization.h" />
     <ClInclude Include="VisualizationSystem.h" />
     <ClInclude Include="GroupAI.hpp" />
