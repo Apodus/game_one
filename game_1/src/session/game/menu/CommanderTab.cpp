@@ -222,3 +222,32 @@ void ProvinceCommandersTab::update(float dt) {
 			m_pUserIO->consume(key);
 	}
 }
+
+std::vector<uint32_t> ProvinceCommandersTab::selectedCommanders() const {
+	std::vector<uint32_t> ids;
+	for (auto& icon : icons) {
+		if (icon->selected) {
+			ids.emplace_back(icon->id);
+		}
+	}
+	return ids;
+}
+
+void ProvinceCommandersTab::unselectAll() {
+	for (auto& icon : icons) {
+		icon->selected = false;
+	}
+}
+
+bool ProvinceCommandersTab::isSelected(uint32_t id) const {
+	bool found = false;
+	for (auto& icon : icons)
+		found |= icon->selected & (icon->id == id);
+	return found;
+}
+
+void ProvinceCommandersTab::select(uint32_t id) {
+	for (auto& icon : icons)
+		if(icon->id == id)
+			icon->selected = true;
+}

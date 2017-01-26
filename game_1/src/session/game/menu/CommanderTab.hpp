@@ -47,6 +47,11 @@ public:
 	virtual void hide() override;
 	virtual void update(float dt) override;
 
+	std::vector<uint32_t> selectedCommanders() const;
+	bool isSelected(uint32_t id) const;
+	void select(uint32_t id);
+	void unselectAll();
+
 	sa::MenuFrameBackground bg;
 	std::vector<std::shared_ptr<CommanderIcon>> icons;
 	std::shared_ptr<TroopsTab> troopManagement;
