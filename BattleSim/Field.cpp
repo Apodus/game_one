@@ -12,6 +12,7 @@ bs::Field::Field(StreamingMode streaming) : myStreaming(streaming)
 
 void bs::Field::UpdatePriorities()
 {
+	// TODO: Can refactor unitUpdatePriorities out, store priority to unit data
 	Vector<U16> unitUpdatePriorities;
 	unitUpdatePriorities.resize(myUnits.size());
 	for (size_t i = 0; i < myActiveUnits.size(); i++)
@@ -69,10 +70,7 @@ void bs::Field::FindCollisions(
 			{
 				if (list.at(i) != id)
 				{
-					// if (std::find(collisions.begin(), collisions.end(), list.at(i)) == collisions.end())
-					{
-						collisions.emplace_back(list.at(i));
-					}
+					collisions.emplace_back(list.at(i));
 				}
 			}
 		}
@@ -131,8 +129,8 @@ bool bs::Field::Update()
 	UpdatePriorities();
 
 	// Movement
-	std::vector<Unit::Id> killed;
-	std::vector<Unit::Id> collisions;
+	Vector<Unit::Id> killed;
+	Vector<Unit::Id> collisions;
 	collisions.reserve(16);
 	for (size_t i = 0; i < myActiveUnits.size(); i++)
 	{

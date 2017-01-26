@@ -39,8 +39,14 @@ int main(int argc, char** argv)
 		{
 			auto battle = bs::BattleSim::Generate();
 			bs::BattleSim* sim = new bs::BattleSim(battle, bs::Field::StreamingMode::Disabled);
+			LOG("Running test");
+			auto startTime = std::chrono::high_resolution_clock::now();
 			sim->Resolve();
-			delete sim;
+			auto endTime = std::chrono::high_resolution_clock::now();
+			using ms = std::chrono::duration<float, std::milli>;
+			auto deltaTime = static_cast<long long>(std::chrono::duration_cast<ms>(endTime - startTime).count());
+			LOG("Total simulation time: %f seconds", static_cast<double>(deltaTime) / 1000);
+			delete sim;			
 			return EXIT_SUCCESS;
 		}
 
