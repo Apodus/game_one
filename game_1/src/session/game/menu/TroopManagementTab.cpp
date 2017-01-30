@@ -192,6 +192,9 @@ void TroopsTab::draw(std::shared_ptr<sa::Graphics> graphics) const
 		sa::vec3<float> areaScale = battleAreaScale();
 		sa::vec3<float> areaPos = battleAreaPos();
 
+		auto selectedCommanders = m_commandersTab.selectedCommanders();
+		size_t index = 0;
+
 		// draw commanders and squads.
 		for (size_t i = 0; i < m_province.commanders.size(); ++i)
 		{
@@ -203,13 +206,22 @@ void TroopsTab::draw(std::shared_ptr<sa::Graphics> graphics) const
 				0
 			);
 			
+			float commanderAlpha = 0.7f;
+			float commanderScale = 0.02f;
+			if (index < selectedCommanders.size() && selectedCommanders[index] == commander.id)
+			{
+				++index;
+				commanderAlpha = 1.0f;
+				commanderScale = 0.022f;
+			}
+
 			sa::Matrix4 commanderModel;
 			commanderModel.makeTranslationMatrix(areaPos + commanderPos);
-			commanderModel.scale(0.02f, 0.02f, 0);
+			commanderModel.scale(commanderScale, commanderScale, 0);
 			graphics->m_pRenderer->drawRectangle(
 				commanderModel,
 				commander.reference->icon,
-				sa::vec4<float>(1, 1, 1, m_alpha)
+				sa::vec4<float>(1, 1, 1, m_alpha * commanderAlpha)
 			);
 		}
 
