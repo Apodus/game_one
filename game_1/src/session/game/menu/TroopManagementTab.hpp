@@ -31,6 +31,10 @@ class TroopsTab : public sa::MenuComponent
 		return v;
 	}
 
+	inline sa::vec3<float> battleAreaPos() const { return getPosition() + getScale() * sa::vec3<float>(0, 0.45f * 0.5f, 0); }
+	inline sa::vec3<float> battleAreaScale() const { return getScale() * sa::vec3<float>(0.975f, 0.50f, 1) * 0.5f; }
+
+
 public:
 	TroopsTab(sa::MenuComponent* parent, ProvinceGraph::Province& province, ProvinceCommandersTab& commandersTab);
 
@@ -41,9 +45,6 @@ public:
 	virtual void hide() override;
 	bool troopTabEnabled() const;
 	void toggle();
-
-	inline sa::vec3<float> battleAreaPos() const { return getPosition() + getScale() * sa::vec3<float>(0, 0.45f * 0.5f, 0); }
-	inline sa::vec3<float> battleAreaScale() const { return getScale() * sa::vec3<float>(0.975f, 0.50f, 1) * 0.5f; }
 
 	Faction& faction()
 	{

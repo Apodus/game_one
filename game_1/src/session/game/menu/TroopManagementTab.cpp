@@ -11,14 +11,17 @@ TroopsTab::TroopsTab(
 			parent,
 			"TroopsTab",
 			[this, parent]() {
-				return parent->getExteriorPosition(RIGHT);
-			} , sa::vec3<float>(1.0f, 1.0f, 0)
+				return parent->getExteriorPosition(RIGHT | TOP);
+			},
+			[this, parent]() {
+				return sa::vec3<float>(1.0f, 0.9f, 0);
+			}
 		)
 	, bg(this, "bg", "Frame")
 	, m_commandersTab(commandersTab)
 	, m_province(province)
 {
-	positionAlign = LEFT;
+	positionAlign = LEFT | TOP;
 	setPositionUpdateType(true);
 	bg.update(0);
 

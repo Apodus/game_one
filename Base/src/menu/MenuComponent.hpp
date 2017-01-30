@@ -36,10 +36,10 @@ namespace sa {
 
 		sa::vec3<float> m_currentScale;
 		sa::vec3<float> m_worldScale;
-		sa::vec3<float> m_targetScale;
+		std::function<sa::vec3<float>()> m_targetScale;
 
 		std::function<sa::vec3<float>()> m_defaultPosition;
-		sa::vec3<float> m_defaultScale;
+		std::function<sa::vec3<float>()> m_defaultScale;
 
 	private:
 		void updatePosition() {
@@ -90,12 +90,35 @@ namespace sa {
 			this->m_name = name;
 
 			m_currentScale = scale;
-			m_targetScale = scale;
-			m_defaultScale = scale;
+			m_targetScale = [scale](){ return scale; };
+			m_defaultScale = [scale](){ return scale; };
 
 			m_currentPosition = position;
 			m_targetPosition = [position]() { return position; };
 			m_defaultPosition = [position]() { return position; };
+
+			m_focus = true;
+		}
+
+		MenuComponent(
+			MenuComponent* parent,
+			const std::string& name,
+			std::function<sa::vec3<float>()> position,
+			std::function<sa::vec3<float>()> scale
+		)
+		{
+			this->m_pParent = parent;
+			this->m_pUserIO = parent->m_pUserIO;
+			this->m_pWindow = parent->m_pWindow;
+			this->m_name = name;
+
+			m_currentScale = scale();
+			m_targetScale = scale;
+			m_defaultScale = scale;
+
+			m_currentPosition = position();
+			m_targetPosition = position;
+			m_defaultPosition = position;
 
 			m_focus = true;
 		}
@@ -112,8 +135,8 @@ namespace sa {
 			this->m_name = name;
 
 			m_currentScale = scale;
-			m_targetScale = scale;
-			m_defaultScale = scale;
+			m_targetScale = [scale]() { return scale; };
+			m_defaultScale = [scale]() { return scale; };
 
 			m_currentPosition = position();
 			m_targetPosition = position;
@@ -134,8 +157,8 @@ namespace sa {
 			this->m_name = name;
 
 			m_currentScale = scale;
-			m_targetScale = scale;
-			m_defaultScale = scale;
+			m_targetScale = [scale]() { return scale; };
+			m_defaultScale = [scale]() { return scale; };
 
 			m_currentPosition = position;
 			m_targetPosition = [position]() { return position; };
@@ -176,11 +199,11 @@ namespace sa {
 
 			if (!instantScaleUpdate)
 			{
-				m_currentScale += (m_targetScale - m_currentScale) * dt * 8;
+				m_currentScale += (m_targetScale() - m_currentScale) * dt * 8;
 			}
 			else
 			{
-				m_currentScale = m_targetScale;
+				m_currentScale = m_targetScale();
 			}
 
 			updatePosition();
@@ -347,7 +370,7 @@ namespace sa {
 		}
 
 		sa::vec3<float>& getTargetScale() {
-			return m_targetScale;
+			return m_targetScale();
 		}
 
 		sa::vec3<float> getTargetPosition() {
@@ -359,12 +382,20 @@ namespace sa {
 			m_defaultPosition = m_targetPosition;
 		}
 
+		void setTargetScale(std::function<sa::vec3<float>()> scale) {
+			m_targetScale = scale;
+		}
+
 		void setTargetScale(const sa::vec3<float>& scale) {
+			m_targetScale = [scale]() { return scale; };
+		}
+
+		void setDefaultScale(std::function<sa::vec3<float>()> scale) {
 			m_targetScale = scale;
 		}
 
 		void setDefaultScale(const sa::vec3<float>& scale) {
-			m_defaultScale = scale;
+			m_targetScale = [scale]() { return scale; };
 		}
 
 	};

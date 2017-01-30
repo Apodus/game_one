@@ -38,7 +38,7 @@ public:
 			sa::vec4<float> subTextureCoordinates = textureAtlas.getSubTextureCoordinates(subTextureID);
 			SubTexture subTexture(subTextureCoordinates, realTextureID);
 			subTextures[subTextureID] = subTexture;
-			LOG("Added subtexture: %s", subTextureID.c_str());
+			// LOG("Added subtexture: %s", subTextureID.c_str());
 		}
 	}
 

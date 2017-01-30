@@ -108,7 +108,7 @@ private:
 		m_model.scale(getScale());
 
 		if(hasFocus() && isMouseOver()) {
-			setTargetScale(m_defaultScale * 1.2f);
+			setTargetScale(m_defaultScale() * 1.2f);
 			targetAlpha = 1.0f;
 
 			for (int i = 0; i < 3; ++i)
@@ -120,7 +120,7 @@ private:
 			}
 		}
 		else {
-			setTargetScale(m_defaultScale);
+			setTargetScale(m_defaultScale());
 			targetAlpha = 0.3f;
 		}
 

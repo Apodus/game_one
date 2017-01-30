@@ -112,7 +112,7 @@ void ProvinceRecruitmentTab::addRecruitmentOrderIcon(const TroopReference* troop
 	}
 
 	float elementWidth = 0.06f * 1.01f;
-	int elementsPerRow = static_cast<int>(m_targetScale.x / elementWidth);
+	int elementsPerRow = static_cast<int>(m_targetScale().x / elementWidth);
 	int myX = recruitmentOrders.size() % elementsPerRow;
 	int myY = recruitmentOrders.size() / elementsPerRow;
 	recruitmentOrderIcon->setTargetPosition([this, elementWidth, myX, myY]() {
@@ -202,7 +202,7 @@ void ProvinceRecruitmentTab::update(float dt)
 		{
 			auto& recruitmentOrderIcon = recruitmentOrders[i];
 			float elementWidth = 0.06f * 1.01f;
-			int elementsPerRow = static_cast<int>(m_targetScale.x / elementWidth);
+			int elementsPerRow = static_cast<int>(m_targetScale().x / elementWidth);
 			int myX = i % elementsPerRow;
 			int myY = i / elementsPerRow;
 			recruitmentOrderIcon->setTargetPosition([this, elementWidth, myX, myY]() {

@@ -70,7 +70,10 @@ void sa::Shader::printLog(GLuint obj)
 	else
 		glGetProgramInfoLog(obj, 1024, &infologLength, infoLog);
 	
-	LOG("Shader build info: %s", infoLog);
+	if (infoLog[0])
+	{
+		LOG("Shader build info: %s", infoLog);
+	}
 }
 
 

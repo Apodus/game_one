@@ -32,7 +32,7 @@ void sa::MeshRenderer::init() {
 	m_rectangle = PolygonTesselator<vec3<float>>().tesselate(Shape::makeBox(2.f));
 	m_rectangle->build();
 
-	sa::vec4<float> uvLimits = sa::TextureHandler::getSingleton().textureLimits("EMPTY", vec4<float>(0.5f, 0.5f, 1.0f, 1.0f));
+	sa::vec4<float> uvLimits = sa::TextureHandler::getSingleton().textureLimits("Empty", vec4<float>(0.5f, 0.5f, 1.0f, 1.0f));
 	m_line = PolygonTesselator<vec3<float>>().tesselate(Shape::makeBox(1.f), uvLimits);
 	m_line->build();
 	
@@ -70,7 +70,7 @@ void sa::MeshRenderer::drawLine(const sa::vec3<float>& p1, const sa::vec3<float>
 	model_.makeTranslationMatrix(mid.x, mid.y, mid.z);
 	model_.rotate(::atan((p1.y - p2.y) / (p1.x - p2.x)), 0, 0, 1);
 	model_.scale((p1 - p2).length(), width, 1.0f);
-	drawMesh(*m_line, model_, "EMPTY", color);
+	drawMesh(*m_line, model_, "Empty", color);
 }
 
 void sa::MeshRenderer::drawLine(const sa::vec3<float>& p1, const sa::vec3<float>& p2, const sa::Matrix4& model, float width, const sa::vec4<float>& color) {
@@ -80,7 +80,7 @@ void sa::MeshRenderer::drawLine(const sa::vec3<float>& p1, const sa::vec3<float>
 	model_.rotate(::atan((p1.y - p2.y) / (p1.x - p2.x)), 0, 0, 1);
 	model_.scale((p1 - p2).length(), width, 1.0f);
 	model_ *= model;
-	drawMesh(*m_line, model_, "EMPTY", color);
+	drawMesh(*m_line, model_, "Empty", color);
 }
 
 void sa::MeshRenderer::drawRectangle(const sa::Matrix4& model, const std::string& texture, const vec4<float>& color) {

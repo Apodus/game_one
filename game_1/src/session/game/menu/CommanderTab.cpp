@@ -93,7 +93,12 @@ void ProvinceCommandersTab::CommanderIcon::updateColor()
 
 
 ProvinceCommandersTab::ProvinceCommandersTab(sa::MenuComponent* parent, Game& game, ProvinceGraph::Province& province, size_t localPlayer)
-	: sa::MenuComponent(parent, "CommandersTab", []() {return sa::vec3<float>(-0.965f, +0.9f, 0);}, sa::vec3<float>(0.44f, 1.0f, 0))
+	: sa::MenuComponent(
+		parent,
+		"CommandersTab",
+		[]() {return sa::vec3<float>(-0.965f, +0.9f, 0);},
+		[this, parent]() { return sa::vec3<float>(0.44f, 2.0f * 0.9f / m_pWindow->getAspectRatio(), 0); }
+	)
 	, bg(this, "BG", "ButtonBase", sa::vec4<float>(1, 1, 1, 0.4f))
 {
 	this->positionAlign = sa::MenuComponent::PositionAlign::LEFT | sa::MenuComponent::PositionAlign::TOP;
@@ -149,7 +154,7 @@ ProvinceCommandersTab::ProvinceCommandersTab(sa::MenuComponent* parent, Game& ga
 			"Troops",
 			[=]() { return this->getExteriorPosition(BOTTOM); },
 			sa::vec3<float>(0.4f, 0.065f, 0),
-			"texture",
+			"Empty",
 			"Troop Management",
 			BOTTOM,
 			sa::TextRenderer::CENTER,
