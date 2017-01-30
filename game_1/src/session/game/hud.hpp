@@ -75,7 +75,7 @@ public:
 		mousePos.y /= m_pWindow->getAspectRatio();
 		bool inHud = false;
 		if (commandersTab)
-			inHud |= commandersTab->inComponent(mousePos.x, mousePos.y);
+			inHud |= commandersTab->isMouseCaptured(mousePos.x, mousePos.y);
 		if (recruitmentTab)
 			inHud |= recruitmentTab->inComponent(mousePos.x, mousePos.y);
 		if (resourceTab)

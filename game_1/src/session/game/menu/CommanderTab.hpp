@@ -44,6 +44,8 @@ public:
 	void emptyOrder();
 	void orderToProvince(ProvinceGraph::Province* province);
 	
+	bool isMouseCaptured(float x, float y);
+
 	virtual void childComponentCall(const std::string& who, const std::string& what, int = 0);
 	virtual void draw(std::shared_ptr<sa::Graphics> graphics) const override;
 	virtual void hide() override;

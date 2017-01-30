@@ -322,7 +322,7 @@ public:
 			}
 
 			// move camera
-			if (userio->isKeyDown(mouseKeyCode))
+			if (m_mapDragActionActive && userio->isKeyDown(mouseKeyCode))
 			{
 				auto modifier = (mousePosPrev - mousePos) * cameraPosition.z;
 				modifier.y /= aspectRatio;
@@ -340,10 +340,11 @@ public:
 		}
 
 		{
-			int mouseKeyCode = userio->getMouseKeyCode(1);
-			if (userio->isKeyPressed(mouseKeyCode))
-			{
-			}
+			int mouseKeyCode = userio->getMouseKeyCode(0);
+			if (!hud->capture(mousePos) && userio->isKeyPressed(mouseKeyCode))
+				m_mapDragActionActive = true;
+			if (userio->isKeyReleased(mouseKeyCode))
+				m_mapDragActionActive = false;
 		}
 
 		mousePosPrev = mousePos;
@@ -369,6 +370,8 @@ private:
 	void drawBattle(std::shared_ptr<sa::Graphics> pGraphics, long long deltaTime);
 
 	Scripter m_scripter;
+	
+	bool m_mapDragActionActive = false;
 	size_t m_tickID = 0;
 
 	sa::vec3<float> mousePos;

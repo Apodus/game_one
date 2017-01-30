@@ -262,3 +262,8 @@ void ProvinceCommandersTab::select(uint32_t id) {
 			icon->updateColor();
 		}
 }
+
+bool ProvinceCommandersTab::isMouseCaptured(float x, float y)
+{
+	return inComponent(x, y) || (troopManagement->troopTabEnabled() && troopManagement->inComponent(x, y));
+}
