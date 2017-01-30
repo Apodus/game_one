@@ -61,16 +61,8 @@ void ProvinceCommandersTab::CommanderIcon::update(float dt)
 			if (m_pUserIO->isKeyClicked(m_pUserIO->getMouseKeyCode(0)))
 			{
 				m_pUserIO->consume(m_pUserIO->getMouseKeyCode(0));
-
-				selected = !selected;
+				toggleSelection();
 				callParent("SelectionModified", static_cast<int>(id));
-
-				float a = m_color.a;
-				if (selected)
-					m_color = Color::WHITE;
-				else
-					m_color = Color::GREY;
-				m_color.a = a;
 			}
 		}
 		else
@@ -80,6 +72,22 @@ void ProvinceCommandersTab::CommanderIcon::update(float dt)
 	}
 
 	m_color.a += (targetAlpha - m_color.a) * dt * 12;
+}
+
+void ProvinceCommandersTab::CommanderIcon::toggleSelection()
+{
+	selected = !selected;
+	updateColor();
+}
+
+void ProvinceCommandersTab::CommanderIcon::updateColor()
+{
+	float a = m_color.a;
+	if (selected)
+		m_color = Color::WHITE;
+	else
+		m_color = Color::GREY;
+	m_color.a = a;
 }
 
 
@@ -236,6 +244,7 @@ std::vector<uint32_t> ProvinceCommandersTab::selectedCommanders() const {
 void ProvinceCommandersTab::unselectAll() {
 	for (auto& icon : icons) {
 		icon->selected = false;
+		icon->updateColor();
 	}
 }
 
@@ -248,6 +257,8 @@ bool ProvinceCommandersTab::isSelected(uint32_t id) const {
 
 void ProvinceCommandersTab::select(uint32_t id) {
 	for (auto& icon : icons)
-		if(icon->id == id)
+		if (icon->id == id) {
 			icon->selected = true;
+			icon->updateColor();
+		}
 }

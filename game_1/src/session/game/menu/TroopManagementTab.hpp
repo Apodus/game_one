@@ -21,6 +21,16 @@ class TroopsTab : public sa::MenuComponent
 	sa::vec3<float> startPosToUI(sa::vec2<int> posInt) const;
 	sa::vec2<int> uiPosToStart(sa::vec3<float> posUI) const;
 
+	inline sa::vec3<float> uiPosOf(sa::vec2<int> posInt) const { return startPosToUI(posInt) + battleAreaPos(); }
+	inline sa::vec2<int> wrapToBattleArea(sa::vec2<int> v)
+	{
+		if (v.x < -100) v.x = -100;
+		if (v.x > +100) v.x = 100;
+		if (v.y < -100) v.y = -100;
+		if (v.y > +100) v.y = +100;
+		return v;
+	}
+
 public:
 	TroopsTab(sa::MenuComponent* parent, ProvinceGraph::Province& province, ProvinceCommandersTab& commandersTab);
 
@@ -32,8 +42,8 @@ public:
 	bool troopTabEnabled() const;
 	void toggle();
 
-	sa::vec3<float> battleAreaPos() const { return getPosition() + getScale() * sa::vec3<float>(0, 0.45f * 0.5f, 0); }
-	sa::vec3<float> battleAreaScale() const { return getScale() * sa::vec3<float>(0.975f, 0.50f, 1) * 0.5f; }
+	inline sa::vec3<float> battleAreaPos() const { return getPosition() + getScale() * sa::vec3<float>(0, 0.45f * 0.5f, 0); }
+	inline sa::vec3<float> battleAreaScale() const { return getScale() * sa::vec3<float>(0.975f, 0.50f, 1) * 0.5f; }
 
 	Faction& faction()
 	{

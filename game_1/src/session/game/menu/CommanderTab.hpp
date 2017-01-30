@@ -19,6 +19,8 @@ public:
 		virtual void childComponentCall(const std::string& who, const std::string& what, int = 0) {}
 		virtual void draw(std::shared_ptr<sa::Graphics> graphics) const override;
 		virtual void update(float dt) override;
+		void toggleSelection();
+		void updateColor();
 
 		BattleCommander& m_commander;
 

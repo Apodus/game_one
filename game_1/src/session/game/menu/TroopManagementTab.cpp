@@ -51,7 +51,7 @@ CommanderOrSquad TroopsTab::findNearest(float x, float y) const {
 	for (size_t i = 0; i < m_province.commanders.size(); ++i)
 	{
 		const auto& commander = m_province.commanders[i];
-		auto pos = startPosToUI(commander.combatOrder.startPos) + battleAreaPos();
+		auto pos = uiPosOf(commander.combatOrder.startPos);
 		float lengthSquared = (requestedPos - pos).lengthSquared();
 
 		if (lengthSquared < bestValue)
@@ -64,7 +64,7 @@ CommanderOrSquad TroopsTab::findNearest(float x, float y) const {
 
 		for (size_t k = 0; k < commander.squads.size(); ++k) {
 			auto& squad = commander.squads[k];
-			sa::vec3<float> uiPos = startPosToUI(squad.startPosition) + battleAreaPos();
+			sa::vec3<float> uiPos = uiPosOf(squad.startPosition);
 			lengthSquared = (uiPos - requestedPos).lengthSquared();
 			if (lengthSquared < bestValue) {
 				bestValue = lengthSquared;
@@ -121,7 +121,7 @@ void TroopsTab::update(float dt)
 							for (uint32_t k = i; k < m_province.commanders.size(); ++k) {
 								auto& commander = m_province.commanders[k];
 								if (commander.id == commanderId) {
-									// TODO
+									commanderOffsets[i] = commander.combatOrder.startPos - uiPosToStart(mousePos);
 									break;
 								}
 							}
@@ -129,23 +129,34 @@ void TroopsTab::update(float dt)
 					}
 					else {
 						// squad selection?
+						// TODO:
+						// Plan: Squads can not be multiselected.
+						//       Squads always move in relation with their commander.
 					}
 				}
 				else {
 					// unselect
 					m_commandersTab.unselectAll();
+					commanderOffsets.clear();
 				}
 			}
 			else if (m_dragActive && m_pUserIO->isKeyDown(mouseCode)) {
 				// continue drag.
 				auto nextPos = m_pUserIO->getCursorPosition();
-				sa::vec2<int> theStartPos = uiPosToStart(nextPos);
+				nextPos.y /= m_pWindow->getAspectRatio();
 
 				auto selected = m_commandersTab.selectedCommanders();
-				for (auto& commander : m_province.commanders) {
-					// TODO
-					// commander.combatOrder.startPos += diff;
-					// m_faction.turn->setCombatPosition();
+				for (size_t i = 0; i < selected.size(); ++i)
+				{
+					for (size_t k = i; k < m_province.commanders.size(); ++k)
+					{
+						if (m_province.commanders[k].id == selected[i])
+						{
+							m_province.commanders[k].combatOrder.startPos = wrapToBattleArea(
+								commanderOffsets[i] + uiPosToStart(nextPos));
+							break;
+						}
+					}
 				}
 			}
 
