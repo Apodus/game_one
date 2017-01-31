@@ -21,24 +21,7 @@ namespace bs
 
 		void Free(const T& index)
 		{
-			if (index + 1 != myTotalItems)
-			{
-				myFreeItems.emplace_back(index);
-			}
-			else
-			{
-				ASSERT(myTotalItems > 0, "Invalid item");
-				myTotalItems--;
-				if ((myTotalItems & 15) == 8) // Purge
-				{
-					std::sort(myFreeItems.begin(), myFreeItems.end());
-					while (!myFreeItems.empty() && myFreeItems.back() + 1 == myTotalItems)
-					{
-						myFreeItems.pop_back();
-						myTotalItems--;
-					}
-				}
-			}
+			myFreeItems.emplace_back(index);
 		}
 
 		T Size() const { return myTotalItems - static_cast<T>(myFreeItems.Size()); }
@@ -51,6 +34,7 @@ namespace bs
 			myTotalItems++;
 			return val;
 		}
+
 		T ReserveFree()
 		{
 			T val = myFreeItems.back();

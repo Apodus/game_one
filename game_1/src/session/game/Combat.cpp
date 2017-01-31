@@ -51,6 +51,7 @@ void Combat::setup(bs::Battle& battle)
 		}
 
 		u.moveTarget.set(bs::Real(100), bs::Real(75), bs::Real(0));
+		u.id = battle.NumUnits();
 		battle.Add(u);
 	}
 }

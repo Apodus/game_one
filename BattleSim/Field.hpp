@@ -50,7 +50,11 @@ namespace bs
 	private:
 		void WriteUpdate();
 
+		void ActivateStartingUnits();
+
 		void UpdatePriorities();
+
+		void UpdateDecisions();
 
 		void FindCollisions(const Unit& unit, Unit::Id id, const Vec& newPos, std::vector<Unit::Id>& collisions) const;
 
@@ -80,7 +84,7 @@ namespace bs
 		Vector<Unit> myUnits;
 		TimerSystem<Unit::Id> myTimerSystem;
 		uint64_t myRand = 1;
-		Unit::Tick myTick = 0;
+		Tick myTick = 0;
 		StreamingMode myStreaming; // Is frame streaming enabled
 	
 	};

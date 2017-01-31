@@ -9,8 +9,7 @@ namespace bs
 	public:
 
 		typedef U32 Id;
-		typedef U16 Tick;
-		static const Tick InvalidTick = UINT16_MAX;
+		static const Id InvalidId = static_cast<Id>(-1);
 
 		enum class Type : U8
 		{
@@ -30,7 +29,7 @@ namespace bs
 		Id id;
 		U32 hitpoints = 0;
 		U32 receivedDamage = 0;
-		U32 range = 100;
+		U32 range = 5000;
 		
 		// Attributes
 		U32 speed = 0;
@@ -38,6 +37,7 @@ namespace bs
 
 		// Weapons, TODO: allow multiple weapons
 		U16 weaponId = 0;
+		TimerId timerId = InvalidTimer;
 
 		Tick nextAttackAllowed = 0;
 		U8 team = 0;

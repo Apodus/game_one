@@ -7,17 +7,16 @@
 
 namespace bs
 {
-	template<typename T>
+	template<typename TTrigger, typename TTime = Tick>
 	class TimerSystem
 	{
 	public:
 		static const U16 MaxTimers = 1024 * 16;
-		typedef U16 TimerId;
-		static const T InvalidTrigger = 0;
+		static const TTrigger InvalidTrigger = 0;
 
 		TimerSystem() {}
 
-		TimerId Create(const T& triggerId, U32 time)
+		TimerId Create(const TTrigger& triggerId, TTime time)
 		{
 			auto id = myIdPool.Reserve();
 			myData[id].trigger = triggerId;
@@ -28,24 +27,30 @@ namespace bs
 
 		void Cancel(const TimerId& id)
 		{
+			ASSERT(id != InvalidTimer, "Invalid timer");
 			myData[id].flags = UINT8_MAX;
 		}
 
 		template<typename TCallback>
-		void Update(U32 time, TCallback&& callback)
+		void Update(TTime time, TCallback&& callback)
 		{
 			while (!myQueue.empty() && time >= myQueue.top().time)
 			{
-				const auto& top = myQueue.top();
-				callback(top.trigger);
+				const auto top = myQueue.top();
+				const bool isActive = myData[top.id].flags != UINT8_MAX;
+				const TTrigger triggerId = myData[top.id].trigger;
 				myIdPool.Free(top.id);
 				myQueue.pop();
+				if (isActive)
+				{
+					callback(triggerId);
+				}
 			}
 		}
 
 	private:
 
-		T GetTrigger(const TimerId& id) const
+		TTrigger GetTrigger(const TimerId& id) const
 		{
 			if (myData[id].flags != UINT8_MAX)
 			{
@@ -56,7 +61,7 @@ namespace bs
 
 		struct TimerData
 		{
-			T trigger;
+			TTrigger trigger;
 			U8 flags;
 		};
 
@@ -65,12 +70,12 @@ namespace bs
 
 		struct Timer
 		{
-			Timer(TimerId anId, U32 aTime) : id(anId), time(aTime) {}
+			Timer(TimerId anId, TTime aTime) : id(anId), time(aTime) {}
 			TimerId id;
-			U32 time;
+			TTime time;
 			bool operator<(const Timer &other) const { return time > other.time; }
 			bool operator>(const Timer &other) const { return time < other.time; }
-			const U32 GetPriority() const { return time; }
+			const TTime GetPriority() const { return time; }
 		};
 
 		bs::PriorityQueue<Timer> myQueue;
