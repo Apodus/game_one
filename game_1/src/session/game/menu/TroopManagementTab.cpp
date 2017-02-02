@@ -2,6 +2,37 @@
 #include "session/game/menu/TroopManagementTab.hpp"
 #include "session/game/menu/CommanderTab.hpp"
 
+CommanderEntry::CommanderEntry(
+	TroopsTab* parent,
+	sa::MenuComponent* alignUnder
+)
+	: sa::MenuComponent(
+		parent,
+		"CommanderEntry",
+		[alignUnder]() { return alignUnder->getExteriorPosition(BOTTOM); },
+		sa::vec3<float>(1.0f, 0.1f, 0)
+	)
+	, bg(this, "bg", "Frame")
+{
+	positionAlign = TOP;
+	bg.update(0);
+}
+
+
+void CommanderEntry::draw(std::shared_ptr<sa::Graphics> graphics) const
+{
+	bg.visualise(graphics);
+	// 1. draw commander icon to top left corner
+	// 2. draw list of squads to left side (visualise squad members towards the right)
+	// 
+	// TODO: List of CommanderEntries should scroll + out of bounds entries should alpha blend.
+}
+
+void CommanderEntry::update(float dt)
+{
+	// TODO: Editing squads?? How?
+}
+
 TroopsTab::TroopsTab(
 	sa::MenuComponent* parent,
 	ProvinceGraph::Province& province,

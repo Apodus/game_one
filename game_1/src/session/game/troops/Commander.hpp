@@ -27,8 +27,9 @@ struct CombatOrder
 	std::vector<Action> actions;
 };
 
-struct BattleCommander
+class BattleCommander
 {
+public:
 	BattleCommander() = default;
 	BattleCommander(const BattleCommander&) = default;
 	BattleCommander(const TroopReference& prototype, size_t id, size_t owner)

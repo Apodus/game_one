@@ -8,12 +8,29 @@
 
 class Game;
 class ProvinceCommandersTab;
+class BattleCommander;
 
 struct CommanderOrSquad
 {
 	uint32_t commanderIndex = 0;
 	int32_t squadIndex = 0;
 	float distanceSquared = 10000;
+};
+
+class TroopsTab;
+
+class CommanderEntry : sa::MenuComponent
+{
+public:
+	float alpha = 0;
+	CommanderEntry(TroopsTab* parent, sa::MenuComponent* alignUnder);
+
+	virtual void childComponentCall(const std::string& who, const std::string& what, int = 0) {}
+	virtual void update(float dt) override;
+	virtual void draw(std::shared_ptr<sa::Graphics> graphics) const override;
+
+private:
+	sa::MenuFrameBackground bg;
 };
 
 class TroopsTab : public sa::MenuComponent
