@@ -388,5 +388,6 @@ private:
 	ProvinceGraph graph;
 
 	bool m_showCombat = false;
+	bool m_resetCamera = false;
 	CombatView m_combatView;
 };

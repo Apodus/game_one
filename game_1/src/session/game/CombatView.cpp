@@ -1,6 +1,21 @@
+#define NOMINMAX
+
 #include "CombatView.hpp"
 
 #include "graphics/graphics.hpp"
+#include "BattleSim/BattleSimAsync.h"
+
+#include <algorithm>
+
+CombatView::CombatView()
+{
+
+}
+
+CombatView::~CombatView()
+{
+
+}
 
 void CombatView::draw(std::shared_ptr<sa::Graphics> pGraphics)
 {
@@ -85,20 +100,23 @@ void CombatView::draw(std::shared_ptr<sa::Graphics> pGraphics, long long deltaTi
 		}
 	}
 
-	float frameFraction = min(1.0f, static_cast<float>(m_simAccu / m_sim->GetTimePerUpdate()));
+	float frameFraction = std::min(1.0f, static_cast<float>(m_simAccu / m_sim->GetTimePerUpdate()));
 
+	sa::vec3<float> minPos;
+	sa::vec3<float> maxPos;
+	bool found = false;
 	for (size_t i = 0; i < m_units.size(); i++)
 	{
 		auto& unit = m_units[i];
 		sa::Matrix4 model;
-		float x, y, z;
+		sa::vec3<float> pos;
 		if (unit.next.isValid)
 		{
 			if (unit.current.isValid)
 			{
-				x = unit.current.x + ((unit.next.x - unit.current.x) * frameFraction);
-				y = unit.current.y + ((unit.next.y - unit.current.y) * frameFraction);
-				z = unit.current.z + ((unit.next.z - unit.current.z) * frameFraction);
+				pos.x = unit.current.x + ((unit.next.x - unit.current.x) * frameFraction);
+				pos.y = unit.current.y + ((unit.next.y - unit.current.y) * frameFraction);
+				pos.z = unit.current.z + ((unit.next.z - unit.current.z) * frameFraction);
 			}
 			else
 			{
@@ -107,9 +125,9 @@ void CombatView::draw(std::shared_ptr<sa::Graphics> pGraphics, long long deltaTi
 		}
 		else if (frameFraction <= 0 && unit.current.isValid)
 		{
-			x = unit.current.x;
-			y = unit.current.y;
-			z = unit.current.z;
+			pos.x = unit.current.x;
+			pos.y = unit.current.y;
+			pos.z = unit.current.z;
 		}
 		else
 		{
@@ -117,13 +135,36 @@ void CombatView::draw(std::shared_ptr<sa::Graphics> pGraphics, long long deltaTi
 			continue;
 		}
 
-		model.makeTranslationMatrix(x, y, z + (unit.hitpoints == 0 ? 0.0f : unitHeight * scale));
+		if (!found)
+		{
+			minPos = pos;
+			maxPos = pos;
+			found = true;
+		}
+		else
+		{
+			minPos.x = std::min(minPos.x, pos.x);
+			minPos.y = std::min(minPos.y, pos.y);
+			minPos.z = std::min(minPos.z, pos.z);
+			maxPos.x = std::max(maxPos.x, pos.x);
+			maxPos.y = std::max(maxPos.y, pos.y);
+			maxPos.z = std::max(maxPos.z, pos.z);
+		}			
+
+		model.makeTranslationMatrix(pos.x, pos.y, pos.z + (unit.hitpoints == 0 ? 0.0f : unitHeight * scale));
 		model.rotate(0, 0, 0, 1);
 		model.scale(unit.size, unit.size, 1);
 
 		pGraphics->m_pRenderer->drawRectangle(model, "Hero",
 			unit.hitpoints == 0 ? Color::RED :
 			(unit.team == 1 ? Color::GREEN : Color::BLUE));
+	}
+
+	if (found)
+	{
+		m_directorCameraPosition = (minPos + maxPos) / 2;
+		m_directorCameraPosition.z = 20;
+		m_directorReady = true;
 	}
 }
 
@@ -139,6 +180,7 @@ void CombatView::tick(long long timeMs)
 
 void CombatView::start()
 {
+	m_directorReady = false;
 	m_renderTime = std::chrono::high_resolution_clock::now();
 	m_battle = bs::Battle();
 	m_combat.setup(m_battle);
