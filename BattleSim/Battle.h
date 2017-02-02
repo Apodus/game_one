@@ -14,9 +14,7 @@ namespace bs
 	public:
 		void Add(const Unit& unit)
 		{
-			auto id = static_cast<Unit::Id>(myUnits.size());
-			myUnits.emplace_back(unit);
-			myUnits.back().id = id;
+			myUnits.push_back(unit);
 		}
 
 		const Unit& Get(size_t index) const

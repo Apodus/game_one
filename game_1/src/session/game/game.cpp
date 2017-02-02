@@ -478,7 +478,7 @@ void Game::resolveCombat(size_t provinceIndex)
 
 		// just copying combat for everyone... 
 		// TODO: filter it to relevat parties
-		for (const auto& player : players)
+		for (auto&& player : players)
 		{
 			player.turn->m_combats.emplace_back(combat);
 		}

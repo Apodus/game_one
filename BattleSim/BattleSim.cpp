@@ -47,6 +47,7 @@ bs::Battle bs::BattleSim::Generate()
 				u.aimTarget += Offset;
 
 				u.team = 0;
+				u.id = battle.NumUnits();
 				battle.Add(u);
 			}
 
@@ -72,6 +73,7 @@ bs::Battle bs::BattleSim::Generate()
 				u.aimTarget += Offset;
 
 				u.team = 1;
+				u.id = battle.NumUnits();
 				battle.Add(u);
 			}
 		}

@@ -18,6 +18,11 @@ namespace bs
 	typedef uint16_t U16;
 	typedef uint8_t U8;
 
+	typedef U16 TimerId;
+	static const TimerId InvalidTimer = static_cast<TimerId>(-1);
+
+	typedef U16 Tick;
+	static const Tick InvalidTick = static_cast<Tick>(-1);
 
 	struct BoundingBox
 	{

@@ -83,17 +83,18 @@ void bs::Field::FindCollisions(
 bs::Unit::Id bs::Field::FindClosestEnemy(const Unit& unit, Real& range) const
 {
 	BoundingBox bb;
-	range = Real(unit.range, 100) + unit.radius;
 	bb.left = myLevels[0].POS(unit.pos.x - range);
 	bb.top = myLevels[0].POS(unit.pos.y - range);
 	bb.right = myLevels[0].POS(unit.pos.x + range);
 	bb.bottom = myLevels[0].POS(unit.pos.y + range);
-	return FindClosestEnemy(unit, bb, range);
+	auto closest = FindClosestEnemy(unit, bb, range);
+	return closest;
 }
 
 bs::Unit::Id bs::Field::FindClosestEnemy(const Unit& unit, const BoundingBox& bb,  Real& range) const
 {
-	Unit::Id otherId = static_cast<Unit::Id>(-1);
+	range = range * range;
+	Unit::Id otherId = Unit::InvalidId;
 	for (U32 y = bb.top; y <= bb.bottom; y++)
 	{
 		for (U32 x = bb.left; x <= bb.right; x++)
@@ -101,10 +102,11 @@ bs::Unit::Id bs::Field::FindClosestEnemy(const Unit& unit, const BoundingBox& bb
 			FindClosestEnemy(unit, x, y, range, otherId);
 		}
 	}
+	range = sa::math::sqrt(range);
 	return otherId;
 }
 
-void bs::Field::FindClosestEnemy(const Unit& unit, U32 x, U32 y, Real& range, Unit::Id& otherId) const
+void bs::Field::FindClosestEnemy(const Unit& unit, U32 x, U32 y, Real& range2, Unit::Id& otherId) const
 {
 	auto& list = myLevels[0].GetUnitList(x, y);
 	for (size_t i = 0; i < list.size(); i++)
@@ -113,10 +115,10 @@ void bs::Field::FindClosestEnemy(const Unit& unit, U32 x, U32 y, Real& range, Un
 		if (otherUnit.team != unit.team)
 		{
 			auto radius = unit.radius + otherUnit.radius;
-			auto len = (otherUnit.pos - unit.pos).lengthSquared() + (radius*radius);
-			if (len < range)
+			auto len = (otherUnit.pos - unit.pos).lengthSquared() - (radius*radius);
+			if (len < range2)
 			{
-				range = len;
+				range2 = len;
 				otherId = list[i];
 			}
 		}
@@ -130,6 +132,7 @@ bool bs::Field::Update()
 
 	// Movement
 	Vector<Unit::Id> killed;
+	killed.reserve(16);
 	Vector<Unit::Id> collisions;
 	collisions.reserve(16);
 	for (size_t i = 0; i < myActiveUnits.size(); i++)
@@ -200,11 +203,18 @@ bool bs::Field::Update()
 			auto& other = myUnits[collisionId];
 			if (unit.type == Unit::Type::Character)
 			{
-				Vec dir = newPos - unit.pos;
-				auto dp = dir.dotProduct(targetDir);
-				newVel.x = (dp * unit.vel.x) / Real(2, 1);
-				newVel.y = (dp * unit.vel.y) / Real(2, 1);
-				newVel.z = (Real(0, 1));
+				Vec dir = other.pos - newPos;
+				auto len = dir.length();
+				if (len.getRawValue() > 8)
+				{
+					dir.x /= len;
+					dir.y /= len;
+					dir.z /= len;
+					auto dp = dir.dotProduct(targetDir);
+					newVel.x = -(dp * unit.vel.x) / Real(2, 1);
+					newVel.y = -(dp * unit.vel.y) / Real(2, 1);
+					newVel.z = (Real(0, 1));
+				}
 			}
 			else
 			{
@@ -252,9 +262,26 @@ bool bs::Field::Update()
 			}
 		}
 
+		if (unit.hitpoints != 0)
+		{
+			if (myTick >= unit.nextAttackAllowed)
+			{
+				unit.nextAttackAllowed = myTick + (unit.weaponId == 1 ? 1 : 3);
+				const size_t numShots = unit.weaponId == 1 ? 5 : 1;
+				for (size_t k = 0; k < numShots; k++)
+				{
+					Shoot(unit);
+				}
+			}
+		}
+
 		if (!isMoved && unit.hitpoints == 0)
 		{
 			// Add to killed list only after dead and movement stopped.
+			if (unit.timerId != InvalidTimer)
+			{
+				myTimerSystem.Cancel(unit.timerId);
+			}
 			killed.emplace_back(unit.id);
 		}
 		else if (unit.receivedDamage > 0)
@@ -278,39 +305,16 @@ bool bs::Field::Update()
 				RToF(unit.vel.x), RToF(unit.vel.y));
 		}
 #endif
-		if (unit.hitpoints != 0)
-		{
-			if (myTick >= unit.nextAttackAllowed)
-			{
-				unit.nextAttackAllowed = myTick + (unit.weaponId == 1 ? 1 : 10);
-				const size_t numShots = unit.weaponId == 1 ? 5 : 1;
-				for (size_t k = 0; k < numShots; k++)
-				{
-					Shoot(unit);
-				}
-			}
-		}
 	}
 
-	for (size_t i = 0; i < myStartingUnits.size(); i++)
-	{
-		auto& unit = myUnits[myStartingUnits[i]];
-		if (unit.type == Unit::Type::Character)
-		{
-			myLevels[0].AddUnit(unit);
-			myTeamUnitsLeft[unit.team]++;
-			myTimerSystem.Create(unit.id, myTick + 1);
-		}
-		myActiveUnits.emplace_back(myStartingUnits[i]);
-		if (IsStreaming())
-		{
-			myMovingUnits.emplace_back(myStartingUnits[i]);
-		}
-	}
+	UpdateDecisions();
 
-	// Remove killed from active. This will change order of active units, but we are 
-	// going to sort active units next update anyway.
+	ActivateStartingUnits();
+
 	myTick++;
+
+	// Remove killed from active
+	// TODO: Go through all active and add to stopped instead of killed list
 	bool isActive = myTick < MaxUpdates;
 	for (size_t i = 0; i < killed.size(); i++)
 	{
@@ -334,7 +338,8 @@ bool bs::Field::Update()
 		}
 		*iter = myActiveUnits.back();
 		myActiveUnits.pop_back();
-	}	
+		// myActiveUnits.erase(iter);
+	}
 
 	if (IsStreaming())
 	{
@@ -489,12 +494,12 @@ bool bs::Field::CollisionCheck(const Unit& a, const Unit& b, const Vec& endPos, 
 void bs::Field::InitialUpdate(Battle& battle)
 {
 	ASSERT(myUnits.empty(), "Cannot reuse field");
-	myUnits = battle.Get();// std::move(battle.Get());
+	myUnits = battle.Get();
 	for (size_t j = 0; j < myUnits.size(); j++)
 	{
 		auto& unit = myUnits[j];
 		auto id = myFreeUnitIds.Reserve();
-		ASSERT(id == unit.id, "Invalid id given");
+		ASSERT(id == unit.id, "Invalid id given;id=%u;expected=%u", unit.id, id);
 		myStartingUnits.emplace_back(unit.id);
 	}
 	myUnits.reserve(MaxUnits);
@@ -512,12 +517,19 @@ void bs::Field::StopAttacks()
 	for (size_t j = 0; j < myUnits.size(); j++)
 	{
 		auto& unit = myUnits[j];
-		unit.nextAttackAllowed = Unit::InvalidTick;
+		unit.nextAttackAllowed = InvalidTick;
 	}
 }
 
 void bs::Field::Shoot(const Unit& unit)
 {
+	Vec aimDir = unit.aimTarget - unit.pos;
+	auto aimLen = aimDir.length();
+	if (aimLen <= Real(1,1000))
+	{
+		return;
+	}
+
 	Unit::Id attackId = myFreeUnitIds.Reserve();
 	if (attackId == myUnits.size())
 	{
@@ -530,12 +542,13 @@ void bs::Field::Shoot(const Unit& unit)
 		myUnits.back().id = attackId;
 	}
 
+	aimDir.x /= aimLen;
+	aimDir.y /= aimLen;
+	aimDir.z /= aimLen;
+
 	myStartingUnits.emplace_back(attackId);
 	Unit& attack = myUnits[attackId];
-	attack.type = Unit::Type::Projectile;
-
-	Vec aimDir = unit.aimTarget - unit.pos;
-	aimDir.normalize();
+	attack.type = Unit::Type::Projectile;	
 
 	myRand = sa::math::rand(myRand);
 	Real errorX(static_cast<int32_t>(myRand & 0xFFFF) - (0xFFFF/2), 0x10000);
@@ -550,5 +563,49 @@ void bs::Field::Shoot(const Unit& unit)
 	attack.vel = aimDir * Real(100, 1);
 	attack.hitpoints = 20;
 	attack.team = unit.team;
-	attack.nextAttackAllowed = Unit::InvalidTick;
+	attack.nextAttackAllowed = InvalidTick;
+}
+
+void bs::Field::ActivateStartingUnits()
+{
+	for (size_t i = 0; i < myStartingUnits.size(); i++)
+	{
+		auto& unit = myUnits[myStartingUnits[i]];
+		if (unit.type == Unit::Type::Character)
+		{
+			myLevels[0].AddUnit(unit);
+			myTeamUnitsLeft[unit.team]++;
+			unit.timerId = myTimerSystem.Create(unit.id, myTick + 1);
+		}
+		myActiveUnits.emplace_back(myStartingUnits[i]);
+		
+		if (IsStreaming())
+		{
+			myMovingUnits.emplace_back(myStartingUnits[i]);
+		}
+	}
+}
+
+void bs::Field::UpdateDecisions()
+{
+	myTimerSystem.Update(myTick, [&](Unit::Id id)
+	{		
+		auto& unit = myUnits[id];
+		ASSERT(unit.timerId != InvalidTimer, "Unit has no timer");
+
+		myRand = sa::math::rand(myRand);
+		Real range = Real(myRand % 4000 + 1000, 100) + unit.radius;
+		
+		auto closest = FindClosestEnemy(unit, range);
+		if (closest != Unit::InvalidId)
+		{
+			unit.aimTarget = myUnits[closest].pos;
+			unit.moveTarget = myUnits[closest].pos;
+			unit.timerId = myTimerSystem.Create(id, myTick + 10);
+		}
+		else
+		{
+			unit.timerId = myTimerSystem.Create(id, myTick + 5);
+		}
+	});
 }
