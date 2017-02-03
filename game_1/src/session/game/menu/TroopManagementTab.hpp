@@ -23,13 +23,14 @@ class CommanderEntry : sa::MenuComponent
 {
 public:
 	float alpha = 0;
-	CommanderEntry(TroopsTab* parent, sa::MenuComponent* alignUnder);
+	CommanderEntry(TroopsTab* parent, sa::MenuComponent* alignUnder, BattleCommander* commander);
 
 	virtual void childComponentCall(const std::string& who, const std::string& what, int = 0) {}
 	virtual void update(float dt) override;
 	virtual void draw(std::shared_ptr<sa::Graphics> graphics) const override;
 
 private:
+	BattleCommander* commander = nullptr;
 	sa::MenuFrameBackground bg;
 };
 

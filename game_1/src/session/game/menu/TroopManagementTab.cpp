@@ -4,7 +4,8 @@
 
 CommanderEntry::CommanderEntry(
 	TroopsTab* parent,
-	sa::MenuComponent* alignUnder
+	sa::MenuComponent* alignUnder,
+	BattleCommander* commander
 )
 	: sa::MenuComponent(
 		parent,
@@ -12,6 +13,7 @@ CommanderEntry::CommanderEntry(
 		[alignUnder]() { return alignUnder->getExteriorPosition(BOTTOM); },
 		sa::vec3<float>(1.0f, 0.1f, 0)
 	)
+	, commander(commander)
 	, bg(this, "bg", "Frame")
 {
 	positionAlign = TOP;
