@@ -20,6 +20,7 @@
 #include "session/game/hud.hpp"
 
 #include "session/game/Faction.hpp"
+#include "CombatView.hpp"
 
 #include <atomic>
 #include <cinttypes>
@@ -27,9 +28,7 @@
 #include <iterator>
 #include <unordered_map>
 #include <string>
-#include <chrono>
 
-namespace bs { class BattleSimAsync; }
 namespace sa { class MenuRoot; }
 
 class Game {
@@ -367,7 +366,6 @@ private:
 	friend class Hud;
 
 	void drawProvinces(std::shared_ptr<sa::Graphics> pGraphics);
-	void drawBattle(std::shared_ptr<sa::Graphics> pGraphics, long long deltaTime);
 
 	Scripter m_scripter;
 	
@@ -389,28 +387,7 @@ private:
 	std::vector<Faction> players;
 	ProvinceGraph graph;
 
-	// Battle simulation
-	struct Unit
-	{
-		struct Status
-		{
-			Status() : isValid(false) {}
-			float x;
-			float y;
-			float z;
-			bool isValid;
-		};
-		Status current;
-		Status next;
-		float size;
-		int hitpoints;
-		int team;
-	};
-
-	std::unique_ptr<bs::BattleSimAsync> m_sim;
-	uint64_t m_lastSimUpdate;
-	std::chrono::time_point<std::chrono::steady_clock> m_renderTime;
-	double m_simAccu;
-
-	std::vector<Unit> m_units;
+	bool m_showCombat = false;
+	bool m_resetCamera = false;
+	CombatView m_combatView;
 };
