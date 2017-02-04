@@ -74,6 +74,7 @@ public:
 	const TroopReference* reference;
 	
 	std::vector<Squad> squads;
+	sa::vec2<int> startPosition;
 
 	CombatOrder combatOrder;
 	StrategyViewOrder strategyOrder;

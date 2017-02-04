@@ -34,23 +34,10 @@ void Combat::setup(bs::Battle& battle)
 		u.radius = bs::Real(4, 10);
 		u.hitpoints = cmdr.reference->hp;
 		
-		bs::Real x = bs::Real(100 + static_cast<int64_t>(i));
-		switch (factionIndex)
-		{
-		case 0:
-			u.pos.set(x, bs::Real(50), bs::Real(0));
-			u.aimTarget.set(x, bs::Real(100), bs::Real(0));
-			break;
-		case 1:
-			u.pos.set(x, bs::Real(100), bs::Real(0));
-			u.aimTarget.set(x, bs::Real(50), bs::Real(0));
-		default:
-			u.pos.set(x, bs::Real(75), bs::Real(0));
-			u.aimTarget.set(x, bs::Real(0), bs::Real(0));
-			break;
-		}
+		bs::Real x(cmdr.startPosition[0]);
+		bs::Real y(cmdr.startPosition[1]);	
+		u.pos.set(x, y, bs::Real(0));
 
-		u.moveTarget.set(bs::Real(100), bs::Real(75), bs::Real(0));
 		u.id = battle.NumUnits();
 		battle.Add(u);
 	}

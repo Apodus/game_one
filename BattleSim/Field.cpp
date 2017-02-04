@@ -493,6 +493,10 @@ bool bs::Field::CollisionCheck(const Unit& a, const Unit& b, const Vec& endPos, 
 
 void bs::Field::InitialUpdate(Battle& battle)
 {
+	const Vec Offset(Real(1000, 1), Real(1000, 1), Real(0, 1));
+
+	const Real Distance(20, 1);
+
 	ASSERT(myUnits.empty(), "Cannot reuse field");
 	myUnits = battle.Get();
 	for (size_t j = 0; j < myUnits.size(); j++)
@@ -500,6 +504,17 @@ void bs::Field::InitialUpdate(Battle& battle)
 		auto& unit = myUnits[j];
 		auto id = myFreeUnitIds.Reserve();
 		ASSERT(id == unit.id, "Invalid id given;id=%u;expected=%u", unit.id, id);
+	
+		unit.pos.y += Distance;
+		if (unit.team == 1)
+		{
+			unit.pos.y = -unit.pos.y;
+			unit.pos.x = -unit.pos.x;
+		}
+		unit.pos += Offset;
+
+		unit.moveTarget = unit.pos;
+		unit.aimTarget = unit.pos;
 		myStartingUnits.emplace_back(unit.id);
 	}
 	myUnits.reserve(MaxUnits);
@@ -594,7 +609,7 @@ void bs::Field::UpdateDecisions()
 		ASSERT(unit.timerId != InvalidTimer, "Unit has no timer");
 
 		myRand = sa::math::rand(myRand);
-		Real range = Real(myRand % 4000 + 1000, 100) + unit.radius;
+		Real range = Real(myRand % 9000 + 1000, 100) + unit.radius;
 		
 		auto closest = FindClosestEnemy(unit, range);
 		if (closest != Unit::InvalidId)
