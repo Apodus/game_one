@@ -18,6 +18,7 @@
 
 #include "worldmap/ProvinceGraph.hpp"
 #include "session/game/hud.hpp"
+#include "session/game/Camera.h"
 
 #include "session/game/Faction.hpp"
 #include "CombatView.hpp"
@@ -48,7 +49,7 @@ class Game {
 				for (const auto& order : entry.second)
 				{
 					uint32_t unitId = order.first;
-					
+
 					for (BattleCommander& commander : graph.provinces()[sourceProvince].commanders)
 					{
 						if (commander.id == unitId)
@@ -134,7 +135,7 @@ class Game {
 		// TODO: randomize order of elements in bins
 		auto bins = movementBins(isFriendlyMovement);
 		auto& provinces = graph.provinces();
-		
+
 		for (auto& bin : bins)
 		{
 			for (auto& move : bin.moves)
@@ -267,12 +268,12 @@ public:
 
 	inline sa::vec2<float> mouseToWorld(sa::vec3<float> mousePos)
 	{
-		return sa::vec2<float>(cameraPosition.x + mousePos.x * cameraPosition.z * 0.985f, cameraPosition.y + (mousePos.y * cameraPosition.z * 0.985f) / (aspectRatio + 0.0000001f));
+		return sa::vec2<float>(m_activeCamera->pos.x + mousePos.x * m_activeCamera->pos.z * 0.985f, m_activeCamera->pos.y + (mousePos.y * m_activeCamera->pos.z * 0.985f) / (aspectRatio + 0.0000001f));
 	}
 
 	sa::vec3<float> getCameraPosition() const
 	{
-		return cameraPosition;
+		return m_activeCamera->pos;
 	}
 
 	const std::vector<ProvinceGraph::Province>& provinces() const
@@ -291,7 +292,7 @@ public:
 		auto* nearest = graph.getNearestProvince(worldPos);
 		if ((nearest->m_position - worldPos).lengthSquared() > 1.5f * 1.5f)
 			nearest = nullptr;
-		
+
 		if (hud->capture(mousePos))
 		{
 			nearest = nullptr;
@@ -323,18 +324,18 @@ public:
 			// move camera
 			if (m_mapDragActionActive && userio->isKeyDown(mouseKeyCode))
 			{
-				auto modifier = (mousePosPrev - mousePos) * cameraPosition.z;
+				auto modifier = (mousePosPrev - mousePos) * m_activeCamera->pos.z;
 				modifier.y /= aspectRatio;
-				targetCameraPosition += modifier;
+				m_activeCamera->target += modifier;
 			}
 
 			float scroll = userio->getMouseScroll();
 			if (scroll != 0)
 			{
 				if (scroll > 0)
-					targetCameraPosition.z *= 1.0f - scroll * 0.1f;
+					m_activeCamera->target.z *= 1.0f - scroll * 0.1f;
 				else
-					targetCameraPosition.z *= 1.0f - 0.1f / scroll;
+					m_activeCamera->target.z *= 1.0f - 0.1f / scroll;
 			}
 		}
 
@@ -368,26 +369,26 @@ private:
 	void drawProvinces(std::shared_ptr<sa::Graphics> pGraphics);
 
 	Scripter m_scripter;
-	
+
 	bool m_mapDragActionActive = false;
 	size_t m_tickID = 0;
 
 	sa::vec3<float> mousePos;
 	sa::vec3<float> mousePosPrev;
-	
-	sa::vec3<float> cameraPosition;
-	sa::vec3<float> targetCameraPosition;
+
 	float aspectRatio = 16.0f / 9.0f;
 
 	std::atomic<size_t> nextUnitId; // starts at 1, zero is reserved for invalid id.
 	std::shared_ptr<sa::MenuRoot> menuRootNode;
 	std::shared_ptr<Hud> hud;
-	
+
 	std::unordered_map<std::string, TroopReference> troopReferences;
 	std::vector<Faction> players;
 	ProvinceGraph graph;
 
 	bool m_showCombat = false;
-	bool m_resetCamera = false;
 	CombatView m_combatView;
+	Camera m_provinceCamera;
+	Camera* m_activeCamera;
+
 };

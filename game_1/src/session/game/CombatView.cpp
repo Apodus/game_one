@@ -164,7 +164,12 @@ void CombatView::draw(std::shared_ptr<sa::Graphics> pGraphics, long long deltaTi
 	{
 		m_directorCameraPosition = (minPos + maxPos) / 2;
 		m_directorCameraPosition.z = 20;
-		m_directorReady = true;
+		if (!m_directorReady)
+		{
+			m_directorReady = true;
+			m_camera.pos = getDirectorTarget();
+			m_camera.target = m_camera.pos;
+		}
 	}
 }
 
@@ -175,6 +180,12 @@ void CombatView::tick(long long timeMs)
 		auto delta = m_lastSimUpdate != 0 ? timeMs - m_lastSimUpdate : 0;
 		m_sim->Simulate(static_cast<size_t>(delta));
 		m_lastSimUpdate = timeMs;
+	}
+
+	if (isDirectorReady())
+	{
+		// This is bad, it does not take frame skipping into account?
+		m_camera.target = m_camera.target * 0.99 + getDirectorTarget() * 0.01;
 	}
 }
 

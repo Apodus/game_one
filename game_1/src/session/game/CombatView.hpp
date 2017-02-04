@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Combat.hpp"
+#include "Camera.h"
 #include <chrono>
 #include <memory>
 
@@ -26,6 +27,8 @@ public:
 
 	bool isDirectorReady() const { return m_directorReady; }
 
+	Camera& getCamera() { return m_camera; }
+
 private:
 	void draw(std::shared_ptr<sa::Graphics> pGraphics, long long deltaTime);
 
@@ -38,6 +41,7 @@ private:
 	bool m_directorReady;
 
 	Combat m_combat;
+	Camera m_camera;
 	bs::Battle m_battle;
 
 	struct Unit

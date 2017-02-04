@@ -11,12 +11,13 @@ Game::Game(
 	std::shared_ptr<sa::UserIO>)
 	: nextUnitId(1)
 	, menuRootNode(menuRootNode)
+	, m_activeCamera(&m_provinceCamera)
 {
 	hud = std::make_shared<Hud>(*this, menuRootNode.get(), "GameHud", sa::vec3<float>(), sa::vec3<float>(1, 1, 1));
 	menuRootNode->addChild(hud);
 
-	cameraPosition = sa::vec3<float>(5, -5, 20);
-	targetCameraPosition = sa::vec3<float>(-5, +5, 20);
+	m_provinceCamera.pos = sa::vec3<float>(5, -5, 20);
+	m_provinceCamera.target = sa::vec3<float>(-5, +5, 20);
 
 	TroopReference militia;
 	militia.accuracy = 10;
@@ -301,28 +302,8 @@ void Game::drawProvinces(std::shared_ptr<sa::Graphics> pGraphics)
 
 void Game::tick(long long timeMs)
 {
-	if (m_showCombat)
-	{
-		// TODO: Need to keep old camera pos somewhere, refactor to e.g. camera class 
-		if (m_combatView.isDirectorReady())
-		{
-			if (m_resetCamera)
-			{
-				targetCameraPosition = m_combatView.getDirectorTarget();
-				cameraPosition = targetCameraPosition;
-				m_resetCamera = false;
-			}
-			else
-			{
-				// This is bad, it does not take frame skipping into account?
-				targetCameraPosition = targetCameraPosition * 0.99 + m_combatView.getDirectorTarget() * 0.01;
-			}
-		}
-	}
-
-	cameraPosition += (targetCameraPosition - cameraPosition) * 200.0f / 1000.0f;
-
 	m_combatView.tick(timeMs);
+	m_activeCamera->tick(timeMs);
 	++m_tickID;
 }
 
@@ -332,12 +313,13 @@ void Game::toggleBattle()
 	{
 		m_combatView.start();
 		m_showCombat = true;
-		m_resetCamera = true;
+		m_activeCamera = &m_combatView.getCamera();
 	}
 	else
 	{
 		m_combatView.stop();
 		m_showCombat = false;
+		m_activeCamera = &m_provinceCamera;
 	}
 }
 

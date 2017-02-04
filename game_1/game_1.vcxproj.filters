@@ -134,5 +134,8 @@
     <ClInclude Include="src\session\game\CombatView.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\session\game\Camera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
