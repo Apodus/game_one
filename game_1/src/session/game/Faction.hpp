@@ -32,10 +32,11 @@ class Faction
 {
 public:
 	Faction();
-	Faction(std::string name);
+	Faction(std::string name, size_t index);
 	void addRecruitOrder(size_t provinceIndex, const TroopReference* reference);
 	void removeRecruitOrder(size_t provinceIndex, const TroopReference* reference);
 
+	size_t playerIndex = 0;
 	int64_t currency = 200; // can go to negative
 	std::vector<size_t> scienceResources;
 	std::string name;

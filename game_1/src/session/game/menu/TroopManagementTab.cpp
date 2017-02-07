@@ -5,33 +5,72 @@
 CommanderEntry::CommanderEntry(
 	TroopsTab* parent,
 	sa::MenuComponent* alignUnder,
-	BattleCommander* commander
+	BattleCommander* commander,
+	Hider& hider
 )
 	: sa::MenuComponent(
 		parent,
 		"CommanderEntry",
-		[alignUnder]() { return alignUnder->getExteriorPosition(BOTTOM); },
-		sa::vec3<float>(1.0f, 0.1f, 0)
+		[this, alignUnder]() { return alignUnder->getExteriorPosition(BOTTOM); },
+		sa::vec3<float>(1.0f, 0.03f, 0)
 	)
+	, m_hider(hider)
 	, commander(commander)
 	, bg(this, "bg", "Frame")
 {
 	positionAlign = TOP;
-	bg.update(0);
+	bg.tick(0);
 }
 
 
 void CommanderEntry::draw(std::shared_ptr<sa::Graphics> graphics) const
 {
 	bg.visualise(graphics);
+
+	float iconScale = 0.02f;
+
 	// 1. draw commander icon to top left corner
+	auto commanderIconPos = getExteriorPosition(LEFT | TOP);
+	commanderIconPos.x += iconScale;
+	commanderIconPos.y -= iconScale;
+
+	sa::Matrix4 model;
+	model.makeTranslationMatrix(commanderIconPos);
+	model.scale(iconScale, iconScale, 0);
+	graphics->m_pRenderer->drawRectangle(model, commander->reference->icon, sa::vec4<float>(1, 1, 1, m_alpha));
+
 	// 2. draw list of squads to left side (visualise squad members towards the right)
-	// 
-	// TODO: List of CommanderEntries should scroll + out of bounds entries should alpha blend.
+	for (size_t i = 0; i < commander->squads.size(); ++i) {
+		model.makeTranslationMatrix(getExteriorPosition(TOP) + sa::vec3<float>(iconScale / 2.0f, 0, 0));
+		model.scale(getScale() - sa::vec3<float>(iconScale / 2.0f, 0, 0));
+		graphics->m_pRenderer->drawRectangle(model, "Empty", sa::vec4<float>(1, 1, 1, 0.5f * m_alpha));
+
+		// draw each unit of the squad separately
+		for (size_t k = 0; k < commander->squads[i].unitIds.size(); ++k) {
+
+		}
+	}
+
+	// TODO: List of CommanderEntries should scroll
 }
 
 void CommanderEntry::update(float dt)
 {
+	bg.tick(dt);
+	m_hider.min = getExteriorPosition(BOTTOM).y;
+	m_hider.max = getExteriorPosition(TOP).y;
+	m_hider.setSofteningByPercentage(0.2f);
+	m_alpha = m_parentAlpha * m_hider.alpha(m_worldPosition.y);
+	bg.getColor().a = m_alpha;
+	
+	setTargetScale(
+		sa::vec3<float>(
+			1.0f,
+			0.06f, // todo adjust size dynamically how?
+			0
+		)
+	);
+
 	// TODO: Editing squads?? How?
 }
 
@@ -49,8 +88,9 @@ TroopsTab::TroopsTab(
 			[this, parent]() {
 				return sa::vec3<float>(1.0f, 0.9f, 0);
 			}
-		)
+				)
 	, bg(this, "bg", "Frame")
+	, battleArea(this, "battleArea", [this]() {return battleAreaPos(); }, [this]() {return battleAreaScale(); })
 	, m_commandersTab(commandersTab)
 	, m_province(province)
 {
@@ -119,6 +159,12 @@ void TroopsTab::update(float dt)
 	if ((m_targetAlpha - m_alpha) * (m_targetAlpha - m_alpha) < 0.05f * 0.05f)
 		m_alpha = m_targetAlpha;
 	bg.getColor().a = m_alpha;
+	battleArea.tick(dt);
+
+	for (const auto& entry : commanderEntries) {
+		entry->tick(dt);
+		entry->m_parentAlpha = m_alpha;
+	}
 
 	int mouseCode = m_pUserIO->getMouseKeyCode(0);
 
@@ -146,9 +192,10 @@ void TroopsTab::update(float dt)
 						if (!m_commandersTab.isSelected(result.commanderIndex)) {
 							m_commandersTab.unselectAll();
 							m_commandersTab.select(result.commanderIndex);
+							updateCommanderEntries();
 						}
 
-						auto selected = m_commandersTab.selectedCommanders();
+						auto selected = m_commandersTab.selectedCommandersIds();
 						commanderOffsets.resize(selected.size());
 
 						// Note: This could be optimized.
@@ -174,6 +221,7 @@ void TroopsTab::update(float dt)
 					// unselect
 					m_commandersTab.unselectAll();
 					commanderOffsets.clear();
+					updateCommanderEntries();
 				}
 			}
 			else if (m_dragActive && m_pUserIO->isKeyDown(mouseCode)) {
@@ -181,7 +229,7 @@ void TroopsTab::update(float dt)
 				auto nextPos = m_pUserIO->getCursorPosition();
 				nextPos.y /= m_pWindow->getAspectRatio();
 
-				auto selected = m_commandersTab.selectedCommanders();
+				auto selected = m_commandersTab.selectedCommandersIds();
 				for (size_t i = 0; i < selected.size(); ++i)
 				{
 					for (size_t k = i; k < m_province.commanders.size(); ++k)
@@ -189,7 +237,8 @@ void TroopsTab::update(float dt)
 						if (m_province.commanders[k].id == selected[i])
 						{
 							m_province.commanders[k].combatOrder.startPos = wrapToBattleArea(
-								commanderOffsets[i] + uiPosToStart(nextPos));
+								commanderOffsets[i] + uiPosToStart(nextPos)
+							);
 							break;
 						}
 					}
@@ -211,6 +260,67 @@ bool TroopsTab::troopTabEnabled() const
 	return m_alpha > 0.001f;
 }
 
+void TroopsTab::updateCommanderEntries()
+{
+	// CommanderEntry(TroopsTab* parent, sa::MenuComponent* alignUnder, BattleCommander* commander);
+	commanderEntries.clear();
+	sa::MenuComponent* alignUnder = &battleArea;
+
+	auto selected = m_commandersTab.selectedCommandersIndices();
+	if (!selected.empty())
+	{
+		// add the remaining selected commanders
+		for (size_t i = 0; i < selected.size(); ++i) {
+			commanderEntries.emplace_back(
+				std::make_unique<CommanderEntry>(
+					this,
+					alignUnder,
+					&m_province.commanders[selected[i]],
+					m_hider
+				)
+			);
+			alignUnder = commanderEntries.back().get();
+		}
+
+		// add all non-selected commanders.
+		size_t activeIndex = 0;
+		for (size_t i = 0; i < m_province.commanders.size(); ++i) {
+			if (m_faction.playerIndex == m_province.commanders[i].owner) {
+				if (activeIndex < selected.size() && i == selected[activeIndex]) {
+					++activeIndex;
+				}
+				else {
+					commanderEntries.emplace_back(
+						std::make_unique<CommanderEntry>(
+							this,
+							commanderEntries.back().get(),
+							&m_province.commanders[i],
+							m_hider
+						)
+					);
+				}
+			}
+		}
+	}
+	else
+	{
+		// add all non-selected commanders
+		for (size_t i = 0; i < m_province.commanders.size(); ++i) {
+			if (m_faction.playerIndex == m_province.commanders[i].owner) {
+				commanderEntries.emplace_back(
+					std::make_unique<CommanderEntry>(
+						this,
+						alignUnder,
+						&m_province.commanders[i],
+						m_hider
+					)
+				);
+				alignUnder = static_cast<sa::MenuComponent*>(commanderEntries.back().get());
+			}
+		}
+	}
+}
+
 void TroopsTab::draw(std::shared_ptr<sa::Graphics> graphics) const
 {
 	if (troopTabEnabled())
@@ -220,20 +330,19 @@ void TroopsTab::draw(std::shared_ptr<sa::Graphics> graphics) const
 		{
 			// draw "battle area"
 			sa::Matrix4 model;
-			model.makeTranslationMatrix(battleAreaPos());
-			model.scale(battleAreaScale());
+			model.makeTranslationMatrix(battleArea.getPosition());
+			model.scale(battleArea.getScale());
 			graphics->m_pRenderer->drawRectangle(model, "Empty", sa::vec4<float>(1, 1, 1, m_alpha));
 		}
 
 		sa::vec3<float> areaScale = battleAreaScale();
 		sa::vec3<float> areaPos = battleAreaPos();
 
-		auto selectedCommanders = m_commandersTab.selectedCommanders();
+		auto selectedCommanders = m_commandersTab.selectedCommandersIds();
 		size_t index = 0;
 
 		// draw commanders and squads.
-		for (size_t i = 0; i < m_province.commanders.size(); ++i)
-		{
+		for (size_t i = 0; i < m_province.commanders.size(); ++i) {
 			const auto& commander = m_province.commanders[i];
 			sa::vec2<int> commanderPosInt = commander.combatOrder.startPos;
 			sa::vec3<float> commanderPos(
@@ -244,8 +353,7 @@ void TroopsTab::draw(std::shared_ptr<sa::Graphics> graphics) const
 			
 			float commanderAlpha = 0.7f;
 			float commanderScale = 0.02f;
-			if (index < selectedCommanders.size() && selectedCommanders[index] == commander.id)
-			{
+			if (index < selectedCommanders.size() && selectedCommanders[index] == commander.id) {
 				++index;
 				commanderAlpha = 1.0f;
 				commanderScale = 0.022f;
@@ -261,6 +369,8 @@ void TroopsTab::draw(std::shared_ptr<sa::Graphics> graphics) const
 			);
 		}
 
+		for (const auto& entry : commanderEntries)
+			entry->visualise(graphics);
 	}
 }
 

@@ -51,7 +51,8 @@ public:
 	virtual void hide() override;
 	virtual void update(float dt) override;
 
-	std::vector<uint32_t> selectedCommanders() const;
+	std::vector<uint32_t> selectedCommandersIds() const;
+	std::vector<uint32_t> selectedCommandersIndices() const;
 	bool isSelected(uint32_t id) const;
 	void select(uint32_t id);
 	void unselectAll();

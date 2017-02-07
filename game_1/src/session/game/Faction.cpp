@@ -47,8 +47,9 @@ Faction::Faction()
 	turn = std::make_shared<Turn>();
 }
 
-Faction::Faction(std::string name) : name(std::move(name))
+Faction::Faction(std::string name, size_t index) : name(std::move(name))
 {
+	playerIndex = index;
 	turn = std::make_shared<Turn>();
 }
 

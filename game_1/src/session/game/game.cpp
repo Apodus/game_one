@@ -123,8 +123,8 @@ Game::Game(
 		}
 	}
 
-	players.emplace_back("Mestari");
-	players.emplace_back("Nubu");
+	players.emplace_back("Mestari", 0);
+	players.emplace_back("Nubu", 1);
 }
 
 Game::~Game()

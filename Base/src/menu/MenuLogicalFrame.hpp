@@ -21,7 +21,8 @@ public:
 	MenuLogicalFrame(std::shared_ptr<Window> window, std::shared_ptr<UserIO> userio, const std::string& name, const vec3<float>& position, const vec3<float>& scale) : MenuComponent(window, userio, name, position, scale) {
 	}
 
-	MenuLogicalFrame(MenuComponent* parent, const std::string& name, const vec3<float>& position, const vec3<float>& scale) : MenuComponent(parent, name, position, scale) {
+	template<typename Position, typename Scale>
+	MenuLogicalFrame(MenuComponent* parent, const std::string& name, const Position& position, const Scale& scale) : MenuComponent(parent, name, position, scale) {
 	}
 
 private:

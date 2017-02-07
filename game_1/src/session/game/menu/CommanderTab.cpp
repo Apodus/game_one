@@ -194,6 +194,7 @@ void ProvinceCommandersTab::childComponentCall(const std::string& who, const std
 		{
 			// update possible movement visualization
 			callParent("UpdatePossibleMovement");
+			troopManagement->updateCommanderEntries();
 		}
 	}
 	else if (who == "Troops")
@@ -236,7 +237,7 @@ void ProvinceCommandersTab::update(float dt) {
 	}
 }
 
-std::vector<uint32_t> ProvinceCommandersTab::selectedCommanders() const {
+std::vector<uint32_t> ProvinceCommandersTab::selectedCommandersIds() const {
 	std::vector<uint32_t> ids;
 	for (auto& icon : icons) {
 		if (icon->selected) {
@@ -244,6 +245,16 @@ std::vector<uint32_t> ProvinceCommandersTab::selectedCommanders() const {
 		}
 	}
 	return ids;
+}
+
+std::vector<uint32_t> ProvinceCommandersTab::selectedCommandersIndices() const {
+	std::vector<uint32_t> indices;
+	for (size_t i = 0; i< icons.size(); ++i) {
+		if (icons[i]->selected) {
+			indices.emplace_back(i);
+		}
+	}
+	return indices;
 }
 
 void ProvinceCommandersTab::unselectAll() {

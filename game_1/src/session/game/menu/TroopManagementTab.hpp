@@ -3,8 +3,14 @@
 
 #include "menu/MenuComponent.hpp"
 #include "menu/MenuFrame.hpp"
+#include "menu/MenuLogicalFrame.hpp"
 #include "session/game/Faction.hpp"
 #include "session/game/worldmap/ProvinceGraph.hpp"
+
+#ifdef min
+#undef min
+#undef max
+#endif
 
 class Game;
 class ProvinceCommandersTab;
@@ -19,17 +25,53 @@ struct CommanderOrSquad
 
 class TroopsTab;
 
-class CommanderEntry : sa::MenuComponent
+class Hider
 {
 public:
-	float alpha = 0;
-	CommanderEntry(TroopsTab* parent, sa::MenuComponent* alignUnder, BattleCommander* commander);
+	Hider() {}
+	Hider(float min, float max, float softDist) : min(min), max(max), linearSofteningDistance(softDist) {
+	}
+	
+	float alpha(float value)
+	{
+		if (min + linearSofteningDistance > value)
+		{
+			if (value < min)
+				return 0;
+			return (value - min) / linearSofteningDistance;
+		}
+		if (max - linearSofteningDistance < value)
+		{
+			if (value > max)
+				return 0;
+			return (max - value) / linearSofteningDistance;
+		}
+		return 1;
+	}
+
+	void setSofteningByPercentage(float percentage) {
+		linearSofteningDistance = (max - min) * percentage;
+	}
+
+public:
+	float min = 0;
+	float max = 1;
+	float linearSofteningDistance = 0.2f;
+};
+
+class CommanderEntry : public sa::MenuComponent
+{
+public:
+	float m_parentAlpha = 0;
+	float m_alpha = 0;
+	CommanderEntry(TroopsTab* parent, sa::MenuComponent* alignUnder, BattleCommander* commander, Hider& hider);
 
 	virtual void childComponentCall(const std::string& who, const std::string& what, int = 0) {}
 	virtual void update(float dt) override;
 	virtual void draw(std::shared_ptr<sa::Graphics> graphics) const override;
 
 private:
+	Hider& m_hider;
 	BattleCommander* commander = nullptr;
 	sa::MenuFrameBackground bg;
 };
@@ -56,23 +98,21 @@ class TroopsTab : public sa::MenuComponent
 public:
 	TroopsTab(sa::MenuComponent* parent, ProvinceGraph::Province& province, ProvinceCommandersTab& commandersTab);
 
-	virtual void childComponentCall(const std::string& who, const std::string& what, int = 0)
-	{}
+	virtual void childComponentCall(const std::string& who, const std::string& what, int = 0) {}
 	virtual void update(float dt) override;
 	virtual void draw(std::shared_ptr<sa::Graphics> graphics) const override;
 	virtual void hide() override;
 	bool troopTabEnabled() const;
 	void toggle();
 
-	Faction& faction()
-	{
-		return m_faction;
-	}
-
+	void updateCommanderEntries();
+	Faction& faction() { return m_faction; }
 	CommanderOrSquad findNearest(float x, float y) const;
 
+	Hider m_hider;
 	Faction m_faction;
 	sa::MenuFrameBackground bg;
+	sa::MenuLogicalFrame battleArea;
 
 	ProvinceCommandersTab& m_commandersTab;
 	ProvinceGraph::Province& m_province;
@@ -81,6 +121,7 @@ public:
 	sa::vec3<float> mousePos;
 
 	std::vector<sa::vec2<int>> commanderOffsets;
+	std::vector<std::unique_ptr<CommanderEntry>> commanderEntries;
 
 	float m_alpha = 0;
 	float m_targetAlpha = 0;
