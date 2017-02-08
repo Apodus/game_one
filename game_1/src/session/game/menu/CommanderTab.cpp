@@ -264,11 +264,15 @@ void ProvinceCommandersTab::unselectAll() {
 	}
 }
 
-bool ProvinceCommandersTab::isSelected(uint32_t id) const {
+bool ProvinceCommandersTab::isSelectedId(uint32_t id) const {
 	bool found = false;
 	for (auto& icon : icons)
 		found |= icon->selected & (icon->id == id);
 	return found;
+}
+
+bool ProvinceCommandersTab::isSelectedIndex(uint32_t index) const {
+	return icons[index]->selected;
 }
 
 void ProvinceCommandersTab::select(uint32_t id) {

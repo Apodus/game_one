@@ -31,6 +31,7 @@ void CommanderEntry::draw(std::shared_ptr<sa::Graphics> graphics) const
 
 		float iconScale = 0.02f;
 		float ar = m_pWindow->getAspectRatio();
+
 		// 1. draw commander icon to top left corner
 		auto commanderIconPos = getExteriorPosition(LEFT | TOP);
 		commanderIconPos.x += iconScale;
@@ -43,8 +44,7 @@ void CommanderEntry::draw(std::shared_ptr<sa::Graphics> graphics) const
 		graphics->m_pRenderer->drawRectangle(model, commander->reference->icon, sa::vec4<float>(1, 1, 1, m_alpha));
 
 		// 2. draw list of squads to left side (visualise squad members towards the right)
-		for (size_t i = 0; i < commander->squads.size(); ++i)
-		{
+		for (size_t i = 0; i < commander->squads.size(); ++i) {
 			auto pos = getExteriorPosition(TOP);
 			pos.x += iconScale / 2.0f;
 			pos.y /= ar;
@@ -53,8 +53,7 @@ void CommanderEntry::draw(std::shared_ptr<sa::Graphics> graphics) const
 			graphics->m_pRenderer->drawRectangle(model, "Empty", sa::vec4<float>(1, 1, 1, 0.5f * m_alpha));
 
 			// draw each unit of the squad separately
-			for (size_t k = 0; k < commander->squads[i].unitIds.size(); ++k)
-			{
+			for (size_t k = 0; k < commander->squads[i].unitIds.size(); ++k) {
 				// TODO
 			}
 		}
@@ -127,25 +126,36 @@ sa::vec2<int> TroopsTab::uiPosToStart(sa::vec3<float> posUI) const {
 	);
 }
 
-CommanderOrSquad TroopsTab::findNearest(float x, float y) const {
+CommanderOrSquad TroopsTab::findNearest(float x, float y, float selectionSquareDistance) const {
 	float bestValue = 1000000;
 	CommanderOrSquad bestItem;
 
+	float bestSelectedValue = bestValue;
+	CommanderOrSquad bestSelectedItem;
+
 	sa::vec3<float> requestedPos(x, y, 0);
-	for (size_t i = 0; i < m_province.commanders.size(); ++i)
-	{
+	for (size_t i = 0; i < m_province.commanders.size(); ++i) {
 		const auto& commander = m_province.commanders[i];
 		auto pos = uiPosOf(commander.combatOrder.startPos);
 		float lengthSquared = (requestedPos - pos).lengthSquared();
 
-		if (lengthSquared < bestValue)
-		{
+		if (m_commandersTab.isSelectedIndex(i)) {
+			if (lengthSquared < bestSelectedValue) {
+				bestSelectedValue = lengthSquared;
+				bestSelectedItem.commanderIndex = commander.id;
+				bestSelectedItem.squadIndex = -1;
+				bestSelectedItem.distanceSquared = lengthSquared;
+			}
+		}
+
+		if (lengthSquared < bestValue) {
 			bestValue = lengthSquared;
 			bestItem.commanderIndex = commander.id;
 			bestItem.squadIndex = -1;
 			bestItem.distanceSquared = lengthSquared;
 		}
 
+		/*
 		for (size_t k = 0; k < commander.squads.size(); ++k) {
 			auto& squad = commander.squads[k];
 			sa::vec3<float> uiPos = uiPosOf(squad.startPosition);
@@ -156,8 +166,11 @@ CommanderOrSquad TroopsTab::findNearest(float x, float y) const {
 				bestItem.distanceSquared = lengthSquared;
 			}
 		}
+		*/
 	}
 
+	if (bestSelectedValue < selectionSquareDistance)
+		return bestSelectedItem;
 	return bestItem;
 }
 
@@ -194,15 +207,17 @@ void TroopsTab::update(float dt)
 		{
 			if (m_pUserIO->isKeyPressed(mouseCode))
 			{
+				float selectionSqrDist = 0.05f * 0.05f;
+
 				m_dragActive = true;
 				mousePos = m_pUserIO->getCursorPosition();
 				mousePos.y /= m_pWindow->getAspectRatio();
-				auto result = findNearest(mousePos.x, mousePos.y);
+				auto result = findNearest(mousePos.x, mousePos.y, selectionSqrDist);
 
-				if (result.distanceSquared < 0.05f * 0.05f) {
+				if (result.distanceSquared < selectionSqrDist) {
 					// select (if already selected, drag).
 					if (result.squadIndex == -1) {
-						if (!m_commandersTab.isSelected(result.commanderIndex)) {
+						if (!m_commandersTab.isSelectedId(result.commanderIndex)) {
 							m_commandersTab.unselectAll();
 							m_commandersTab.select(result.commanderIndex);
 							updateCommanderEntries();

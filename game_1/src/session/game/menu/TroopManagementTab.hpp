@@ -108,7 +108,7 @@ public:
 
 	void updateCommanderEntries();
 	Faction& faction() { return m_faction; }
-	CommanderOrSquad findNearest(float x, float y) const;
+	CommanderOrSquad findNearest(float x, float y, float selectionSquareDistance = 0) const;
 
 	Hider m_hider;
 	Faction m_faction;

@@ -53,7 +53,8 @@ public:
 
 	std::vector<uint32_t> selectedCommandersIds() const;
 	std::vector<uint32_t> selectedCommandersIndices() const;
-	bool isSelected(uint32_t id) const;
+	bool isSelectedId(uint32_t id) const;
+	bool isSelectedIndex(uint32_t index) const;
 	void select(uint32_t id);
 	void unselectAll();
 
