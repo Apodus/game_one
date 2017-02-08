@@ -74,6 +74,7 @@ private:
 	Hider& m_hider;
 	BattleCommander* commander = nullptr;
 	sa::MenuFrameBackground bg;
+	bool m_drawEnabled = true;
 };
 
 class TroopsTab : public sa::MenuComponent

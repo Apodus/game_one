@@ -25,43 +25,51 @@ CommanderEntry::CommanderEntry(
 
 void CommanderEntry::draw(std::shared_ptr<sa::Graphics> graphics) const
 {
-	bg.visualise(graphics);
+	if (m_drawEnabled)
+	{
+		bg.visualise(graphics);
 
-	float iconScale = 0.02f;
+		float iconScale = 0.02f;
+		float ar = m_pWindow->getAspectRatio();
+		// 1. draw commander icon to top left corner
+		auto commanderIconPos = getExteriorPosition(LEFT | TOP);
+		commanderIconPos.x += iconScale;
+		commanderIconPos.y -= iconScale;
+		commanderIconPos.y /= ar;
 
-	// 1. draw commander icon to top left corner
-	auto commanderIconPos = getExteriorPosition(LEFT | TOP);
-	commanderIconPos.x += iconScale;
-	commanderIconPos.y -= iconScale;
+		sa::Matrix4 model;
+		model.makeTranslationMatrix(commanderIconPos);
+		model.scale(iconScale, iconScale, 0);
+		graphics->m_pRenderer->drawRectangle(model, commander->reference->icon, sa::vec4<float>(1, 1, 1, m_alpha));
 
-	sa::Matrix4 model;
-	model.makeTranslationMatrix(commanderIconPos);
-	model.scale(iconScale, iconScale, 0);
-	graphics->m_pRenderer->drawRectangle(model, commander->reference->icon, sa::vec4<float>(1, 1, 1, m_alpha));
+		// 2. draw list of squads to left side (visualise squad members towards the right)
+		for (size_t i = 0; i < commander->squads.size(); ++i)
+		{
+			auto pos = getExteriorPosition(TOP);
+			pos.x += iconScale / 2.0f;
+			pos.y /= ar;
+			model.makeTranslationMatrix(pos);
+			model.scale(getScale() - sa::vec3<float>(iconScale / 2.0f, 0, 0));
+			graphics->m_pRenderer->drawRectangle(model, "Empty", sa::vec4<float>(1, 1, 1, 0.5f * m_alpha));
 
-	// 2. draw list of squads to left side (visualise squad members towards the right)
-	for (size_t i = 0; i < commander->squads.size(); ++i) {
-		model.makeTranslationMatrix(getExteriorPosition(TOP) + sa::vec3<float>(iconScale / 2.0f, 0, 0));
-		model.scale(getScale() - sa::vec3<float>(iconScale / 2.0f, 0, 0));
-		graphics->m_pRenderer->drawRectangle(model, "Empty", sa::vec4<float>(1, 1, 1, 0.5f * m_alpha));
-
-		// draw each unit of the squad separately
-		for (size_t k = 0; k < commander->squads[i].unitIds.size(); ++k) {
-
+			// draw each unit of the squad separately
+			for (size_t k = 0; k < commander->squads[i].unitIds.size(); ++k)
+			{
+				// TODO
+			}
 		}
 	}
-
+	
 	// TODO: List of CommanderEntries should scroll
 }
 
 void CommanderEntry::update(float dt)
 {
 	bg.tick(dt);
-	m_hider.min = getExteriorPosition(BOTTOM).y;
-	m_hider.max = getExteriorPosition(TOP).y;
-	m_hider.setSofteningByPercentage(0.2f);
 	m_alpha = m_parentAlpha * m_hider.alpha(m_worldPosition.y);
 	bg.getColor().a = m_alpha;
+
+	m_drawEnabled = m_alpha > 0.0000001f;
 	
 	setTargetScale(
 		sa::vec3<float>(
@@ -155,6 +163,11 @@ CommanderOrSquad TroopsTab::findNearest(float x, float y) const {
 
 void TroopsTab::update(float dt)
 {
+	float ar = m_pWindow->getAspectRatio();
+	m_hider.min = getExteriorPosition(BOTTOM).y / ar;
+	m_hider.max = battleArea.getExteriorPosition(BOTTOM).y / ar;
+	m_hider.setSofteningByPercentage(0.05f);
+
 	m_alpha += (m_targetAlpha - m_alpha) > 0 ? 0.05f : -0.05f;
 	if ((m_targetAlpha - m_alpha) * (m_targetAlpha - m_alpha) < 0.05f * 0.05f)
 		m_alpha = m_targetAlpha;
@@ -330,7 +343,9 @@ void TroopsTab::draw(std::shared_ptr<sa::Graphics> graphics) const
 		{
 			// draw "battle area"
 			sa::Matrix4 model;
-			model.makeTranslationMatrix(battleArea.getPosition());
+			auto pos = battleArea.getPosition();
+			pos.y *= m_pWindow->getAspectRatio();
+			model.makeTranslationMatrix(pos);
 			model.scale(battleArea.getScale());
 			graphics->m_pRenderer->drawRectangle(model, "Empty", sa::vec4<float>(1, 1, 1, m_alpha));
 		}
