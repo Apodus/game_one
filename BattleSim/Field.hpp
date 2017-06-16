@@ -68,9 +68,11 @@ namespace bs
 
 		void Shoot(const Unit& unit);
 
+		Real ToAngle(const Vec& dir) const;
+
+		bs::I16 TargetAngleGet(Unit& unit) const;
+
 		VisualizationSystem myVisualizationSystem;
-
-
 
 		// Field is divided into levels in depth-axis. 
 		// E.g. level 0 has underground units, level 1 has ground units and level 2 has flying units

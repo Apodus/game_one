@@ -72,7 +72,7 @@ void bs::BattleSimAsync::Run()
 
 void bs::BattleSimAsync::Cancel()
 {
-	std::atomic_thread_fence(std::memory_order_acquire);
 	myActiveFlag = false;
+	std::atomic_thread_fence(std::memory_order_acquire);
 	Simulate(0);
 }

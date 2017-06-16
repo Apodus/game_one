@@ -17,6 +17,7 @@ namespace bs
 	typedef uint32_t U32;
 	typedef uint16_t U16;
 	typedef uint8_t U8;
+	typedef int16_t I16;
 
 	typedef U16 TimerId;
 	static const TimerId InvalidTimer = static_cast<TimerId>(-1);

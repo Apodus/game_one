@@ -624,3 +624,21 @@ void bs::Field::UpdateDecisions()
 		}
 	});
 }
+
+bs::Real bs::Field::ToAngle(const Vec& /*dir*/) const
+{
+	return Real(1, 1); //atan2(dir.y, dir.x) * Real(180, 1) / PI;
+}
+
+bs::I16 bs::Field::TargetAngleGet(Unit& /*unit*/) const
+{
+	/*Vec aimDir = unit.aimTarget - unit.pos;
+	auto aimLen = aimDir.length();
+	if (aimLen <= Real(1, 1000))
+	{
+		return;
+	}
+	aimDir.x /= aimLen;
+	aimDir.y /= aimLen;*/
+	return 0;
+}
