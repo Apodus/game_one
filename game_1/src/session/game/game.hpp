@@ -284,6 +284,9 @@ public:
 	void update(std::shared_ptr<sa::UserIO> userio, float aspectRatio)
 	{
 		this->aspectRatio = aspectRatio;
+		for (auto& province : graph.provinces()) {
+			province.updatevisual();
+		}
 
 		mousePos = userio->getCursorPosition();
 		auto worldPos = mouseToWorld(mousePos);
@@ -293,15 +296,21 @@ public:
 		if ((nearest->m_position - worldPos).lengthSquared() > 1.5f * 1.5f)
 			nearest = nullptr;
 
-		if (hud->capture(mousePos))
-		{
-			nearest = nullptr;
-		}
+		if (userio->isKeyReleased(mouseKeyCode))
+			m_mapDragActionActive = false;
 
-		for (auto& province : graph.provinces())
+		// move camera if map drag input action was started for me.
+		if (m_mapDragActionActive && userio->isKeyDown(mouseKeyCode))
 		{
-			province.updatevisual();
+			auto modifier = (mousePosPrev - mousePos) * m_activeCamera->pos.z;
+			modifier.y /= aspectRatio;
+			m_activeCamera->target += modifier;
 		}
+		mousePosPrev = mousePos;
+
+		// if input not meant for us, don't check inputs.
+		if (hud->capture(mousePos))
+			return;
 
 		{
 			if (nearest)
@@ -321,14 +330,6 @@ public:
 				}
 			}
 
-			// move camera
-			if (m_mapDragActionActive && userio->isKeyDown(mouseKeyCode))
-			{
-				auto modifier = (mousePosPrev - mousePos) * m_activeCamera->pos.z;
-				modifier.y /= aspectRatio;
-				m_activeCamera->target += modifier;
-			}
-
 			float scroll = userio->getMouseScroll();
 			if (scroll != 0)
 			{
@@ -340,14 +341,9 @@ public:
 		}
 
 		{
-			int mouseKeyCode = userio->getMouseKeyCode(0);
-			if (!hud->capture(mousePos) && userio->isKeyPressed(mouseKeyCode))
+			if (userio->isKeyPressed(mouseKeyCode))
 				m_mapDragActionActive = true;
-			if (userio->isKeyReleased(mouseKeyCode))
-				m_mapDragActionActive = false;
 		}
-
-		mousePosPrev = mousePos;
 	}
 
 	const TroopReference* troopReference(const std::string& name) const
