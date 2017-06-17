@@ -7,32 +7,20 @@ namespace bs
 	// http://turner.faculty.swau.edu/mathematics/materialslibrary/pi/pirat.html
 	const static bs::Real PI = bs::Real(1146408, 364913);
 
+	// Atan2 prototype. Should be handled by FixedPoint class when working.
 	class AngleUtil
 	{
 	public:
-		static const size_t Granularity = 50;
-
 		AngleUtil()
 		{
-			int32_t mid = Granularity / 2;
-			for (int32_t x = 0; x <= Granularity; x++)
-			{
-				for (int32_t y = 0; y <= Granularity; y++)
-				{
-					Vec pos;
-					pos.x = Real(x - mid, mid);
-					pos.y = Real(y - mid, mid);
-
-				}
-			}
 		}
 
-		bs::Real GetAngle(const Vec& dir) const
+		static bs::Real GetAngle(const Vec& dir)
 		{
-			return Atan2(dir.y, dir.x);// *Real(180) / PI;
+			return Atan2(dir.y, dir.x);
 		}
 
-		Real Atan2(Real x, Real y) const
+		static Real Atan2(Real x, Real y)
 		{
 			int xi = x * Real(INT16_MAX);
 			int yi = y * Real(INT16_MAX);
@@ -139,9 +127,5 @@ namespace bs
 				}
 			}
 		}
-
-	private:
-		Array<Array<bs::Real, Granularity>, Granularity> myVectorToAngle;
 	};
-
 }
