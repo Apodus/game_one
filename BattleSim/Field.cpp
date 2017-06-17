@@ -198,8 +198,8 @@ bool bs::Field::Update()
 				{
 					unit.angle = targetAngle;
 				}
-				assert(unit.angle >= Real(-180));
-				assert(unit.angle <= Real(180));
+				// assert(unit.angle >= Real(-180));
+				// assert(unit.angle <= Real(180));
 
 				const bs::Real Agility(10);
 				unit.acc = targetDir * Agility;
@@ -558,10 +558,7 @@ void bs::Field::InitialUpdate(Battle& battle)
 		{
 			unit.pos.y = -unit.pos.y;
 			unit.pos.x = -unit.pos.x;
-		}
-		else
-		{
-			unit.angle = Real(180);
+			unit.angle = -Real(180);
 		}
 		unit.pos += Offset;
 

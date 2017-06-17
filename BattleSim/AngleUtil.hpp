@@ -29,7 +29,7 @@ namespace bs
 					return -(Real(360) - delta);
 				}
 			}
-			else 
+			else
 			{
 				if (delta >= Real(-180))
 				{
@@ -45,11 +45,12 @@ namespace bs
 
 		static bs::Real GetAngle(const Vec& dir)
 		{
+
 			int yi = dir.y * Real(INT16_MAX);
 			int xi = dir.x * Real(INT16_MAX);
 #if 1
 			int16_t at2 = fxpt_atan2(static_cast<int16_t>(xi), static_cast<int16_t>(yi));
-			return Real(at2, 32768) * Real(180) - Real(180);
+			return Real(at2, 32768) * Real(180) - Real(360);
 #else // std::atan2 for testing
 			auto val = std::atan2(static_cast<float>(xi), static_cast<float>(yi));
 			Real angle = Real(static_cast<int32_t>(val * 1000), 1000);
@@ -66,6 +67,7 @@ namespace bs
 												// otherwise j is unchanged
 			return (j ^ negSign) - negSign;
 #else
+			assert(false);
 			return (j < 0 ? j : -j);
 #endif
 		}
@@ -106,12 +108,17 @@ namespace bs
 		 * @param x x-coordinate in signed 16-bit
 		 * @return angle in (val / 32768) * pi radian increments from 0x0000 to 0xFFFF
 		 */
-
-		 // TODO: Get rid of this thing
-#define M_1_PI 0.31830988618379067154
-
 		static uint16_t fxpt_atan2(const int16_t y, const int16_t x)
 		{
+#if 1
+			const int16_t correctionMulti = 2847;
+			const int16_t unrotatedMulti = 11039;
+#else // Original
+			static const double M_1_PI = 0.31830988618379067154;
+			const int16_t correctionMulti = q15_from_double(0.273 * M_1_PI);
+			const int16_t unrotatedMulti = q15_from_double(0.25 + 0.273 * M_1_PI);
+#endif
+
 			if (x == y)
 			{ // x/y or y/x would return -1 since 1 isn't representable
 				if (y > 0)
@@ -131,8 +138,8 @@ namespace bs
 			if (nabs_x < nabs_y)
 			{ // octants 1, 4, 5, 8
 				const int16_t y_over_x = q15_div(y, x);
-				const int16_t correction = q15_mul(q15_from_double(0.273 * M_1_PI), s16_nabs(y_over_x));
-				const int16_t unrotated = q15_mul(q15_from_double(0.25 + 0.273 * M_1_PI) + correction, y_over_x);
+				const int16_t correction = q15_mul(correctionMulti, s16_nabs(y_over_x));
+				const int16_t unrotated = q15_mul(unrotatedMulti + correction, y_over_x);
 				if (x < 0)
 				{ // octants 1, 8
 					return unrotated;
@@ -144,8 +151,8 @@ namespace bs
 			else
 			{ // octants 2, 3, 6, 7
 				const int16_t x_over_y = q15_div(x, y);
-				const int16_t correction = q15_mul(q15_from_double(0.273 * M_1_PI), s16_nabs(x_over_y));
-				const int16_t unrotated = q15_mul(q15_from_double(0.25 + 0.273 * M_1_PI) + correction, x_over_y);
+				const int16_t correction = q15_mul(correctionMulti, s16_nabs(x_over_y));
+				const int16_t unrotated = q15_mul(unrotatedMulti + correction, x_over_y);
 				if (y > 0)
 				{ // octants 2, 3
 					return 16384 - unrotated;
