@@ -1,10 +1,16 @@
 #include "stdafx.h"
 #include "Field.hpp"
 #include "Battle.h"
+#include "AngleUtil.hpp"
 
 const bs::Real bs::Field::TimePerUpdate = bs::Real(100, 1000);
-const size_t MaxUpdates = static_cast<size_t>(15 * 60 / bs::Field::TimePerUpdate.toDouble());
-const size_t MaxUnits = 20000;
+
+namespace
+{
+	const size_t MaxUpdates = static_cast<size_t>(15 * 60 / bs::Field::TimePerUpdate.toDouble());
+	constexpr size_t MaxUnits = 20000;
+	const bs::AngleUtil ourAngleUtil;
+}
 
 bs::Field::Field(StreamingMode streaming) : myStreaming(streaming)
 {
@@ -156,6 +162,8 @@ bool bs::Field::Update()
 					targetDir.y /= targetDirLen;
 					targetDir.z /= targetDirLen;
 				}
+
+				auto targetAngle = TargetAngleGet(unit);
 
 				const bs::Real Agility(10);
 				unit.acc = targetDir * Agility;
@@ -625,20 +633,16 @@ void bs::Field::UpdateDecisions()
 	});
 }
 
-bs::Real bs::Field::ToAngle(const Vec& /*dir*/) const
+bs::Real bs::Field::TargetAngleGet(Unit& unit) const
 {
-	return Real(1, 1); //atan2(dir.y, dir.x) * Real(180, 1) / PI;
-}
-
-bs::I16 bs::Field::TargetAngleGet(Unit& /*unit*/) const
-{
-	/*Vec aimDir = unit.aimTarget - unit.pos;
+	Vec aimDir = unit.aimTarget - unit.pos;
 	auto aimLen = aimDir.length();
 	if (aimLen <= Real(1, 1000))
 	{
-		return;
+		return unit.angle;
 	}
 	aimDir.x /= aimLen;
-	aimDir.y /= aimLen;*/
-	return 0;
+	aimDir.y /= aimLen;
+	Real angle = ourAngleUtil.GetAngle(aimDir) * Real(100, 1);
+	return angle;
 }

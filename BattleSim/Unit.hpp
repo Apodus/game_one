@@ -21,11 +21,12 @@ namespace bs
 		Vec pos = Vec();
 		Vec vel = Vec();
 		Vec acc = Vec();
+		Real angle = Real(0);
 		Vec moveTarget;
 		Vec aimTarget;
 		BoundingBox bb;
 
-		Real radius = Real(10,1);
+		Real radius = Real(10);
 		Id id;
 		U32 hitpoints = 0;
 		U32 receivedDamage = 0;

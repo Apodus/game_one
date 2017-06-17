@@ -68,9 +68,7 @@ namespace bs
 
 		void Shoot(const Unit& unit);
 
-		Real ToAngle(const Vec& dir) const;
-
-		bs::I16 TargetAngleGet(Unit& unit) const;
+		Real TargetAngleGet(Unit& unit) const;
 
 		VisualizationSystem myVisualizationSystem;
 
