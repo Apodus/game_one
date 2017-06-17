@@ -32,10 +32,10 @@ void CombatView::draw(std::shared_ptr<sa::Graphics> pGraphics, long long deltaTi
 {
 	sa::TextureHandler::getSingleton().bindTexture(0, "Empty");
 
-	float offsetX = 30.0f;
-	float offsetY = 20.0f;
-	float offsetZ = 0.0f;
-	float scale = 1 / 4.0f;
+	const float offsetX = 30.0f;
+	const float offsetY = 20.0f;
+	const float offsetZ = 0.0f;
+	const float scale = 1 / 4.0f;
 
 	float unitHeight = 0.1f;
 
@@ -72,6 +72,7 @@ void CombatView::draw(std::shared_ptr<sa::Graphics> pGraphics, long long deltaTi
 				const auto& unitIn = reader.Read<bs::Visualization::Movement>();
 				auto& unit = m_units[unitIn.id];
 				unit.next.isValid = true;
+				unit.next.angle = unitIn.angle.toFloat();
 				unit.next.x = unitIn.pos.x.toFloat() * scale - offsetX;
 				unit.next.y = unitIn.pos.y.toFloat() * scale - offsetY;
 				unit.next.z = unitIn.pos.z.toFloat() * scale - offsetZ;
@@ -110,6 +111,7 @@ void CombatView::draw(std::shared_ptr<sa::Graphics> pGraphics, long long deltaTi
 		auto& unit = m_units[i];
 		sa::Matrix4 model;
 		sa::vec3<float> pos;
+		float angle;
 		if (unit.next.isValid)
 		{
 			if (unit.current.isValid)
@@ -117,6 +119,7 @@ void CombatView::draw(std::shared_ptr<sa::Graphics> pGraphics, long long deltaTi
 				pos.x = unit.current.x + ((unit.next.x - unit.current.x) * frameFraction);
 				pos.y = unit.current.y + ((unit.next.y - unit.current.y) * frameFraction);
 				pos.z = unit.current.z + ((unit.next.z - unit.current.z) * frameFraction);
+				angle = unit.current.angle;
 			}
 			else
 			{
@@ -128,6 +131,7 @@ void CombatView::draw(std::shared_ptr<sa::Graphics> pGraphics, long long deltaTi
 			pos.x = unit.current.x;
 			pos.y = unit.current.y;
 			pos.z = unit.current.z;
+			angle = unit.current.angle;
 		}
 		else
 		{
@@ -152,7 +156,7 @@ void CombatView::draw(std::shared_ptr<sa::Graphics> pGraphics, long long deltaTi
 		}			
 
 		model.makeTranslationMatrix(pos.x, pos.y, pos.z + (unit.hitpoints == 0 ? 0.0f : unitHeight * scale));
-		model.rotate(0, 0, 0, 1);
+		model.rotate(-angle * 0.0174533f, 0, 0, 1);
 		model.scale(unit.size, unit.size, 1);
 
 		pGraphics->m_pRenderer->drawRectangle(model, "Hero",

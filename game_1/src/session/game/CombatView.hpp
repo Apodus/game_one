@@ -52,6 +52,7 @@ private:
 			float x;
 			float y;
 			float z;
+			float angle;
 			bool isValid;
 		};
 		Status current;

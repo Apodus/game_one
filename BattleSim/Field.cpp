@@ -97,7 +97,7 @@ bs::Unit::Id bs::Field::FindClosestEnemy(const Unit& unit, Real& range) const
 	return closest;
 }
 
-bs::Unit::Id bs::Field::FindClosestEnemy(const Unit& unit, const BoundingBox& bb,  Real& range) const
+bs::Unit::Id bs::Field::FindClosestEnemy(const Unit& unit, const BoundingBox& bb, Real& range) const
 {
 	range = range * range;
 	Unit::Id otherId = Unit::InvalidId;
@@ -148,6 +148,7 @@ bool bs::Field::Update()
 		bs::Real Speed;
 		const bs::Real SlowDown(1, 2);
 		Vec targetDir;
+		bool hasTargetAngle = true;
 
 		if (unit.hitpoints > 0)
 		{
@@ -164,6 +165,41 @@ bool bs::Field::Update()
 				}
 
 				auto targetAngle = TargetAngleGet(unit);
+				auto angleDelta = ourAngleUtil.GetAngleDelta(unit.angle, targetAngle);
+				if (angleDelta > Real(8) || angleDelta < Real(-8))
+				{
+					hasTargetAngle = false;
+					if (angleDelta > Real(0))
+					{
+						if (angleDelta > Real(4))
+						{
+							angleDelta = Real(4);
+						}
+					}
+					else
+					{
+						if (angleDelta < -Real(4))
+						{
+							angleDelta = -Real(4);
+						}
+					}
+					unit.angle -= angleDelta;
+
+					if (unit.angle < Real(-180))
+					{
+						unit.angle = Real(180) + (unit.angle - Real(-180));
+					}
+					else if (unit.angle > Real(180))
+					{
+						unit.angle = Real(-180) - (unit.angle - Real(180));
+					}
+				}
+				else
+				{
+					unit.angle = targetAngle;
+				}
+				assert(unit.angle >= Real(-180));
+				assert(unit.angle <= Real(180));
 
 				const bs::Real Agility(10);
 				unit.acc = targetDir * Agility;
@@ -207,7 +243,7 @@ bool bs::Field::Update()
 		}
 
 		if (collisionId != static_cast<Unit::Id>(-1))
-		{			
+		{
 			auto& other = myUnits[collisionId];
 			if (unit.type == Unit::Type::Character)
 			{
@@ -252,7 +288,7 @@ bool bs::Field::Update()
 				isMoved = true;
 			}
 		}
-		else 
+		else
 		{
 			if ((unit.pos - newPos).lengthSquared().getRawValue() > 8)
 			{
@@ -274,11 +310,14 @@ bool bs::Field::Update()
 		{
 			if (myTick >= unit.nextAttackAllowed)
 			{
-				unit.nextAttackAllowed = myTick + (unit.weaponId == 1 ? 1 : 3);
-				const size_t numShots = unit.weaponId == 1 ? 5 : 1;
-				for (size_t k = 0; k < numShots; k++)
+				if (hasTargetAngle)
 				{
-					Shoot(unit);
+					unit.nextAttackAllowed = myTick + (unit.weaponId == 1 ? 1 : 3);
+					const size_t numShots = unit.weaponId == 1 ? 5 : 1;
+					for (size_t k = 0; k < numShots; k++)
+					{
+						Shoot(unit);
+					}
 				}
 			}
 		}
@@ -373,7 +412,7 @@ void bs::Field::WriteUpdate()
 		sizeof(Visualization::Movement) * numMovingUnits);
 
 	auto writer = update.GetWriter();
-	
+
 	writer.Write(numStartingUnits);
 	for (size_t i = 0; i < numStartingUnits; i++)
 	{
@@ -390,6 +429,7 @@ void bs::Field::WriteUpdate()
 		auto& elem = writer.Write<Visualization::Movement>();
 		elem.id = myMovingUnits[i];
 		elem.pos = myUnits[elem.id].pos;
+		elem.angle = myUnits[elem.id].angle;
 		elem.hitpoints = myUnits[elem.id].hitpoints;
 	}
 
@@ -410,7 +450,7 @@ bool bs::Field::CollisionCheck(const Unit& a, const Unit& b, const Vec& endPos, 
 	Real radii = a.radius + b.radius;
 
 	Real left = b.pos.x < endPos.x ? b.pos.x - radii : endPos.x - radii;
-	Real right = b.pos.x > endPos.x ? b.pos.x + radii: endPos.x + radii;
+	Real right = b.pos.x > endPos.x ? b.pos.x + radii : endPos.x + radii;
 	Real top = b.pos.y < endPos.y ? b.pos.y - radii : endPos.y - radii;
 	Real bottom = b.pos.y > endPos.y ? b.pos.y + radii : endPos.y + radii;
 	if (a.pos.x < left || a.pos.x > right || a.pos.y < top || a.pos.y > bottom)
@@ -430,7 +470,7 @@ bool bs::Field::CollisionCheck(const Unit& a, const Unit& b, const Vec& endPos, 
 
 	Vec C = a.pos - b.pos;
 	C.z = Real(0, 1); /* Ignore Z: used for sphere collision */
-	Real length_C = sa::math::sqrt((C.x*C.x + C.y*C.y)); 
+	Real length_C = sa::math::sqrt((C.x*C.x + C.y*C.y));
 
 	if (length_C == Real(0, 1))
 	{
@@ -477,8 +517,8 @@ bool bs::Field::CollisionCheck(const Unit& a, const Unit& b, const Vec& endPos, 
 
 	// F and min dist form a right triangle (minDist the hypotenuse) with a
 	// third line we'll call square of T.
-	Real T = (radii2) - F;
-	if (T < Real(0,1) )
+	Real T = (radii2)-F;
+	if (T < Real(0, 1))
 	{
 		return false;
 	}
@@ -512,12 +552,16 @@ void bs::Field::InitialUpdate(Battle& battle)
 		auto& unit = myUnits[j];
 		auto id = myFreeUnitIds.Reserve();
 		ASSERT(id == unit.id, "Invalid id given;id=%u;expected=%u", unit.id, id);
-	
+
 		unit.pos.y += Distance;
 		if (unit.team == 1)
 		{
 			unit.pos.y = -unit.pos.y;
 			unit.pos.x = -unit.pos.x;
+		}
+		else
+		{
+			unit.angle = Real(180);
 		}
 		unit.pos += Offset;
 
@@ -548,7 +592,7 @@ void bs::Field::Shoot(const Unit& unit)
 {
 	Vec aimDir = unit.aimTarget - unit.pos;
 	auto aimLen = aimDir.length();
-	if (aimLen <= Real(1,1000))
+	if (aimLen <= Real(1, 1000))
 	{
 		return;
 	}
@@ -571,18 +615,18 @@ void bs::Field::Shoot(const Unit& unit)
 
 	myStartingUnits.emplace_back(attackId);
 	Unit& attack = myUnits[attackId];
-	attack.type = Unit::Type::Projectile;	
+	attack.type = Unit::Type::Projectile;
 
 	myRand = sa::math::rand(myRand);
-	Real errorX(static_cast<int32_t>(myRand & 0xFFFF) - (0xFFFF/2), 0x10000);
+	Real errorX(static_cast<int32_t>(myRand & 0xFFFF) - (0xFFFF / 2), 0x10000);
 	Real errorY((static_cast<int32_t>(myRand >> 16) & 0xFFFF) - (0xFFFF / 2), 0x10000);
-	
+
 	aimDir.x += errorX * Real(40, 100);
 	aimDir.y += errorY * Real(40, 100);
 	aimDir.normalize();
 
 	attack.radius = Real(1, 10);
-	attack.pos = unit.pos + (aimDir * (unit.radius + Real(2,1)*attack.radius));
+	attack.pos = unit.pos + (aimDir * (unit.radius + Real(2, 1)*attack.radius));
 	attack.vel = aimDir * Real(100, 1);
 	attack.hitpoints = 20;
 	attack.team = unit.team;
@@ -601,7 +645,7 @@ void bs::Field::ActivateStartingUnits()
 			unit.timerId = myTimerSystem.Create(unit.id, myTick + 1);
 		}
 		myActiveUnits.emplace_back(myStartingUnits[i]);
-		
+
 		if (IsStreaming())
 		{
 			myMovingUnits.emplace_back(myStartingUnits[i]);
@@ -612,13 +656,13 @@ void bs::Field::ActivateStartingUnits()
 void bs::Field::UpdateDecisions()
 {
 	myTimerSystem.Update(myTick, [&](Unit::Id id)
-	{		
+	{
 		auto& unit = myUnits[id];
 		ASSERT(unit.timerId != InvalidTimer, "Unit has no timer");
 
 		myRand = sa::math::rand(myRand);
 		Real range = Real(myRand % 9000 + 1000, 100) + unit.radius;
-		
+
 		auto closest = FindClosestEnemy(unit, range);
 		if (closest != Unit::InvalidId)
 		{
@@ -643,6 +687,6 @@ bs::Real bs::Field::TargetAngleGet(Unit& unit) const
 	}
 	aimDir.x /= aimLen;
 	aimDir.y /= aimLen;
-	Real angle = ourAngleUtil.GetAngle(aimDir) * Real(100, 1);
+	Real angle = ourAngleUtil.GetAngle(aimDir);
 	return angle;
 }

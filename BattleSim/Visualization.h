@@ -17,6 +17,7 @@ namespace bs
 		struct Movement
 		{
 			Vec pos;
+			Real angle;
 			U32 hitpoints;
 			Unit::Id id;
 		};

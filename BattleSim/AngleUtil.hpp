@@ -15,17 +15,46 @@ namespace bs
 		{
 		}
 
-		static bs::Real GetAngle(const Vec& dir)
+		static bs::Real GetAngleDelta(Real from, Real to)
 		{
-			return Atan2(dir.y, dir.x);
+			auto delta = from - to;
+			if (delta > Real(0))
+			{
+				if (delta <= Real(180))
+				{
+					return delta;
+				}
+				else
+				{
+					return -(Real(360) - delta);
+				}
+			}
+			else 
+			{
+				if (delta >= Real(-180))
+				{
+					return delta;
+				}
+				else
+				{
+					return (Real(360) + delta);
+				}
+			}
+
 		}
 
-		static Real Atan2(Real x, Real y)
+		static bs::Real GetAngle(const Vec& dir)
 		{
-			int xi = x * Real(INT16_MAX);
-			int yi = y * Real(INT16_MAX);
+			int yi = dir.y * Real(INT16_MAX);
+			int xi = dir.x * Real(INT16_MAX);
+#if 1
 			int16_t at2 = fxpt_atan2(static_cast<int16_t>(xi), static_cast<int16_t>(yi));
-			return Real(at2, 32768);
+			return Real(at2, 32768) * Real(180) - Real(180);
+#else // std::atan2 for testing
+			auto val = std::atan2(static_cast<float>(xi), static_cast<float>(yi));
+			Real angle = Real(static_cast<int32_t>(val * 1000), 1000);
+			return angle * Real(180) / bs::PI;
+#endif
 		}
 
 		static inline int16_t s16_nabs(const int16_t j)
