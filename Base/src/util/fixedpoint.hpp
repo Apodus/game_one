@@ -80,8 +80,15 @@ public:
 		return FixedPoint<FIXED_POINT_ONE>(copy.getRawValue() % v.getRawValue(), static_cast<long long>(T));
 	}
 
-	operator float() const {
+
+	operator float() const
+	{
 		return number / float(FIXED_POINT_ONE);
+	}
+
+	operator double() const
+	{
+		return static_cast<double>(number) / s_fpOne;
 	}
 	
 	operator int() const
@@ -94,10 +101,6 @@ public:
 		return FixedPoint(number % FIXED_POINT_ONE, FIXED_POINT_ONE);
 	}
 
-	float toFloat() const { return static_cast<float>(getRawValue()) / s_fpOne; }
-
-	double toDouble() const { return static_cast<double>(getRawValue()) / s_fpOne; }
-	
 	FixedPoint abs()
 	{
 		FixedPoint tmp(*this);

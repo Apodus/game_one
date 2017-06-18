@@ -1,11 +1,11 @@
 #pragma once
 
-#include "Types.hpp"
+#include "Types.h"
 
 namespace bs
 {
 	// http://turner.faculty.swau.edu/mathematics/materialslibrary/pi/pirat.html
-	const static bs::Real PI = bs::Real(1146408, 364913);
+	const static bs::Real PI = static_cast<bs::Real>(bs::Fraction(1146408, 364913));
 
 	// Atan2 prototype. Should be handled by FixedPoint class when working.
 	class AngleUtil
@@ -46,11 +46,11 @@ namespace bs
 		static bs::Real GetAngle(const Vec& dir)
 		{
 
-			int yi = dir.y * Real(INT16_MAX);
-			int xi = dir.x * Real(INT16_MAX);
+			int yi = static_cast<int>(dir.y * Real(INT16_MAX));
+			int xi = static_cast<int>(dir.x * Real(INT16_MAX));
 #if 1
 			int16_t at2 = fxpt_atan2(static_cast<int16_t>(xi), static_cast<int16_t>(yi));
-			return Real(at2, 32768) * Real(180) - Real(360);
+			return Real(static_cast<Real>(Fraction(at2, 32768))) * Real(180) - Real(360);
 #else // std::atan2 for testing
 			auto val = std::atan2(static_cast<float>(xi), static_cast<float>(yi));
 			Real angle = Real(static_cast<int32_t>(val * 1000), 1000);

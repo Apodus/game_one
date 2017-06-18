@@ -3,11 +3,11 @@
 #include "Battle.h"
 #include "AngleUtil.hpp"
 
-const bs::Real bs::Field::TimePerUpdate = bs::Real(100, 1000);
+const bs::Real bs::Field::TimePerUpdate = static_cast<bs::Real>(bs::Fraction(100, 1000));
 
 namespace
 {
-	const size_t MaxUpdates = static_cast<size_t>(15 * 60 / bs::Field::TimePerUpdate.toDouble());
+	const size_t MaxUpdates = static_cast<int>(bs::Real(15 * 60) / bs::Field::TimePerUpdate);
 	constexpr size_t MaxUnits = 20000;
 	const bs::AngleUtil ourAngleUtil;
 }
@@ -26,7 +26,8 @@ void bs::Field::UpdatePriorities()
 		auto& unit = myUnits[myActiveUnits[i]];
 		if (unit.type == Unit::Type::Character)
 		{
-			auto len = ((unit.moveTarget - unit.pos).lengthSquared().getRawValue() - unit.radius.getRawValue()) >> 18;
+			Real rlen = ((unit.moveTarget - unit.pos).lengthSquared() - unit.radius) / Real(1 << 10);
+			int len = static_cast<int>(rlen);
 			if (len < 0)
 			{
 				len = 0;
@@ -146,7 +147,7 @@ bool bs::Field::Update()
 		auto& unit = myUnits[myActiveUnits[i]];
 
 		bs::Real Speed;
-		const bs::Real SlowDown(1, 2);
+		const bs::Real SlowDown = static_cast<bs::Real>(bs::Fraction(1, 2));
 		Vec targetDir;
 		bool hasTargetAngle = true;
 
@@ -157,7 +158,7 @@ bool bs::Field::Update()
 				Speed = Real(3);
 				targetDir = unit.moveTarget - unit.pos;
 				auto targetDirLen = targetDir.length();
-				if (targetDirLen > Real(0, 1))
+				if (targetDirLen > Real(0))
 				{
 					targetDir.x /= targetDirLen;
 					targetDir.y /= targetDirLen;
@@ -212,7 +213,7 @@ bool bs::Field::Update()
 		else
 		{
 			unit.acc = bs::Vec();
-			Speed = Real(0, 1);
+			Speed = Real(0);
 		}
 
 
@@ -249,15 +250,15 @@ bool bs::Field::Update()
 			{
 				Vec dir = other.pos - newPos;
 				auto len = dir.length();
-				if (len.getRawValue() > 8)
+				if (len >  static_cast<Real>(Fraction(1, 16384)))
 				{
 					dir.x /= len;
 					dir.y /= len;
 					dir.z /= len;
 					auto dp = dir.dotProduct(targetDir);
-					newVel.x = -(dp * unit.vel.x) / Real(2, 1);
-					newVel.y = -(dp * unit.vel.y) / Real(2, 1);
-					newVel.z = (Real(0, 1));
+					newVel.x = -(dp * unit.vel.x) / Real(2);
+					newVel.y = -(dp * unit.vel.y) / Real(2);
+					newVel.z = (Real(0));
 				}
 			}
 			else
@@ -290,7 +291,7 @@ bool bs::Field::Update()
 		}
 		else
 		{
-			if ((unit.pos - newPos).lengthSquared().getRawValue() > 8)
+			if ((unit.pos - newPos).lengthSquared() > Fraction(1, 16384))
 			{
 				if (myLevels[0].IsGridMove(unit, newPos))
 				{
@@ -462,21 +463,21 @@ bool bs::Field::CollisionCheck(const Unit& a, const Unit& b, const Vec& endPos, 
 	/* movement vector */
 	N = endPos - b.pos;
 	Real length_N = N.length(); // TODO 2d vec
-	if (length_N == Real(0, 1))
+	if (length_N == Real(0))
 	{
 		// Not moving, TODO: should probably assert here
 		return false;
 	}
 
 	Vec C = a.pos - b.pos;
-	C.z = Real(0, 1); /* Ignore Z: used for sphere collision */
+	C.z = Real(0); /* Ignore Z: used for sphere collision */
 	Real length_C = sa::math::sqrt((C.x*C.x + C.y*C.y));
 
-	if (length_C == Real(0, 1))
+	if (length_C == Real(0))
 	{
 		if (b.type == Unit::Type::Projectile)
 		{
-			N = (a.pos + b.pos) / Real(2, 1);
+			N = (a.pos + b.pos) / Real(2);
 			return true;
 		}
 		// Inside each other, don't consider collision though
@@ -495,10 +496,10 @@ bool bs::Field::CollisionCheck(const Unit& a, const Unit& b, const Vec& endPos, 
 	*/
 	N.x /= length_N;
 	N.y /= length_N;
-	N.z = Real(0, 1);
+	N.z = Real(0);
 
 	Real D = N.dotProduct(C);
-	if (D <= Real(0, 1))
+	if (D <= Real(0))
 	{
 		return false;
 	}
@@ -518,7 +519,7 @@ bool bs::Field::CollisionCheck(const Unit& a, const Unit& b, const Vec& endPos, 
 	// F and min dist form a right triangle (minDist the hypotenuse) with a
 	// third line we'll call square of T.
 	Real T = (radii2)-F;
-	if (T < Real(0, 1))
+	if (T < Real(0))
 	{
 		return false;
 	}
@@ -541,9 +542,9 @@ bool bs::Field::CollisionCheck(const Unit& a, const Unit& b, const Vec& endPos, 
 
 void bs::Field::InitialUpdate(Battle& battle)
 {
-	const Vec Offset(Real(1000, 1), Real(1000, 1), Real(0, 1));
+	const Vec Offset(Real(1000), Real(1000), Real(0));
 
-	const Real Distance(20, 1);
+	const Real Distance(20);
 
 	ASSERT(myUnits.empty(), "Cannot reuse field");
 	myUnits = battle.Get();
@@ -572,7 +573,7 @@ void bs::Field::InitialUpdate(Battle& battle)
 void bs::Field::FinalUpdate(Battle& battle)
 {
 	battle.Set(std::move(myUnits));
-	battle.totalMilliseconds = static_cast<size_t>(TimePerUpdate.toDouble() * 1000.0 * myTick);
+	battle.totalMilliseconds = static_cast<size_t>(static_cast<double>(TimePerUpdate) * 1000.0 * myTick);
 	myUnits = bs::Vector<Unit>();
 }
 
@@ -589,7 +590,7 @@ void bs::Field::Shoot(const Unit& unit)
 {
 	Vec aimDir = unit.aimTarget - unit.pos;
 	auto aimLen = aimDir.length();
-	if (aimLen <= Real(1, 1000))
+	if (aimLen <= Fraction(1, 1000))
 	{
 		return;
 	}
@@ -615,16 +616,16 @@ void bs::Field::Shoot(const Unit& unit)
 	attack.type = Unit::Type::Projectile;
 
 	myRand = sa::math::rand(myRand);
-	Real errorX(static_cast<int32_t>(myRand & 0xFFFF) - (0xFFFF / 2), 0x10000);
-	Real errorY((static_cast<int32_t>(myRand >> 16) & 0xFFFF) - (0xFFFF / 2), 0x10000);
+	Fraction errorX(static_cast<int32_t>(myRand & 0xFFFF) - (0xFFFF / 2), 0x10000);
+	Fraction errorY((static_cast<int32_t>(myRand >> 16) & 0xFFFF) - (0xFFFF / 2), 0x10000);
 
-	aimDir.x += errorX * Real(40, 100);
-	aimDir.y += errorY * Real(40, 100);
+	aimDir.x += static_cast<Real>(errorX) * static_cast<Real>(Fraction(40, 100));
+	aimDir.y += static_cast<Real>(errorY) * static_cast<Real>(Fraction(40, 100));
 	aimDir.normalize();
 
-	attack.radius = Real(1, 10);
-	attack.pos = unit.pos + (aimDir * (unit.radius + Real(2, 1)*attack.radius));
-	attack.vel = aimDir * Real(100, 1);
+	attack.radius = static_cast<Real>(Fraction(1, 10));
+	attack.pos = unit.pos + (aimDir * (unit.radius + Real(2)*attack.radius));
+	attack.vel = aimDir * Real(100);
 	attack.hitpoints = 20;
 	attack.team = unit.team;
 	attack.nextAttackAllowed = InvalidTick;
@@ -658,7 +659,7 @@ void bs::Field::UpdateDecisions()
 		ASSERT(unit.timerId != InvalidTimer, "Unit has no timer");
 
 		myRand = sa::math::rand(myRand);
-		Real range = Real(myRand % 9000 + 1000, 100) + unit.radius;
+		Real range = static_cast<Real>(Fraction(myRand % 9000 + 1000, 100)) + unit.radius;
 
 		auto closest = FindClosestEnemy(unit, range);
 		if (closest != Unit::InvalidId)
@@ -678,7 +679,7 @@ bs::Real bs::Field::TargetAngleGet(Unit& unit) const
 {
 	Vec aimDir = unit.aimTarget - unit.pos;
 	auto aimLen = aimDir.length();
-	if (aimLen <= Real(1, 1000))
+	if (aimLen <= Fraction(1, 1000))
 	{
 		return unit.angle;
 	}

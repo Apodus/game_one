@@ -10,8 +10,6 @@
 
 #include <SFML/Audio.hpp>
 #include "script/Scripter.hpp"
-#include "util/fixedpoint.hpp"
-
 
 #include "BattleSim/BattleSim.hpp"
 
@@ -32,8 +30,7 @@ int main(int argc, char** argv)
 
 	try
 	{
-		sa::math::fixedpoint::initialize();
-		
+	
 		// Temporary for testing battle sim
 		if (argc >= 2 && strcmp(argv[1], "sim") == 0)
 		{
@@ -46,7 +43,7 @@ int main(int argc, char** argv)
 			size_t checksum = 0;
 			for (size_t i = 0; i < battle.NumUnits(); i++)
 			{
-				checksum += battle.Get(i).hitpoints;
+				checksum = (checksum + 1) * (battle.Get(i).hitpoints + 1);
 			}
 			delete sim;
 			auto endTime = std::chrono::high_resolution_clock::now();

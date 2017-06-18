@@ -11,7 +11,7 @@ namespace bs
 	class Level
 	{
 	public:
-		static const U32 UniformGridBits = 17;
+		static const U32 UniformGridBits = 17;//17;
 		static const U32 UniformGridLists = 1 << UniformGridBits;
 		static const U32 UniformGridScale;
 
@@ -33,7 +33,7 @@ namespace bs
 		// Map position to uniform grid
 		U32 POS(Real x) const
 		{
-			return static_cast<U32>(x >> UniformGridScale);
+			return static_cast<U32>(int(x)) >> UniformGridScale;
 		}
 
 		typedef Vector<Unit::Id> UnitList;

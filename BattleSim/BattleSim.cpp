@@ -30,13 +30,13 @@ bs::Battle bs::BattleSim::Generate()
 				Unit u;
 				if (i % 10 == 0 && y == 0)
 				{
-					u.radius = Real(10, 10);
+					u.radius = static_cast<Real>(Fraction(10, 10));
 					u.hitpoints = 100;
 					u.weaponId = 1;
 				}
 				else
 				{
-					u.radius = Real(4, 10);
+					u.radius = static_cast<Real>(Fraction(4, 10));
 					u.hitpoints = 5;
 				}
 				u.pos.set(Real(0 + i - 50), Real(0 + y), Real(0));
@@ -72,7 +72,7 @@ void bs::BattleSim::RunUntilComplete()
 
 double bs::BattleSim::GetTimePerUpdate() const
 {
-	return myField.TimePerUpdate.toDouble();
+	return static_cast<double>(myField.TimePerUpdate);
 }
 
 void bs::BattleSim::Cancel()

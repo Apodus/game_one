@@ -62,7 +62,7 @@ void CombatView::draw(std::shared_ptr<sa::Graphics> pGraphics, long long deltaTi
 				}
 				auto& unit = m_units[unitIn.id];
 				unit.team = unitIn.team;
-				unit.size = unitIn.radius.toFloat() * scale;
+				unit.size = static_cast<float>(unitIn.radius) * scale;
 			}
 
 			// Moving units
@@ -72,10 +72,10 @@ void CombatView::draw(std::shared_ptr<sa::Graphics> pGraphics, long long deltaTi
 				const auto& unitIn = reader.Read<bs::Visualization::Movement>();
 				auto& unit = m_units[unitIn.id];
 				unit.next.isValid = true;
-				unit.next.angle = unitIn.angle.toFloat();
-				unit.next.x = unitIn.pos.x.toFloat() * scale - offsetX;
-				unit.next.y = unitIn.pos.y.toFloat() * scale - offsetY;
-				unit.next.z = unitIn.pos.z.toFloat() * scale - offsetZ;
+				unit.next.angle = static_cast<float>(unitIn.angle);
+				unit.next.x = static_cast<float>(unitIn.pos.x) * scale - offsetX;
+				unit.next.y = static_cast<float>(unitIn.pos.y) * scale - offsetY;
+				unit.next.z = static_cast<float>(unitIn.pos.z) * scale - offsetZ;
 				unit.hitpoints = unitIn.hitpoints;
 			}
 

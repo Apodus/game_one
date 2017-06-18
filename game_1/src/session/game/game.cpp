@@ -167,7 +167,7 @@ void Game::drawProvinces(std::shared_ptr<sa::Graphics> pGraphics)
 	}
 
 	// for animation of things.
-	float modifier = sa::math::sin(2 * 3.1459f * (m_tickID % 60) / 60.0f);
+	float modifier = std::sin(2.0f * 3.1459f * static_cast<float>(m_tickID % 60) / 60.0f);
 
 	// visualize movement orders
 	for (const auto& province : provinces)

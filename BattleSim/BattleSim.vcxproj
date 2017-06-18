@@ -166,6 +166,9 @@
     <ClInclude Include="ByteBuffer.h" />
     <ClInclude Include="Deque.hpp" />
     <ClInclude Include="Field.hpp" />
+    <ClInclude Include="FixedMath.h" />
+    <ClInclude Include="FixedPoint.h" />
+    <ClInclude Include="Fraction.h" />
     <ClInclude Include="IdPool.h" />
     <ClInclude Include="TimerSystem.h" />
     <ClInclude Include="Visualization.h" />
@@ -173,12 +176,13 @@
     <ClInclude Include="GroupAI.hpp" />
     <ClInclude Include="Level.hpp" />
     <ClInclude Include="PriorityQueue.hpp" />
-    <ClInclude Include="Types.hpp" />
+    <ClInclude Include="Types.h" />
     <ClInclude Include="Unit.hpp" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="UnitAI.h" />
     <ClInclude Include="Vector.hpp" />
+    <ClInclude Include="Wider.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BattleSim.cpp" />

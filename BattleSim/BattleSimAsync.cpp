@@ -47,7 +47,7 @@ void bs::BattleSimAsync::Run()
 				myTimeToSimulate = 0;
 			}
 			double endTime = myTimeAccu + myTotalTime + timeToSimulate;
-			double mySortTimer = static_cast<double>(Field::TimePerUpdate.getRawValue()) / Real::s_fpOne;
+			double mySortTimer = static_cast<double>(Field::TimePerUpdate);
 			while (myTotalTime + mySortTimer < endTime && myActiveFlag)
 			{
 				auto start = std::chrono::high_resolution_clock::now();

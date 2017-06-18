@@ -31,11 +31,11 @@ void Combat::setup(bs::Battle& battle)
 		bs::Unit u;
 		ASSERT(factionIndex <= UINT8_MAX, "Num factions not supported");
 		u.team = static_cast<bs::U8>(factionIndex);
-		u.radius = bs::Real(4, 10);
+		u.radius = static_cast<bs::Real>(bs::Fraction(4, 10));
 		u.hitpoints = cmdr.reference->hp;
 		
-		bs::Real x(cmdr.startPosition[0]);
-		bs::Real y(cmdr.startPosition[1]);	
+		bs::Real x(static_cast<bs::Real>(cmdr.startPosition[0]));
+		bs::Real y(static_cast<bs::Real>(cmdr.startPosition[1]));
 		u.pos.set(x, y, bs::Real(0));
 
 		u.id = battle.NumUnits();
