@@ -158,7 +158,6 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="AngleUtil.hpp" />
     <ClInclude Include="Battle.h" />
     <ClInclude Include="Array.hpp" />
     <ClInclude Include="BattleSim.hpp" />
@@ -170,6 +169,7 @@
     <ClInclude Include="FixedPoint.h" />
     <ClInclude Include="Fraction.h" />
     <ClInclude Include="IdPool.h" />
+    <ClInclude Include="Math.h" />
     <ClInclude Include="TimerSystem.h" />
     <ClInclude Include="Visualization.h" />
     <ClInclude Include="VisualizationSystem.h" />

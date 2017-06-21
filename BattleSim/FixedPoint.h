@@ -736,16 +736,6 @@ namespace std
         static constexpr float_round_style round_style = round_toward_zero;
     };
     
-    inline bool isfinite(core::Fixed32 value) noexcept
-    {
-        return (value > core::Fixed32::GetNegativeInfinity()) && (value < core::Fixed32::GetInfinity());
-    }
-    
-    constexpr inline bool isnan(core::Fixed32 value) noexcept
-    {
-        return value.Compare(0) == core::Fixed32::ComparatorResult::Incomparable;
-    }
-
 #ifndef _WIN32
 
     template <>
@@ -792,66 +782,6 @@ namespace std
         static constexpr bool tinyness_before = false;
         static constexpr float_round_style round_style = round_toward_zero;
     };
-
-    inline core::Fixed64 abs(core::Fixed64 value) noexcept
-    {
-        return (value < core::Fixed64{0})? -value: value;
-    }
-    
-    inline core::Fixed64 sqrt(core::Fixed64 value)
-    {
-        return core::Fixed64{::std::sqrt(static_cast<double>(value))};
-    }
-    
-    inline double atan2(core::Fixed64 y, core::Fixed64 x)
-    {
-        return atan2(static_cast<double>(y), static_cast<double>(x));
-    }
-    
-    inline core::Fixed64 round(core::Fixed64 value) noexcept
-    {
-        const auto tmp = value + (core::Fixed64{1} / core::Fixed64{2});
-        const auto truncated = static_cast<core::Fixed64::value_type>(tmp);
-        return core::Fixed64{truncated, 0};
-    }
-    
-    inline core::Fixed64 nextafter(core::Fixed64 from, core::Fixed64 to) noexcept
-    {
-        if (from < to)
-        {
-            return from + numeric_limits<core::Fixed64>::min();
-        }
-        if (from > to)
-        {
-            return from - numeric_limits<core::Fixed64>::min();
-        }
-        return to;
-    }
-    
-    inline double cos(core::Fixed64 value)
-    {
-        return cos(static_cast<double>(value));
-    }
-    
-    inline double sin(core::Fixed64 value)
-    {
-        return sin(static_cast<double>(value));
-    }
-    
-    inline double exp(core::Fixed64 value)
-    {
-        return exp(static_cast<double>(value));
-    }
-
-    inline bool isfinite(core::Fixed64 value) noexcept
-    {
-        return (value > core::Fixed64::GetNegativeInfinity()) && (value < core::Fixed64::GetInfinity());
-    }
-
-    constexpr inline bool isnan(core::Fixed64 value) noexcept
-    {
-        return value.Compare(0) == core::Fixed64::ComparatorResult::Incomparable;
-    }
 
 #endif /* _WIN32 */
 

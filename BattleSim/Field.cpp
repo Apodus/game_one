@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "Field.hpp"
 #include "Battle.h"
-#include "AngleUtil.hpp"
+#include "FixedPoint.h"
 
 const bs::Real bs::Field::TimePerUpdate = static_cast<bs::Real>(bs::Fraction(100, 1000));
 
@@ -9,7 +9,6 @@ namespace
 {
 	const size_t MaxUpdates = static_cast<int>(bs::Real(15 * 60) / bs::Field::TimePerUpdate);
 	constexpr size_t MaxUnits = 20000;
-	const bs::AngleUtil ourAngleUtil;
 }
 
 bs::Field::Field(StreamingMode streaming) : myStreaming(streaming)
@@ -166,7 +165,7 @@ bool bs::Field::Update()
 				}
 
 				auto targetAngle = TargetAngleGet(unit);
-				auto angleDelta = ourAngleUtil.GetAngleDelta(unit.angle, targetAngle);
+				auto angleDelta = core::Math::WrappedDelta<bs::Real>(unit.angle, targetAngle, bs::Real(180));
 				if (angleDelta > Real(8) || angleDelta < Real(-8))
 				{
 					hasTargetAngle = false;
@@ -685,6 +684,6 @@ bs::Real bs::Field::TargetAngleGet(Unit& unit) const
 	}
 	aimDir.x /= aimLen;
 	aimDir.y /= aimLen;
-	Real angle = ourAngleUtil.GetAngle(aimDir);
+	Real angle = core::atan2(aimDir.x, aimDir.y) * Real(180) / core::Math::Pi();
 	return angle;
 }
