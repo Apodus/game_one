@@ -7,13 +7,15 @@ namespace core
 {
 	class FixedMath
 	{
+		static const size_t NumSinEntries = 1024;
+		static const int16_t ourSinValues[NumSinEntries];
 	public:
 		FixedMath() {}
 
 		static const int32_t base = core::Fixed32::FractionBits;
 
 		// https://gist.github.com/Madsy/1088393
-		static Fixed32 exp(Fixed32 value)
+		static inline Fixed32 exp(Fixed32 value)
 		{
 			int32_t val = value.m_value;
 			int32_t x = val;
@@ -25,7 +27,14 @@ namespace core
 			return value;
 		}
 
-		static Fixed32 log(Fixed32 f32)
+		template<typename T, size_t U>
+		static inline FixedPoint<T,U> abs(FixedPoint<T, U> fp)
+		{
+			fp.m_value = std::abs(fp.m_value);
+			return fp;
+		}
+
+		static inline Fixed32 log(Fixed32 f32)
 		{
 			f32.m_value = fp_ln(f32.m_value);
 			return f32;
@@ -107,6 +116,30 @@ namespace core
 			}
 		}
 
+		static Fixed32 Cos(core::Fixed32 v)
+		{
+			v += Math::Pi() / 2;
+			return Sin(v);
+		}
+
+		static Fixed32 Sin(core::Fixed32 v)
+		{
+			if (v < 0)
+			{
+				int diff = static_cast<int>(-v / (Math::Pi() * Fraction<int64_t>(2)));
+				v += (Math::Pi() * Fraction<int64_t>(diff * 2));
+			}
+			v = v / (Math::Pi() * Fraction<int64_t>(2));
+			int index = static_cast<int>(v * Fixed32(NumSinEntries)) % NumSinEntries;
+			auto modOne = v % Fixed32(1);
+
+			Fixed32 a;
+			a.m_value = ourSinValues[index];
+			Fixed32 b;
+			b.m_value = ourSinValues[(index + 1) & (NumSinEntries - 1)];
+			return a * (Fixed32(1) - modOne) + (b * modOne);
+		}
+
 	private:
 		static constexpr int32_t clz(uint32_t x)
 		{
@@ -137,9 +170,8 @@ namespace core
 
 			// const int32_t ILN2 = 94548;        /* 1/ln(2) with 2^16 as base*/
 			// const int32_t ILOG2E = 45426;    /* 1/log2(e) with 2^16 as base */
-			double tmp = 1 / std::log2(2.71828);
-			const int32_t ILOG2E = core::Fixed32(tmp).m_value;
-
+			// double tmp = 1 / std::log2(2.71828);
+			const int32_t ILOG2E = core::Fixed32(core::Fraction32(693148, 1000000)).m_value;
 			const int32_t ln_denoms[] = {
 				(1 << base) / 1,
 				(1 << base) / 3,
@@ -190,16 +222,17 @@ namespace core
 			return intv + fracr;
 		}
 
-		static inline int16_t s16_nabs(const int16_t j)
+		template<typename T>
+		static inline T s16_nabs(const T j)
 		{
 #if (((int16_t)-1) >> 1) == ((int16_t)-1)
 			// signed right shift sign-extends (arithmetic)
-			const int16_t negSign = ~(j >> 15); // splat sign bit into all 16 and complement
+			constexpr size_t Shift = sizeof(T) * 8 - 1;
+			const T negSign = ~(j >> Shift); // splat sign bit into all 16 and complement
 												// if j is positive (negSign is -1), xor will invert j and sub will add 1
 												// otherwise j is unchanged
 			return (j ^ negSign) - negSign;
 #else
-			assert(false);
 			return (j < 0 ? j : -j);
 #endif
 		}
@@ -220,47 +253,31 @@ namespace core
 		}
 	};
 
-	inline core::Fixed32 abs(core::Fixed32 value) noexcept
-	{
-		return (value < core::Fixed32(0u)) ? -value : value;
-	}
+	inline core::Fixed32 abs(core::Fixed32 value) noexcept { return FixedMath::abs(value);}
 
-	inline core::Fixed32 exp(core::Fixed32 value)
-	{
-		return FixedMath::exp(value);
-	}
+	inline core::Fixed32 exp(core::Fixed32 value) { return FixedMath::exp(value); }
 
-	inline core::Fixed32 cos(core::Fixed32 value)
-	{
-		return static_cast<float>(std::cos(static_cast<double>(value)));
-	}
+	inline core::Fixed32 cos(core::Fixed32 value) { return FixedMath::Cos(value); }
 
-	inline core::Fixed32 sin(core::Fixed32 value)
-	{
-		return static_cast<float>(std::sin(static_cast<double>(value)));
-	}
+	inline core::Fixed32 sin(core::Fixed32 value) { return FixedMath::Sin(value); }
 
-	inline core::Fixed32 log(core::Fixed32 value)
-	{
-		return FixedMath::log(value);
-	}
+	inline core::Fixed32 log(core::Fixed32 value) { return FixedMath::log(value);}
 
-	inline core::Fixed32 atan2(core::Fixed32 y, core::Fixed32 x)
+	template<typename T, size_t U>
+	inline core::FixedPoint<T, U> atan2(core::FixedPoint<T, U> y, core::FixedPoint<T, U> x)
 	{
 		assert(sqrt(x*x + y*y) <= 1);
-		int yi = static_cast<int>(y * INT16_MAX);
-		yi = yi < INT16_MAX ? yi : INT16_MAX;
-		yi = yi > -INT16_MAX ? yi : -INT16_MAX;
-		int xi = static_cast<int>(x * INT16_MAX);
-		xi = xi < INT16_MAX ? xi : INT16_MAX;
-		xi = xi > -INT16_MAX ? xi : -INT16_MAX;
+		T yi = static_cast<T>(y * INT16_MAX);
+		T xi = static_cast<T>(x * INT16_MAX);
+		yi = yi < INT16_MAX ? yi > -INT16_MAX ? yi : -INT16_MAX : INT16_MAX;
+		xi = xi < INT16_MAX ? xi > -INT16_MAX ? xi : -INT16_MAX : INT16_MAX;
 		int32_t at2 = FixedMath::fxpt_atan2(static_cast<int16_t>(yi), static_cast<int16_t>(xi));
 		at2 -= INT16_MAX * 2;
 		if (at2 < -INT16_MAX)
 		{
 			at2 += INT16_MAX * 2;
 		}
-		core::Fixed32 result(core::Fraction32(static_cast<int32_t>(at2), INT16_MAX));
+		core::FixedPoint<T, U> result(core::Fraction<T>(static_cast<T>(at2), INT16_MAX));
 		return result * core::Math::Pi();
 	}
 

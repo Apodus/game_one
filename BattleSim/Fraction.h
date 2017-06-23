@@ -1,16 +1,42 @@
 #pragma once
 
-#include "types.h"
+#include <cstdint>
+#include "Wider.h"
 
 namespace core
 {
 	template<typename TSigned>
 	class Fraction
 	{
-		typedef typename std::make_unsigned<TSigned>::type TUnsigned;
 	public:
+		typedef typename std::make_unsigned<TSigned>::type TUnsigned;
+
 		explicit constexpr Fraction(TSigned numerator, TUnsigned denominator)
 			: myNumerator(numerator), myDenominator(denominator) { }
+
+		constexpr Fraction(short val)
+			: myNumerator(val), myDenominator(1) { }
+
+		explicit constexpr Fraction(unsigned short val)
+			: myNumerator(val), myDenominator(1) { }
+
+		constexpr Fraction(int val)
+			: myNumerator(val), myDenominator(1) { }
+
+		explicit constexpr Fraction(unsigned int val)
+			: myNumerator(val), myDenominator(1) { }
+
+		explicit constexpr Fraction(long val)
+			: myNumerator(val), myDenominator(1) { }
+
+		explicit constexpr Fraction(unsigned long val)
+			: myNumerator(val), myDenominator(1) { }
+
+		explicit constexpr Fraction(long long val)
+			: myNumerator(val), myDenominator(1) { }
+
+		explicit constexpr Fraction(unsigned long  long val)
+			: myNumerator(val), myDenominator(1) { }
 
 		explicit constexpr operator float() const noexcept
 		{
@@ -26,9 +52,35 @@ namespace core
 		constexpr TUnsigned Denominator() const { return myDenominator; }
 
 	private:
-		const TSigned myNumerator;
-		const TUnsigned myDenominator;
+		TSigned myNumerator;
+		TUnsigned myDenominator;
 	};
+
+	template<typename T>
+	constexpr Fraction<T> operator* (Fraction<T> lhs, Fraction<T> rhs) noexcept
+	{
+		if (rhs.Numerator() == 0 || lhs.Numerator() == 0)
+		{
+			lhs = Fraction<T>(0);
+		}
+		else
+		{
+			T num = lhs.Numerator();
+			Fraction<T>::TUnsigned den = lhs.Denominator();
+			T n2;
+			Fraction<T>::TUnsigned d2;
+			int iter = 0;
+			do
+			{
+				n2 = (num * rhs.Numerator()) >> iter;
+				d2 = (den * rhs.Denominator()) >> iter;
+				iter++;
+			} while (std::abs(n2) < std::abs(num) || d2 < den);
+
+			lhs = Fraction<T>(n2, d2);
+		}
+		return lhs;
+	}
 
 	typedef Fraction<int64_t> Fraction64;
 	typedef Fraction<int32_t> Fraction32;

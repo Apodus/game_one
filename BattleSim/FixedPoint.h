@@ -266,6 +266,12 @@ namespace core
         {
             return static_cast<short>(m_value / ScaleFactor);
         }
+
+		template<typename T>
+		explicit constexpr operator Fraction<T>() const noexcept
+		{
+			return Fraction<T>(m_value, ScaleFactor);
+		}
         
         constexpr FixedPoint operator- () const noexcept
         {

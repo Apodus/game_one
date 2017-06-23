@@ -6,14 +6,11 @@ namespace core
 	class Math
 	{
 	public:
-		// http://turner.faculty.swau.edu/mathematics/materialslibrary/pi/pirat.html
+		// http://www.math.illinois.edu/~ajh/453/pi-cf.pdf
 		template<typename T = int32_t>
-		static constexpr inline Fraction<T> Pi() { return core::Fraction32(1146408, 364913); }	
-		static constexpr inline Fraction<int64_t> Pi() { return core::Fraction64(3126535, 995207); }
+		static constexpr inline Fraction<T> Pi() { return core::Fraction32(80143857, 25510582); }
+		static constexpr inline Fraction<int64_t> Pi() { return core::Fraction64(80143857, 25510582); }
 		
-		template<typename T = int32_t>
-		static constexpr inline Fraction<T> Pi2() { return Pi<T>* Pi<T>; }
-
 		template<typename T>
 		static constexpr inline T WrappedDelta(T from, T to, T range)
 		{
