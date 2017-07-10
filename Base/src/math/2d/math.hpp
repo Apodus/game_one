@@ -41,15 +41,13 @@ namespace math {
 
 	// xorshift64 - feed the result as the next parameter to get next random number.
 	//              must start with nonzero value.
-	inline uint64_t rand(uint64_t x) {
+	inline uint64_t rand(uint64_t& state) {
+		uint64_t x = state;
 		x ^= x >> 12; // a
 		x ^= x << 25; // b
 		x ^= x >> 27; // c
+		state = x;
 		return x * 0x2545F4914F6CDD1D;
-	}
-
-	inline uint64_t rand(int64_t x) {
-		return sa::math::rand(static_cast<uint64_t>(x));
 	}
 
 	template<int iterations, typename T>

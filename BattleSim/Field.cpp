@@ -343,8 +343,8 @@ bool bs::Field::Update()
 						unit.receivedDamage = unit.hitpoints;
 						if (other.team != unit.team)
 						{
-							myRand = sa::math::rand(myRand);
-							if ((myRand & 1) == 1)
+							auto result = sa::math::rand(myRand);
+							if ((result & 1) == 1)
 							{
 								other.receivedDamage += 10;
 							}
@@ -696,9 +696,9 @@ void bs::Field::Shoot(const Unit& unit)
 	Unit& attack = myUnits[attackId];
 	attack.type = Unit::Type::Projectile;
 
-	myRand = sa::math::rand(myRand);
-	Fraction errorX(static_cast<int32_t>(myRand & 0xFFFF) - (0xFFFF / 2), 0x10000);
-	Fraction errorY((static_cast<int32_t>(myRand >> 16) & 0xFFFF) - (0xFFFF / 2), 0x10000);
+	auto result = sa::math::rand(myRand);
+	Fraction errorX(static_cast<int32_t>(result & 0xFFFF) - (0xFFFF / 2), 0x10000);
+	Fraction errorY((static_cast<int32_t>(result >> 16) & 0xFFFF) - (0xFFFF / 2), 0x10000);
 
 	aimDir.x += static_cast<Real>(errorX) * static_cast<Real>(Fraction(40, 100));
 	aimDir.y += static_cast<Real>(errorY) * static_cast<Real>(Fraction(40, 100));
@@ -739,8 +739,8 @@ void bs::Field::UpdateDecisions()
 		auto& unit = myUnits[id];
 		ASSERT(unit.timerId != InvalidTimer, "Unit has no timer");
 
-		myRand = sa::math::rand(myRand);
-		Real range = static_cast<Real>(Fraction(myRand % 9000 + 1000, 100)) + unit.radius;
+		auto result = sa::math::rand(myRand);
+		Real range = static_cast<Real>(Fraction(result % 9000 + 1000, 100)) + unit.radius;
 
 		auto closest = FindClosestEnemy(unit, range);
 		if (closest != Unit::InvalidId)
