@@ -3,6 +3,8 @@
 #include "Battle.h"
 #include "FixedPoint.h"
 
+#define VECTORIZATION_ENABLED
+
 const bs::Real bs::Field::TimePerUpdate = static_cast<bs::Real>(bs::Fraction(100, 1000));
 
 namespace
@@ -13,6 +15,12 @@ namespace
 
 bs::Field::Field(StreamingMode streaming) : myStreaming(streaming)
 {
+	myWorldProcessor = (WorldProcessor*)_aligned_malloc(sizeof(WorldProcessor), 16);
+}
+
+bs::Field::~Field()
+{
+	_aligned_free(myWorldProcessor);
 }
 
 void bs::Field::UpdatePriorities()
@@ -20,30 +28,32 @@ void bs::Field::UpdatePriorities()
 	// TODO: Can refactor unitUpdatePriorities out, store priority to unit data
 	Vector<U16> unitUpdatePriorities;
 	unitUpdatePriorities.resize(myUnits.size());
-	for (size_t i = 0; i < myActiveUnits.size(); i++)
+	for (size_t j = 0; j < static_cast<size_t>(Unit::Type::Count); j++)
 	{
-		auto& unit = myUnits[myActiveUnits[i]];
-		if (unit.type == Unit::Type::Character)
+		for (size_t i = 0; i < myActiveUnits[j].size(); i++)
 		{
-			Real rlen = ((unit.moveTarget - unit.pos).lengthSquared() - unit.radius) / Real(1 << 10);
-			int len = static_cast<int>(rlen);
-			if (len < 0)
+			auto& unit = myUnits[myActiveUnits[j][i]];
+			if (j == static_cast<size_t>(Unit::Type::Character))
 			{
-				len = 0;
+				Real rlen = ((unit.moveTarget - unit.pos).lengthSquared() - unit.radius) / Real(1 << 10);
+				int len = static_cast<int>(rlen);
+				if (len < 1)
+				{
+					len = 1;
+				}
+				ASSERT(len <= UINT16_MAX, "Too low priority");
+				unitUpdatePriorities[myActiveUnits[j][i]] = static_cast<U16>(len);
 			}
-			ASSERT(len <= UINT16_MAX, "Too low priority");
-			unitUpdatePriorities[myActiveUnits[i]] = static_cast<U16>(len);
+			else
+			{
+				unitUpdatePriorities[myActiveUnits[j][i]] = 0;
+			}
 		}
-		else
+		std::sort(myActiveUnits[j].begin(), myActiveUnits[j].end(), [&](Unit::Id a, Unit::Id b)
 		{
-			unitUpdatePriorities[myActiveUnits[i]] = 0;
-		}
+			return unitUpdatePriorities[a] < unitUpdatePriorities[b];
+		});
 	}
-
-	std::sort(myActiveUnits.begin(), myActiveUnits.end(), [&](Unit::Id a, Unit::Id b)
-	{
-		return unitUpdatePriorities[a] < unitUpdatePriorities[b];
-	});
 }
 
 void bs::Field::FindCollisions(
@@ -137,221 +147,290 @@ bool bs::Field::Update()
 	UpdatePriorities();
 
 	// Movement
-	Vector<Unit::Id> killed;
-	killed.reserve(16);
+	Array<Vector<Unit::Id>, 2> killed;
+	killed[0].reserve(16);
+	killed[1].reserve(16);
 	Vector<Unit::Id> collisions;
 	collisions.reserve(16);
-	for (size_t i = 0; i < myActiveUnits.size(); i++)
+
+	for (size_t type = 0; type < 2; type++)
 	{
-		auto& unit = myUnits[myActiveUnits[i]];
-
-		bs::Real Speed;
-		const bs::Real SlowDown = static_cast<bs::Real>(bs::Fraction(1, 2));
-		Vec targetDir;
-		bool hasTargetAngle = true;
-
-		if (unit.hitpoints > 0)
+		for (size_t start = 0; start < myActiveUnits[type].size(); start += 4)
 		{
-			if (unit.type == Unit::Type::Character)
+			size_t end = std::min(start + 3, myActiveUnits[type].size() - 1);
+			bs::U32 unitIds[4] = { myActiveUnits[type][start],
+				myActiveUnits[type][std::min(start + 1, end)],
+				myActiveUnits[type][std::min(start + 2, end)],
+				myActiveUnits[type][std::min(start + 3, end)] };
+#ifdef VECTORIZATION_ENABLED
+			Vec targetDirs[4];
+			memset(targetDirs, 0x0, sizeof(Vec) * 4);
+			Vec aimDirs[4];
+
+			if (type == static_cast<size_t>(Unit::Type::Character))
 			{
-				Speed = Real(3);
-				targetDir = unit.moveTarget - unit.pos;
-				auto targetDirLen = targetDir.length();
-				if (targetDirLen > Real(0))
+				myWorldProcessor->myPositions.Store(
+					myUnits[unitIds[0]].pos,
+					myUnits[unitIds[1]].pos,
+					myUnits[unitIds[2]].pos,
+					myUnits[unitIds[3]].pos);
+
+				myWorldProcessor->myMoveTargets.Store(
+					myUnits[unitIds[0]].moveTarget,
+					myUnits[unitIds[1]].moveTarget,
+					myUnits[unitIds[2]].moveTarget,
+					myUnits[unitIds[3]].moveTarget);
+
+				myWorldProcessor->myAimTargets.Store(
+					myUnits[unitIds[0]].aimTarget,
+					myUnits[unitIds[1]].aimTarget,
+					myUnits[unitIds[2]].aimTarget,
+					myUnits[unitIds[3]].aimTarget);
+
+				myWorldProcessor->Run();
+
+				myWorldProcessor->myMoveTargetDirs.Load(targetDirs);
+				myWorldProcessor->myAimTargetDirs.Load(aimDirs);
+			}
+#endif
+			for (size_t i = start; i <= end; i++)
+			{
+				auto& unit = myUnits[unitIds[i - start]];
+
+				bs::Real Speed;
+				const bs::Real SlowDown = static_cast<bs::Real>(bs::Fraction(1, 2));
+				Vec targetDir;
+				bool hasTargetAngle = true;
+
+				if (unit.hitpoints > 0)
 				{
-					targetDir.x /= targetDirLen;
-					targetDir.y /= targetDirLen;
-					targetDir.z /= targetDirLen;
+					if (type == static_cast<size_t>(Unit::Type::Character))
+					{
+						Speed = Real(3);
+#ifdef VECTORIZATION_ENABLED
+						targetDir = targetDirs[i - start];
+						auto targetAngle = TargetAngleGet(aimDirs[i - start]);
+#else
+						targetDir = unit.moveTarget - unit.pos;
+						auto targetDirLen = core::sqrt(targetDir.x * targetDir.x + targetDir.y * targetDir.y);
+						if (targetDirLen > Real(0))
+						{
+							targetDir.x /= targetDirLen;
+							targetDir.y /= targetDirLen;
+							targetDir.z /= targetDirLen;
+						}
+						else
+						{
+							targetDir.x = 0;
+							targetDir.y = 0;
+							targetDir.z = 0;
+						}
+						auto aimDir = unit.aimTarget - unit.pos;
+						auto aimDirLen = core::sqrt(aimDir.x * aimDir.x + aimDir.y * aimDir.y);
+						if (aimDirLen > Real(0))
+						{
+							aimDir.x /= aimDirLen;
+							aimDir.y /= aimDirLen;
+							aimDir.z /= aimDirLen;
+						}
+						else
+						{
+							aimDir.x = 0;
+							aimDir.y = 0;
+							aimDir.z = 0;
+						}
+						auto targetAngle = TargetAngleGet(aimDir);
+#endif
+
+						auto angleDelta = core::Math::WrappedDelta<bs::Real>(unit.angle, targetAngle, bs::Real(180));
+						if (angleDelta > Real(8) || angleDelta < Real(-8))
+						{
+							hasTargetAngle = false;
+							if (angleDelta > Real(0))
+							{
+								if (angleDelta > Real(4))
+								{
+									angleDelta = Real(4);
+								}
+							}
+							else
+							{
+								if (angleDelta < -Real(4))
+								{
+									angleDelta = -Real(4);
+								}
+							}
+							unit.angle -= angleDelta;
+
+							if (unit.angle < Real(-180))
+							{
+								unit.angle = Real(180) + (unit.angle - Real(-180));
+							}
+							else if (unit.angle > Real(180))
+							{
+								unit.angle = Real(-180) - (unit.angle - Real(180));
+							}
+						}
+						else
+						{
+							unit.angle = targetAngle;
+						}
+						// assert(unit.angle >= Real(-180));
+						// assert(unit.angle <= Real(180));
+
+						const bs::Real Agility(10);
+						unit.acc = targetDir * Agility;
+					}
+					else
+					{
+						Speed = Real(10);
+					}
+				}
+				else
+				{
+					unit.acc = bs::Vec();
+					Speed = Real(0);
 				}
 
-				auto targetAngle = TargetAngleGet(unit);
-				auto angleDelta = core::Math::WrappedDelta<bs::Real>(unit.angle, targetAngle, bs::Real(180));
-				if (angleDelta > Real(8) || angleDelta < Real(-8))
+
+				Vec newVel = unit.acc * TimePerUpdate + unit.vel;
+				auto speed = newVel.length();
+				if (speed > Speed)
 				{
-					hasTargetAngle = false;
-					if (angleDelta > Real(0))
+					auto excessSpeed = speed - Speed;
+					excessSpeed *= SlowDown;
+					newVel.normalize();
+					newVel *= (Speed + excessSpeed);
+				}
+
+				Vec newPos = unit.vel * TimePerUpdate + unit.pos;
+				collisions.clear();
+				FindCollisions(unit, unit.id, newPos, collisions);
+
+				Unit::Id collisionId = static_cast<Unit::Id>(-1);
+				for (size_t j = 0; j < collisions.size(); j++)
+				{
+					auto& other = myUnits[collisions[j]];
+					Vec hitPos;
+					if (CollisionCheck(other, unit, newPos, hitPos))
 					{
-						if (angleDelta > Real(4))
+						collisionId = myUnits[collisions[j]].id;
+						newPos = hitPos;
+					}
+				}
+
+				if (collisionId != static_cast<Unit::Id>(-1))
+				{
+					auto& other = myUnits[collisionId];
+					if (type == static_cast<size_t>(Unit::Type::Character))
+					{
+						Vec dir = other.pos - newPos;
+						auto len = dir.length();
+						if (len > static_cast<Real>(Fraction(1, 16384)))
 						{
-							angleDelta = Real(4);
+							dir.x /= len;
+							dir.y /= len;
+							dir.z /= len;
+							auto dp = dir.dotProduct(targetDir);
+							newVel.x = -(dp * unit.vel.x) / Real(2);
+							newVel.y = -(dp * unit.vel.y) / Real(2);
+							newVel.z = (Real(0));
 						}
 					}
 					else
 					{
-						if (angleDelta < -Real(4))
+						newVel = Vec();
+						unit.receivedDamage = unit.hitpoints;
+						if (other.team != unit.team)
 						{
-							angleDelta = -Real(4);
+							myRand = sa::math::rand(myRand);
+							if ((myRand & 1) == 1)
+							{
+								other.receivedDamage += 10;
+							}
 						}
 					}
-					unit.angle -= angleDelta;
+				}
 
-					if (unit.angle < Real(-180))
+				unit.vel = newVel;
+
+				bool isMoved = false;
+
+				if (unit.type == Unit::Type::Projectile)
+				{
+					if (unit.hitpoints != 0)
 					{
-						unit.angle = Real(180) + (unit.angle - Real(-180));
-					}
-					else if (unit.angle > Real(180))
-					{
-						unit.angle = Real(-180) - (unit.angle - Real(180));
+						unit.receivedDamage++;
+						unit.pos = newPos;
+						isMoved = true;
 					}
 				}
 				else
 				{
-					unit.angle = targetAngle;
-				}
-				// assert(unit.angle >= Real(-180));
-				// assert(unit.angle <= Real(180));
-
-				const bs::Real Agility(10);
-				unit.acc = targetDir * Agility;
-			}
-			else
-			{
-				Speed = Real(10);
-			}
-		}
-		else
-		{
-			unit.acc = bs::Vec();
-			Speed = Real(0);
-		}
-
-
-		Vec newVel = unit.acc * TimePerUpdate + unit.vel;
-		auto speed = newVel.length();
-		if (speed > Speed)
-		{
-			auto excessSpeed = speed - Speed;
-			excessSpeed *= SlowDown;
-			newVel.normalize();
-			newVel *= (Speed + excessSpeed);
-		}
-
-		Vec newPos = unit.vel * TimePerUpdate + unit.pos;
-		collisions.clear();
-		FindCollisions(unit, unit.id, newPos, collisions);
-
-		Unit::Id collisionId = static_cast<Unit::Id>(-1);
-		for (size_t j = 0; j < collisions.size(); j++)
-		{
-			auto& other = myUnits[collisions[j]];
-			Vec hitPos;
-			if (CollisionCheck(other, unit, newPos, hitPos))
-			{
-				collisionId = myUnits[collisions[j]].id;
-				newPos = hitPos;
-			}
-		}
-
-		if (collisionId != static_cast<Unit::Id>(-1))
-		{
-			auto& other = myUnits[collisionId];
-			if (unit.type == Unit::Type::Character)
-			{
-				Vec dir = other.pos - newPos;
-				auto len = dir.length();
-				if (len >  static_cast<Real>(Fraction(1, 16384)))
-				{
-					dir.x /= len;
-					dir.y /= len;
-					dir.z /= len;
-					auto dp = dir.dotProduct(targetDir);
-					newVel.x = -(dp * unit.vel.x) / Real(2);
-					newVel.y = -(dp * unit.vel.y) / Real(2);
-					newVel.z = (Real(0));
-				}
-			}
-			else
-			{
-				newVel = Vec();
-				unit.receivedDamage = unit.hitpoints;
-				if (other.team != unit.team)
-				{
-					myRand = sa::math::rand(myRand);
-					if ((myRand & 1) == 1)
+					if ((unit.pos - newPos).lengthSquared() > Fraction(1, 16384))
 					{
-						other.receivedDamage += 10;
+						if (myLevels[0].IsGridMove(unit, newPos))
+						{
+							myLevels[0].RemoveUnit(unit);
+							unit.pos = newPos;
+							myLevels[0].AddUnit(unit);
+						}
+						else
+						{
+							unit.pos = newPos;
+						}
+						isMoved = true;
 					}
 				}
-			}
-		}
 
-		unit.vel = newVel;
-
-		bool isMoved = false;
-
-		if (unit.type == Unit::Type::Projectile)
-		{
-			if (unit.hitpoints != 0)
-			{
-				unit.receivedDamage++;
-				unit.pos = newPos;
-				isMoved = true;
-			}
-		}
-		else
-		{
-			if ((unit.pos - newPos).lengthSquared() > Fraction(1, 16384))
-			{
-				if (myLevels[0].IsGridMove(unit, newPos))
+				if (unit.hitpoints != 0)
 				{
-					myLevels[0].RemoveUnit(unit);
-					unit.pos = newPos;
-					myLevels[0].AddUnit(unit);
-				}
-				else
-				{
-					unit.pos = newPos;
-				}
-				isMoved = true;
-			}
-		}
-
-		if (unit.hitpoints != 0)
-		{
-			if (myTick >= unit.nextAttackAllowed)
-			{
-				if (hasTargetAngle)
-				{
-					unit.nextAttackAllowed = myTick + (unit.weaponId == 1 ? 1 : 3);
-					const size_t numShots = unit.weaponId == 1 ? 5 : 1;
-					for (size_t k = 0; k < numShots; k++)
+					if (myTick >= unit.nextAttackAllowed)
 					{
-						Shoot(unit);
+						if (hasTargetAngle)
+						{
+							unit.nextAttackAllowed = myTick + (unit.weaponId == 1 ? 1 : 3);
+							const size_t numShots = unit.weaponId == 1 ? 5 : 1;
+							for (size_t k = 0; k < numShots; k++)
+							{
+								Shoot(unit);
+							}
+						}
 					}
 				}
-			}
-		}
 
-		if (!isMoved && unit.hitpoints == 0)
-		{
-			// Add to killed list only after dead and movement stopped.
-			if (unit.timerId != InvalidTimer)
-			{
-				myTimerSystem.Cancel(unit.timerId);
-			}
-			killed.emplace_back(unit.id);
-		}
-		else if (unit.receivedDamage > 0)
-		{
-			unit.hitpoints = unit.receivedDamage >= unit.hitpoints ? 0 : unit.hitpoints - unit.receivedDamage;
-			isMoved = true;
-			unit.receivedDamage = 0;
-		}
+				if (!isMoved && unit.hitpoints == 0)
+				{
+					// Add to killed list only after dead and movement stopped.
+					if (unit.timerId != InvalidTimer)
+					{
+						myTimerSystem.Cancel(unit.timerId);
+					}
+					killed[type].emplace_back(unit.id);
+				}
+				else if (unit.receivedDamage > 0)
+				{
+					unit.hitpoints = unit.receivedDamage >= unit.hitpoints ? 0 : unit.hitpoints - unit.receivedDamage;
+					isMoved = true;
+					unit.receivedDamage = 0;
+				}
 
-		if (IsStreaming() && isMoved)
-		{
-			myMovingUnits.emplace_back(unit.id);
-		}
+				if (IsStreaming() && isMoved)
+				{
+					myMovingUnits.emplace_back(unit.id);
+				}
 #if 0
-		if (unit.id == 0)
-		{
-			LOG("[%lu] POS = %f, %f DIR=%f, %f VEL= %f, %f",
-				unit.id,
-				RToF(unit.pos.x), RToF(unit.pos.y),
-				RToF(targetDir.x), RToF(targetDir.y),
-				RToF(unit.vel.x), RToF(unit.vel.y));
-		}
+				if (unit.id == 0)
+				{
+					LOG("[%lu] POS = %f, %f DIR=%f, %f VEL= %f, %f",
+						unit.id,
+						RToF(unit.pos.x), RToF(unit.pos.y),
+						RToF(targetDir.x), RToF(targetDir.y),
+						RToF(unit.vel.x), RToF(unit.vel.y));
+				}
 #endif
+			}
+		}
 	}
 
 	UpdateDecisions();
@@ -363,28 +442,31 @@ bool bs::Field::Update()
 	// Remove killed from active
 	// TODO: Go through all active and add to stopped instead of killed list
 	bool isActive = myTick < MaxUpdates;
-	for (size_t i = 0; i < killed.size(); i++)
+	for (size_t j = 0; j < 2; j++)
 	{
-		auto iter = std::find(myActiveUnits.begin(), myActiveUnits.end(), killed[i]);
-		ASSERT(iter != myActiveUnits.end(), "Killed not found");
-		auto& unit = myUnits[*iter];
-		if (unit.type == Unit::Type::Character)
+		for (size_t i = 0; i < killed[j].size(); i++)
 		{
-			myTeamUnitsLeft[unit.team]--;
-			if (myTeamUnitsLeft[unit.team] == 0)
+			auto iter = std::find(myActiveUnits[j].begin(), myActiveUnits[j].end(), killed[j][i]);
+			ASSERT(iter != myActiveUnits[j].end(), "Killed not found");
+			auto& unit = myUnits[*iter];
+			if (j == static_cast<size_t>(Unit::Type::Character))
 			{
-				isActive = false;
-				StopAttacks();
+				myTeamUnitsLeft[unit.team]--;
+				if (myTeamUnitsLeft[unit.team] == 0)
+				{
+					isActive = false;
+					StopAttacks();
+				}
+				myLevels[0].RemoveUnit(unit);
 			}
-			myLevels[0].RemoveUnit(unit);
+			else
+			{
+				myStoppingUnits.emplace_back(unit.id);
+				myFreeUnitIds.Free(unit.id);
+			}
+			*iter = myActiveUnits[j].back();
+			myActiveUnits[j].pop_back();
 		}
-		else
-		{
-			myStoppingUnits.emplace_back(unit.id);
-			myFreeUnitIds.Free(unit.id);
-		}
-		*iter = myActiveUnits.back();
-		myActiveUnits.pop_back();
 		// myActiveUnits.erase(iter);
 	}
 
@@ -470,7 +552,7 @@ bool bs::Field::CollisionCheck(const Unit& a, const Unit& b, const Vec& endPos, 
 
 	Vec C = a.pos - b.pos;
 	C.z = Real(0); /* Ignore Z: used for sphere collision */
-	Real length_C = sa::math::sqrt((C.x*C.x + C.y*C.y));
+	Real length_C = core::sqrt((C.x*C.x + C.y*C.y));
 
 	if (length_C == Real(0))
 	{
@@ -641,7 +723,7 @@ void bs::Field::ActivateStartingUnits()
 			myTeamUnitsLeft[unit.team]++;
 			unit.timerId = myTimerSystem.Create(unit.id, myTick + 1);
 		}
-		myActiveUnits.emplace_back(myStartingUnits[i]);
+		myActiveUnits[static_cast<size_t>(unit.type)].emplace_back(myStartingUnits[i]);
 
 		if (IsStreaming())
 		{
@@ -674,16 +756,8 @@ void bs::Field::UpdateDecisions()
 	});
 }
 
-bs::Real bs::Field::TargetAngleGet(Unit& unit) const
+bs::Real bs::Field::TargetAngleGet(Vec& aimDir) const
 {
-	Vec aimDir = unit.aimTarget - unit.pos;
-	auto aimLen = aimDir.length();
-	if (aimLen <= Fraction(1, 1000))
-	{
-		return unit.angle;
-	}
-	aimDir.x /= aimLen;
-	aimDir.y /= aimLen;
 	Real angle = core::atan2(aimDir.x, aimDir.y) * Real(180) / core::Math::Pi();
 	return angle;
 }

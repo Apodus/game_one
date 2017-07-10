@@ -126,6 +126,7 @@
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>$(ProjectDir)\..\Base\src\;</AdditionalIncludeDirectories>
       <TreatWarningAsError>true</TreatWarningAsError>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -167,10 +168,12 @@
     <ClInclude Include="Field.hpp" />
     <ClInclude Include="FixedMath.h" />
     <ClInclude Include="FixedPoint.h" />
+    <ClInclude Include="FixedVec.h" />
     <ClInclude Include="Fraction.h" />
     <ClInclude Include="IdPool.h" />
     <ClInclude Include="Math.h" />
     <ClInclude Include="TimerSystem.h" />
+    <ClInclude Include="SVec16i.h" />
     <ClInclude Include="Visualization.h" />
     <ClInclude Include="VisualizationSystem.h" />
     <ClInclude Include="GroupAI.hpp" />
@@ -183,6 +186,7 @@
     <ClInclude Include="UnitAI.h" />
     <ClInclude Include="Vector.hpp" />
     <ClInclude Include="Wider.h" />
+    <ClInclude Include="WorldProcessor.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BattleSim.cpp" />
@@ -210,6 +214,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="WorldProcessor.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -57,7 +57,7 @@ namespace core
 	};
 
 	template<typename T>
-	constexpr Fraction<T> operator* (Fraction<T> lhs, Fraction<T> rhs) noexcept
+	Fraction<T> operator* (Fraction<T> lhs, Fraction<T> rhs) noexcept
 	{
 		if (rhs.Numerator() == 0 || lhs.Numerator() == 0)
 		{
@@ -69,7 +69,7 @@ namespace core
 			Fraction<T>::TUnsigned den = lhs.Denominator();
 			T n2;
 			Fraction<T>::TUnsigned d2;
-			int iter = 0;
+			int iter = 0; // Numerator/Denominator simplification
 			do
 			{
 				n2 = (num * rhs.Numerator()) >> iter;

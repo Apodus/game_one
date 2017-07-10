@@ -6,6 +6,7 @@
 #include "VisualizationSystem.h"
 #include "Visualization.h"
 #include "TimerSystem.h"
+#include "WorldProcessor.h"
 
 namespace bs
 {
@@ -21,6 +22,7 @@ namespace bs
 		};
 
 		Field(StreamingMode streaming);
+		~Field();
 
 		// Returns true if victory conditions not met.
 		bool Update();
@@ -47,6 +49,11 @@ namespace bs
 
 		void FinalUpdate(Battle& battle);
 
+		size_t GetTick() const 
+		{
+			return myTick;
+		}
+
 	private:
 		void WriteUpdate();
 
@@ -68,22 +75,26 @@ namespace bs
 
 		void Shoot(const Unit& unit);
 
-		Real TargetAngleGet(Unit& unit) const;
+		Real TargetAngleGet(Vec& aimDir) const;
 
 		VisualizationSystem myVisualizationSystem;
 
+
+		WorldProcessor* myWorldProcessor;
 		// Field is divided into levels in depth-axis. 
 		// E.g. level 0 has underground units, level 1 has ground units and level 2 has flying units
 		Array<Level, 1> myLevels;
 		Array<size_t, MaxTeams> myTeamUnitsLeft;
-		Vector<Unit::Id> myActiveUnits;
+		
+		Array<Vector<Unit::Id>, 2> myActiveUnits;
+
 		Vector<Unit::Id> myStartingUnits;
 		Vector<Unit::Id> myMovingUnits;
 		Vector<Unit::Id> myStoppingUnits;
 		IdPool<Unit::Id> myFreeUnitIds;
 		Vector<Unit> myUnits;
 		TimerSystem<Unit::Id> myTimerSystem;
-		uint64_t myRand = 1;
+		uint64_t myRand = 2;
 		Tick myTick = 0;
 		StreamingMode myStreaming; // Is frame streaming enabled
 	

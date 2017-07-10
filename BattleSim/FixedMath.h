@@ -140,6 +140,7 @@ namespace core
 			return a * (Fixed32(1) - modOne) + (b * modOne);
 		}
 
+
 	private:
 		static constexpr int32_t clz(uint32_t x)
 		{
@@ -266,7 +267,6 @@ namespace core
 	template<typename T, size_t U>
 	inline core::FixedPoint<T, U> atan2(core::FixedPoint<T, U> y, core::FixedPoint<T, U> x)
 	{
-		assert(sqrt(x*x + y*y) <= 1);
 		T yi = static_cast<T>(y * INT16_MAX);
 		T xi = static_cast<T>(x * INT16_MAX);
 		yi = yi < INT16_MAX ? yi > -INT16_MAX ? yi : -INT16_MAX : INT16_MAX;

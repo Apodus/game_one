@@ -13,10 +13,10 @@ namespace bs
 
 		enum class Type : U8
 		{
+			Projectile,
 			Character,
-			Projectile
+			Count
 		};
-
 		
 		Vec pos = Vec();
 		Vec vel = Vec();

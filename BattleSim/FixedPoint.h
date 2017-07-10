@@ -401,14 +401,21 @@ namespace core
             }
             else
 #endif
-            {
-                const auto product = wider_type{m_value} * wider_type{val.m_value};
-                const auto result = product / ScaleFactor;
-// #ifdef CORE_FIXEDPOINT_INF_NAN                
-                if (product != 0 && result == 0)
-                {
-                    // underflow
-                    m_value = static_cast<value_type>(result);
+			{
+				const auto product = wider_type{ m_value } *wider_type{ val.m_value };
+
+#if (((wider_type)-1) >> 1) == ((wider_type)-1)
+				// Right shift of a negative signed number has implementation-defined behaviour.
+				// Use shifting if compiler generates arithmetic shift (sign is not lost)
+				const auto result = product >> FractionBits;
+#else
+				const auto result = product / ScaleFactor;
+#endif
+				// #ifdef CORE_FIXEDPOINT_INF_NAN                
+				if (product != 0 && result == 0)
+				{
+					// underflow
+					m_value = static_cast<value_type>(result);
                 }
                 else if (result > GetMax().m_value)
                 {
@@ -682,15 +689,14 @@ namespace core
 		}
 		// approximates the square root quite nicely
 		core::Fixed32 currentVal(t);
-		currentVal /= core::Fixed32(2);
+		currentVal *= core::Fraction32(1, 2);
 		for (int i = 0; i < 10; ++i)
 		{
 			currentVal += t / currentVal;
-			currentVal /= core::Fixed32(2);
+			currentVal *= core::Fraction32(1, 2);
 		}
 		return currentVal;
 	}
-
 } // namespace core
 
 namespace std

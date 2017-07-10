@@ -45,12 +45,14 @@ int main(int argc, char** argv)
 			{
 				checksum = (checksum + 1) * (battle.Get(i).hitpoints + 1);
 			}
+			auto ticks = sim->GetField().GetTick() + 1;
 			delete sim;
 			auto endTime = std::chrono::high_resolution_clock::now();
 			using ms = std::chrono::duration<float, std::milli>;
 			auto deltaTime = static_cast<long long>(std::chrono::duration_cast<ms>(endTime - startTime).count());
-			LOG("Total sim time: %f seconds (checksum=%zu)",
-				static_cast<double>(deltaTime) / 1000, checksum);
+			auto deltaSeconds = static_cast<double>(deltaTime) / 1000;
+			LOG("Total sim time: %f seconds, %f sec/tick (checksum=%zu;ticks=%zu)",
+				deltaSeconds, deltaSeconds / ticks, checksum, ticks);
 			return EXIT_SUCCESS;
 		}
 
