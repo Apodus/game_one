@@ -39,6 +39,44 @@ class Game {
 
 	}
 
+	void reallocateTroopsFromTurn() {
+		for (const auto& player : players) {
+			for (const auto& entry : player.turn->m_troopReassignments) {
+				uint32_t sourceProvince = entry.first;
+				for (const auto& troopEntry : entry.second) {
+					uint32_t unitId = troopEntry.first;
+					uint32_t newCommander = troopEntry.second;
+
+					for (auto& troop : graph.provinces()[sourceProvince].units) {
+						if (troop.id == unitId && troop.owner == player.playerIndex) {
+							
+							for (BattleCommander& commander : graph.provinces()[sourceProvince].commanders) {
+								
+								// remove from previous commander
+								if (commander.id == troop.commanderId) {
+									auto& squad = commander.squad;
+									for (auto it = squad.unitIds.begin(); it != squad.unitIds.end(); ++it) {
+										if (*it == unitId) {
+											squad.unitIds.erase(it++);
+											--it;
+										}
+									}
+								}
+
+								// assign to new commander
+								if (commander.id == newCommander) {
+									commander.squad.unitIds.emplace_back(unitId);
+									troop.commanderId = commander.id;
+								}
+
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
 	void updateCommanderOrdersFromTurn()
 	{
 		for (const auto& player : players)
@@ -150,7 +188,7 @@ class Game {
 					{
 						// apply move
 						provinces[bin.targetProvinceIndex].commanders.emplace_back(commanders[i]);
-						for (auto& squad : commanders[i].squads)
+						auto& squad = commanders[i].squad;
 						{
 							// TODO
 						}
@@ -244,6 +282,7 @@ public:
 
 	void processTurn()
 	{
+		reallocateTroopsFromTurn();
 		updateCommanderOrdersFromTurn();
 		processRecruitments();
 		castSpells();

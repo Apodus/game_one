@@ -16,6 +16,8 @@ class Game;
 class ProvinceCommandersTab;
 class BattleCommander;
 
+// simplified the rules so that commander always spawns with his squad, and he only has one squad. they are the same thing.
+// TODO: Simplify this struct also.
 struct CommanderOrSquad
 {
 	uint32_t commanderIndex = 0;
@@ -64,7 +66,7 @@ class CommanderEntry : public sa::MenuComponent
 public:
 	float m_parentAlpha = 0;
 	float m_alpha = 0;
-	CommanderEntry(TroopsTab* parent, sa::MenuComponent* alignUnder, BattleCommander* commander, Hider& hider);
+	CommanderEntry(TroopsTab* parent, sa::MenuComponent* alignUnder, BattleCommander* commander, Hider& hider, Faction& faction, ProvinceGraph::Province& province);
 
 	virtual void childComponentCall(const std::string& who, const std::string& what, int = 0) {}
 	virtual void update(float dt) override;
@@ -73,6 +75,10 @@ public:
 private:
 	Hider& m_hider;
 	BattleCommander* commander = nullptr;
+
+	Faction& m_faction;
+	ProvinceGraph::Province& m_province;
+
 	sa::MenuFrameBackground bg;
 	bool m_drawEnabled = true;
 };

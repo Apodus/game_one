@@ -94,7 +94,7 @@ template <class T>
 T vec2<T>::dotProduct(const vec2<T>& b) const
 {
 	T result;
-	result = x*b.x + y*b.y + z*b.z;
+	result = x*b.x + y*b.y;
 	return result;
 }
 

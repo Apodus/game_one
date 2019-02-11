@@ -117,7 +117,7 @@ template<typename T> sa::PolygonModifier<T>& sa::PolygonModifier<T>::align(T& po
 	std::pair<T, T> matchingVertices;
 	for (int index = 0; index < vertices.size(); ++index) {
 		std::pair<Scalar, T> val1 = minimumDistance(sa::math::rotatedXY(vertices[index], rot1) + pos1, other, pos2, rot2);
-		std::pair<Scalar, T> val2 += minimumDistance(sa::math::rotatedXY(getNext(i), rot1), other, pos2, rot2);
+		std::pair<Scalar, T> val2 = minimumDistance(sa::math::rotatedXY(getNext(index), rot1), other, pos2, rot2);
 
 		if (val1.first + val2.first < minimumEvaluatedValue) {
 			minimumEvaluatedValue = val1.first + val2.first;

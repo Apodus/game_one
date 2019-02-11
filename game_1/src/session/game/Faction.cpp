@@ -39,6 +39,14 @@ void Turn::clearRecruitmentOrders()
 	recruitmentRequests.clear();
 }
 
+void Turn::reassignTroopCommander(size_t provinceIndex, std::vector<uint32_t> troopIndices, size_t targetCommander) {
+	auto& map = m_troopReassignments[provinceIndex];
+	for (auto troopIndex : troopIndices) {
+		map[troopIndex] = targetCommander;
+	}
+}
+
+
 
 
 

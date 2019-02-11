@@ -24,7 +24,9 @@ public:
 	void addRecruitOrder(size_t provinceIndex, const TroopReference* troopReference);
 	void removeRecruitOrder(size_t provinceIndex, const TroopReference* troopReference);
 	void clearRecruitmentOrders();
+	void reassignTroopCommander(size_t provinceIndex, std::vector<uint32_t> troopIndices, size_t targetCommander);
 
+	std::unordered_map <uint32_t, std::unordered_map<uint32_t, uint32_t>> m_troopReassignments;
 	std::vector<Combat> m_combats;
 };
 

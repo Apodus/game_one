@@ -369,7 +369,7 @@ namespace sa {
 			return result;
 		}
 
-		sa::vec3<float>& getTargetScale() {
+		sa::vec3<float> getTargetScale() {
 			return m_targetScale();
 		}
 

@@ -6,7 +6,9 @@ CommanderEntry::CommanderEntry(
 	TroopsTab* parent,
 	sa::MenuComponent* alignUnder,
 	BattleCommander* commander,
-	Hider& hider
+	Hider& hider,
+	Faction& faction,
+	ProvinceGraph::Province& province
 )
 	: sa::MenuComponent(
 		parent,
@@ -17,6 +19,8 @@ CommanderEntry::CommanderEntry(
 	, m_hider(hider)
 	, commander(commander)
 	, bg(this, "bg", "Frame")
+	, m_faction(faction)
+	, m_province(province)
 {
 	positionAlign = TOP;
 	bg.tick(0);
@@ -44,18 +48,36 @@ void CommanderEntry::draw(std::shared_ptr<sa::Graphics> graphics) const
 		graphics->m_pRenderer->drawRectangle(model, commander->reference->icon, sa::vec4<float>(1, 1, 1, m_alpha));
 
 		// 2. draw list of squads to left side (visualise squad members towards the right)
-		for (size_t i = 0; i < commander->squads.size(); ++i) {
-			auto pos = getExteriorPosition(TOP);
-			pos.x += iconScale / 2.0f;
-			pos.y /= ar;
-			model.makeTranslationMatrix(pos);
-			model.scale(getScale() - sa::vec3<float>(iconScale / 2.0f, 0, 0));
-			graphics->m_pRenderer->drawRectangle(model, "Empty", sa::vec4<float>(1, 1, 1, 0.5f * m_alpha));
+		auto pos = getExteriorPosition(TOP);
+		pos.x += iconScale / 2.0f;
+		pos.y /= ar;
+		model.makeTranslationMatrix(pos);
+		model.scale(getScale() - sa::vec3<float>(iconScale / 2.0f, 0, 0));
+		graphics->m_pRenderer->drawRectangle(model, "Empty", sa::vec4<float>(1, 1, 1, 0.5f * m_alpha));
 
-			// draw each unit of the squad separately
-			for (size_t k = 0; k < commander->squads[i].unitIds.size(); ++k) {
-				// TODO
+
+		// NOTE: Doing the following every frame is waste of time. If it turns out to be a problem, can optimize for sure.
+		//       just do this step in the constructor.
+
+		// gather unit icons and their amounts.
+		std::unordered_map<std::string, int> iconAndNumber;
+		
+		for (auto troopId : commander->squad.unitIds) {
+			// bin the units by type?
+			// TODO: take experience levels into account
+			// TODO: something im forgetting?
+			for (auto& troop : m_province.units) {
+				if (troop.id == troopId) {
+					++iconAndNumber[troop.reference->icon];
+					continue;
+				}
 			}
+		}
+
+		for (auto& entry : iconAndNumber) {
+			model.makeTranslationMatrix(pos.x - getScale().x - (iconScale * 0.5f), iconScale * 0.5f, 0);
+			model.scale(iconScale);
+			graphics->m_pRenderer->drawRectangle();
 		}
 	}
 	

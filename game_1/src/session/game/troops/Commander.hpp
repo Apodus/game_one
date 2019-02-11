@@ -73,7 +73,7 @@ public:
 	std::string name;
 	const TroopReference* reference;
 	
-	std::vector<Squad> squads;
+	Squad squad;
 	sa::vec2<int> startPosition;
 
 	CombatOrder combatOrder;
