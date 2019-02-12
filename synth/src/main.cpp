@@ -79,7 +79,7 @@ class Session {
 public:
 	Session() : fps_logic(Timer::time_now(), 60), fps_graphic(Timer::time_now(), 60), pCamera(new sa::Camera()), pShaders(new sa::Shaders()) {
 		window = std::make_shared<sa::Window>();
-		window->createWindow(1280, 720);
+		window->createWindow(1280, 720, "synth");
 
 		userIO = std::make_shared<sa::UserIO>(window);
 
@@ -109,6 +109,10 @@ public:
 		*/
 	}
 
+	void push(std::vector<int> signal) {
+		m_signal = std::move(signal);
+	}
+
 	bool tick() {
 		long long timeNow = Timer::time_now();
 		std::this_thread::sleep_for(std::chrono::milliseconds(16));
@@ -121,10 +125,24 @@ public:
 			pRenderer->clearScreen();
 			pRenderer->setCamera(pCamera);
 			pRenderer->cameraToGPU();
-			pRenderer->drawLine({ timeSince * 0.01f, timeSince * 0.01f, 0 }, { -timeSince * 0.01f, -timeSince * 0.01f, 0 }, 0.005f, Color::GREEN);
+			
+			float prevAngle = 0;
+			float prev_x = -1;
+			float prev_y = 0;
+			for (size_t i = 2; i < m_signal.size(); ++i) {
+				float x1 = 20 * float(i - 2) / float(m_signal.size()) - 0.75f;
+				float y1 = 0.1f * float(m_signal[i - 2]) / float(1 << 15);
+				
+				float x2 = 20 * float(i) / float(m_signal.size()) - 0.75f;
+				float y2 = 0.1f * float(m_signal[i]) / float(1 << 15);
+
+				pRenderer->drawLine({ x1, y1, 0 }, { x2, y2, 0 }, 0.002f, Color::GREEN);
+			}
+
 			window->swap_buffers();
 		}
 
+		window->pollEvents();
 		return !window->shouldClose();
 	}
 
@@ -139,6 +157,8 @@ private:
 	FPS_Manager fps_logic;
 	FPS_Manager fps_graphic;
 
+	std::vector<int> m_signal;
+
 	std::shared_ptr<sa::UserIO> userIO;
 	std::shared_ptr<Menu> menuRoot;
 };
@@ -147,29 +167,6 @@ private:
 
 
 int main(int argc, char* argv[]) {
-	
-	// first steps:
-	// start UI session.
-	// generate content for UI.
-	// display UI
-	// have button to play current buffer
-
-	Session session;
-	
-	while (session.tick()) {
-	}
-	
-	std::string input;
-	if (argc <= 1) {
-		std::cout << "Input wave file name: ";
-		std::cin >> input;
-		std::cin.get();
-	}
-	else {
-		input = argv[1];
-		std::cout << "Input wave file name: " << input << std::endl;
-	}
-
 	{
 		Instrument piano("piano", 44100, 200, 200);
 		piano.harmonic(1).amplitude(1.0f);
@@ -227,10 +224,14 @@ int main(int argc, char* argv[]) {
 		std::ofstream genOut("gen.wav", std::ios::binary);
 		genOut.write(reinterpret_cast<char*>(outWave.data()), outWave.size());
 
-		std::cin.get();
+		Session session;
+		session.push(out);
+
+		while (session.tick()) {}
+
 		return 0;
 	}
-
+	/*
 	{
 		std::ifstream in("in/" + input, std::ios::binary);
 		Signal source;
@@ -364,4 +365,5 @@ int main(int argc, char* argv[]) {
 
 	std::cin.get();
 	return 0;
+	*/
 }

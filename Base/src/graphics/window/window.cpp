@@ -58,10 +58,10 @@ void sa::Window::onResize(int width, int height)
 	sendMessage(AspectRatioChanged(m_aspectRatio));
 }
 
-GLFWwindow* sa::Window::createWindow()
+GLFWwindow* sa::Window::createWindow(std::string name)
 {
 	GLFWmonitor* monitor = (m_fullscreen) ? glfwGetPrimaryMonitor() : nullptr;
-	GLFWwindow* window = glfwCreateWindow(m_width, m_height, "SoulAim Game", monitor, nullptr);
+	GLFWwindow* window = glfwCreateWindow(m_width, m_height, name.c_str(), monitor, nullptr);
 
 	if (!window) {
 		glfwTerminate();
@@ -80,7 +80,7 @@ GLFWwindow* sa::Window::createWindow()
 	return window;
 }
 
-void sa::Window::createWindow(int width, int height)
+void sa::Window::createWindow(int width, int height, std::string name)
 {
 	ASSERT(width > 10, "width out of bounds");
 	ASSERT(width <= 4096, "width out of bounds");
@@ -103,7 +103,7 @@ void sa::Window::createWindow(int width, int height)
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 	// glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	m_pWindow = createWindow();
+	m_pWindow = createWindow(name);
 
 	// Make the window's context current
 	glfwMakeContextCurrent(m_pWindow);

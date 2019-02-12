@@ -2,6 +2,7 @@
 
 #include <cstddef>
 #include <memory>
+#include <string>
 
 struct GLFWwindow;
 
@@ -19,7 +20,7 @@ public:
 	void toggle_fullscreen();
 	void swap_buffers() const;
 
-	void createWindow(int, int);
+	void createWindow(int, int, std::string name = "Game");
 	
 	void enable_grab() const;
 	void disable_grab() const;
@@ -41,7 +42,7 @@ private:
 	Window& operator=(const Window&); // Disabled.
 	Window(const Window&); // Disabled.
 	
-  GLFWwindow* createWindow();
+  GLFWwindow* createWindow(std::string name = "Game");
   void onResize(int width, int height);
 
 	size_t m_width;
