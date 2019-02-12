@@ -70,12 +70,12 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>E:\fun\game_one\Base\lib\win32\SFML\include;E:\fun\game_one\Base\lib\win32\libpng\include;E:\fun\game_one\Base\lib\win32\GLFW-3.0.4\include;E:\fun\game_one\Base\lib\win32\glew-1.10.0\include;E:\fun\game_one\Base\src;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
-    <LibraryPath>E:\fun\game_one\out\Release\Base;E:\fun\game_one\Base\lib\win32\SFML\lib\release;E:\fun\game_one\Base\lib\win32\libpng\lib\release;E:\fun\game_one\Base\lib\win32\GLFW-3.0.4\lib;E:\fun\game_one\Base\lib\win32\glew-1.10.0\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(ProjectDir)..\Base\lib\win32\SFML\include;$(ProjectDir)..\Base\lib\win32\libpng\include;$(ProjectDir)..\Base\lib\win32\GLFW-3.0.4\include;$(ProjectDir)..\Base\lib\win32\glew-1.10.0\include;$(ProjectDir)..\Base\src;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
+    <LibraryPath>$(ProjectDir)..\out\Release\Base;$(ProjectDir)..\Base\lib\win32\SFML\lib\release;$(ProjectDir)..\Base\lib\win32\libpng\lib\release;$(ProjectDir)..\Base\lib\win32\GLFW-3.0.4\lib;$(ProjectDir)..\Base\lib\win32\glew-1.10.0\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>E:\fun\game_one\Base\lib\win32\SFML\include;E:\fun\game_one\Base\lib\win32\libpng\include;E:\fun\game_one\Base\lib\win32\GLFW-3.0.4\include;E:\fun\game_one\Base\lib\win32\glew-1.10.0\include;E:\fun\game_one\Base\src;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
-    <LibraryPath>E:\fun\game_one\out\Debug\Base;E:\fun\game_one\Base\lib\win32\SFML\lib\release;E:\fun\game_one\Base\lib\win32\libpng\lib\release;E:\fun\game_one\Base\lib\win32\GLFW-3.0.4\lib;E:\fun\game_one\Base\lib\win32\glew-1.10.0\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(ProjectDir)..\Base\lib\win32\SFML\include;$(ProjectDir)..\Base\lib\win32\libpng\include;$(ProjectDir)..\Base\lib\win32\GLFW-3.0.4\include;$(ProjectDir)..\Base\lib\win32\glew-1.10.0\include;$(ProjectDir)..\Base\src;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
+    <LibraryPath>$(ProjectDir)..\out\Debug\Base;$(ProjectDir)..\Base\lib\win32\SFML\lib\release;$(ProjectDir)..\Base\lib\win32\libpng\lib\release;$(ProjectDir)..\Base\lib\win32\GLFW-3.0.4\lib;$(ProjectDir)..\Base\lib\win32\glew-1.10.0\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IncludePath>E:\fun\game_one\Base\lib\win32\SFML\include;E:\fun\game_one\Base\lib\win32\libpng\include;E:\fun\game_one\Base\lib\win32\GLFW-3.0.4\include;E:\fun\game_one\Base\lib\win32\glew-1.10.0\include;E:\fun\game_one\Base\src;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
@@ -109,7 +109,7 @@
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>zlib.lib;libpng16.lib;glfw3dll.lib;glew32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>base.lib;glew32.lib;opengl32.lib;glfw3dll.lib;libpng16.lib;sfml-audio.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(ProjectDir)build\bin\synth.exe</OutputFile>
     </Link>
   </ItemDefinitionGroup>
