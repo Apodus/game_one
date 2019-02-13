@@ -27,7 +27,7 @@ public:
 
 private:
 	virtual float baseSample(float time, float frequencyModifier = 1.0f) const override {
-		return amplitudeMul * std::sin(freqMul * time) * frequencyModifier;
+		return amplitudeMul * std::sin(freqMul * time * frequencyModifier);
 	}
 
 private:

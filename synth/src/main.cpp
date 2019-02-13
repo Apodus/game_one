@@ -145,7 +145,7 @@ public:
 				if(x2 < -1 || x1 > +1)
 					continue;
 
-				pRenderer->drawLine({ x1, y1, 0 }, { x2, y2, 0 }, 0.002f, Color::GREEN);
+				pRenderer->drawLine({ x1, y1, 0 }, { x2, y2, 0 }, 0.003f, Color::GREEN);
 			}
 
 			x_pos += (x_pos_target - x_pos) * 0.02f;
@@ -227,11 +227,11 @@ int main(int argc, char* argv[]) {
 		);
 		bass.harmonic(3).amplitude(0);
 		bass.harmonic(4).amplitude(1.5f).modulateAmp(
-			Oscillator().amplitude(0.06f).volumeOffset(Constant(1.0f))
+			Oscillator().amplitude(0.06f).volumeOffset(Constant(1.0f)).frequency(5)
 		).modulateFreq(Oscillator().frequency(6).amplitude(pi / 4.0f));
 		bass.harmonic(5).amplitude(0);
 		bass.harmonic(6).amplitude(1.2f).modulateAmp(
-			Oscillator().amplitude(0.06f).volumeOffset(Constant(1.0f))
+			Oscillator().amplitude(0.06f).volumeOffset(Constant(1.0f)).frequency(4)
 		).modulatePhase(Oscillator().frequency(3).amplitude(pi / 4.0f));
 		bass.harmonic(7).amplitude(0);
 		bass.harmonic(8).amplitude(1.2f);
