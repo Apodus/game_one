@@ -209,10 +209,10 @@ int main(int argc, char* argv[]) {
 			Oscillator().frequency(5).amplitude(1.0f * pi)
 		);
 		violin.harmonic(3).amplitude(0.6f).modulateAmp(
-			Oscillator().amplitude(0.2f).volumeOffset(Constant(1.0f))
+			Oscillator().amplitude(0.2f).volumeOffset(Constant(1.0f)).frequency(5)
 		);
 		violin.harmonic(5).amplitude(0.6f).modulateAmp(
-			Oscillator().amplitude(0.2f).volumeOffset(Constant(1.0f))
+			Oscillator().amplitude(0.2f).volumeOffset(Constant(1.0f)).frequency(5)
 		);
 		violin.harmonic(2).amplitude(0);
 		violin.harmonic(4).amplitude(0);
