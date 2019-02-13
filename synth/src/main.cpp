@@ -129,18 +129,44 @@ public:
 			float prevAngle = 0;
 			float prev_x = -1;
 			float prev_y = 0;
-			for (size_t i = 2; i < m_signal.size(); ++i) {
-				float x1 = 20 * float(i - 2) / float(m_signal.size()) - 0.75f;
-				float y1 = 0.1f * float(m_signal[i - 2]) / float(1 << 15);
+			for (size_t i = 3; i < m_signal.size(); i+=2) {
+				float x1 = 20 * float(i - 3) / float(m_signal.size()) - 0.75f;
+				float y1 = 0.1f * float(m_signal[i - 3]) / float(1 << 15);
 				
 				float x2 = 20 * float(i) / float(m_signal.size()) - 0.75f;
 				float y2 = 0.1f * float(m_signal[i]) / float(1 << 15);
 
+				x1 *= x_scale;
+				x2 *= x_scale;
+
+				x1 += x_pos;
+				x2 += x_pos;
+
+				if(x2 < -1 || x1 > +1)
+					continue;
+
 				pRenderer->drawLine({ x1, y1, 0 }, { x2, y2, 0 }, 0.002f, Color::GREEN);
 			}
 
+			x_pos += (x_pos_target - x_pos) * 0.02f;
+			x_scale += (x_scale_target - x_scale) * 0.02f;
+
 			window->swap_buffers();
 		}
+
+		if (userIO->isKeyDown(GLFW_KEY_LEFT)) {
+			x_pos_target -= 0.1f;
+		}
+		if (userIO->isKeyDown(GLFW_KEY_RIGHT)) {
+			x_pos_target += 0.1f;
+		}
+		if (userIO->isKeyDown(GLFW_KEY_UP)) {
+			x_scale_target *= 1.01f;
+		}
+		if (userIO->isKeyDown(GLFW_KEY_DOWN)) {
+			x_scale_target *= 0.99f;
+		}
+
 
 		window->pollEvents();
 		return !window->shouldClose();
@@ -158,6 +184,10 @@ private:
 	FPS_Manager fps_graphic;
 
 	std::vector<int> m_signal;
+	float x_pos = 0;
+	float x_pos_target = 0;
+	float x_scale = 1.0f;
+	float x_scale_target = 1.0f;
 
 	std::shared_ptr<sa::UserIO> userIO;
 	std::shared_ptr<Menu> menuRoot;
