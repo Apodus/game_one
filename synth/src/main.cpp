@@ -123,16 +123,16 @@ public:
 
 		if (isMouseOver()) {
 			if (m_pUserIO->isKeyDown(GLFW_KEY_LEFT)) {
-				x_pos_target -= 0.1f;
+				x_pos_target -= 0.2f;
 			}
 			if (m_pUserIO->isKeyDown(GLFW_KEY_RIGHT)) {
-				x_pos_target += 0.1f;
+				x_pos_target += 0.2f;
 			}
 			if (m_pUserIO->isKeyDown(GLFW_KEY_UP)) {
-				x_scale_target *= 1.01f;
+				x_scale_target *= 1.04f;
 			}
 			if (m_pUserIO->isKeyDown(GLFW_KEY_DOWN)) {
-				x_scale_target *= 0.99f;
+				x_scale_target *= 0.96f;
 			}
 		}
 
@@ -188,9 +188,17 @@ public:
 		if (m_signalLines.empty())
 			return;
 
-		m_signalLines[0]->setTargetPosition([this]() { return menuRoot->getExteriorPosition(sa::MenuComponent::TOP); });
+		m_signalLines[0]->setTargetPosition([this]() {
+			// return menuRoot->getExteriorPosition(sa::MenuComponent::TOP) -
+			return sa::vec3<float>(0, 0.5f * g_aspectRatio, 0) -
+				sa::vec3<float>(0, m_signalLines[0]->getScale().y * 0.5f * g_aspectRatio, 0);
+		});
+		
 		for (size_t i = 1; i < m_signalLines.size(); ++i) {
-			m_signalLines[i]->setTargetPosition([this, i]() { return m_signalLines[i - 1]->getExteriorPosition(sa::MenuComponent::BOTTOM) - sa::vec3<float>(0, m_signalLines[i]->getScale().y * 0.75f, 0); });
+			m_signalLines[i]->setTargetPosition([this, i]() {
+				return m_signalLines[i - 1]->getExteriorPosition(sa::MenuComponent::BOTTOM) -
+					sa::vec3<float>(0, m_signalLines[i]->getScale().y * 0.5f * g_aspectRatio, 0);
+			});
 		}
 	}
 
@@ -212,6 +220,7 @@ public:
 		userIO->update();
 		auto timeSince = fps_logic.timeSince(timeNow);
 		
+		menuRoot->setTargetScale(sa::vec3<float>(1.8f, 1.8f / g_aspectRatio, 0));
 		menuRoot->tick(0.016f);
 
 		// visual tick
@@ -220,6 +229,12 @@ public:
 			pRenderer->setCamera(pCamera);
 			pRenderer->cameraToGPU();
 			menuRoot->visualise(pGraphics);
+
+			pRenderer->drawLine({ 0.2f, 0.0f, 0.0f }, menuRoot->getExteriorPosition(sa::MenuComponent::BOTTOM), 0.05f, Color::BROWN);
+			pRenderer->drawLine({ 0.2f, 0.0f, 0.0f }, menuRoot->getExteriorPosition(sa::MenuComponent::TOP), 0.05f, Color::BROWN);
+			pRenderer->drawLine({ 0.2f, 0.0f, 0.0f }, menuRoot->getExteriorPosition(sa::MenuComponent::LEFT), 0.05f, Color::BROWN);
+			pRenderer->drawLine({ 0.2f, 0.0f, 0.0f }, menuRoot->getExteriorPosition(sa::MenuComponent::RIGHT), 0.05f, Color::BROWN);
+
 			window->swap_buffers();
 		}
 
