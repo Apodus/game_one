@@ -31,6 +31,7 @@ inline float mix(float v) {
 	return std::tanh(v);
 }
 
+float g_aspectRatio = 1.0f;
 
 
 #include "graphics/window/window.hpp"
@@ -55,6 +56,7 @@ inline float mix(float v) {
 #include "math/2d/mesh.hpp"
 #include "math/2d/polygonTesselator.hpp"
 #include "math/matrix/matrix4.hpp"
+#include "menu/MenuFrame.hpp"
 
 class Menu : public sa::MenuLogicalFrame {
 public:
@@ -75,6 +77,79 @@ private:
 	std::shared_ptr<sa::Window> window;
 };
 
+class SignalLine : public sa::MenuLogicalFrame {
+public:
+	SignalLine(MenuComponent* parent, std::vector<int> signal, sa::vec3<float> pos)
+		: sa::MenuLogicalFrame(parent, "SignalLine", [pos]() {return pos;}, []() { return sa::vec3<float>(2.0f, 0.1f, 0.0f); })
+		, m_bg(this, "bg", "Frame")
+		, m_signal(std::move(signal))
+	{}
+
+	void draw(std::shared_ptr<sa::Graphics> graphics) const
+	{
+		float y_offset = getPosition().y;
+		float y_scale = getScale().y * 0.9f;
+		for (size_t i = 3; i < m_signal.size(); i += 2) {
+			float x1 = 20 * float(i - 3) / float(m_signal.size()) - 0.75f;
+			float y1 = float(m_signal[i - 3]) / float(1 << 15);
+
+			float x2 = 20 * float(i) / float(m_signal.size()) - 0.75f;
+			float y2 = float(m_signal[i]) / float(1 << 15);
+
+			x1 *= x_scale;
+			x2 *= x_scale;
+
+			x1 += x_pos;
+			x2 += x_pos;
+
+			y1 *= y_scale;
+			y2 *= y_scale;
+
+			y1 += y_offset;
+			y2 += y_offset;
+
+			if (x2 < -1 || x1 > +1)
+				continue;
+
+			graphics->m_pRenderer->drawLine({ x1, y1, 0 }, { x2, y2, 0 }, 0.003f, Color::GREEN);
+		}
+		
+		m_bg.visualise(graphics);
+	}
+
+	void update(float dt)
+	{
+		m_bg.tick(dt);
+
+		if (isMouseOver()) {
+			if (m_pUserIO->isKeyDown(GLFW_KEY_LEFT)) {
+				x_pos_target -= 0.1f;
+			}
+			if (m_pUserIO->isKeyDown(GLFW_KEY_RIGHT)) {
+				x_pos_target += 0.1f;
+			}
+			if (m_pUserIO->isKeyDown(GLFW_KEY_UP)) {
+				x_scale_target *= 1.01f;
+			}
+			if (m_pUserIO->isKeyDown(GLFW_KEY_DOWN)) {
+				x_scale_target *= 0.99f;
+			}
+		}
+
+		x_pos += (x_pos_target - x_pos) * 0.04f;
+		x_scale += (x_scale_target - x_scale) * 0.04f;
+	}
+
+private:
+	sa::MenuFrameBackground m_bg;
+	std::vector<int> m_signal;
+
+	float x_pos = 0;
+	float x_pos_target = 0;
+	float x_scale = 1.0f;
+	float x_scale_target = 1.0f;
+};
+
 class Session {
 public:
 	Session() : fps_logic(Timer::time_now(), 60), fps_graphic(Timer::time_now(), 60), pCamera(new sa::Camera()), pShaders(new sa::Shaders()) {
@@ -93,7 +168,7 @@ public:
 		pRenderer = std::make_shared<sa::MeshRenderer>(pShaders, pCamera);
 		pGraphics = std::make_shared<sa::Graphics>(pShaders, pRenderer, pTextRenderer);
 
-		menuRoot = std::make_shared<Menu>(window, userIO, "MenuRoot", sa::vec3<float>(), sa::vec3<float>(1, 1, 1));
+		menuRoot = std::make_shared<Menu>(window, userIO, "MenuRoot", sa::vec3<float>(), sa::vec3<float>(1, 1.0f / window->getAspectRatio(), 1));
 		
 		/*
 		{
@@ -109,64 +184,44 @@ public:
 		*/
 	}
 
+	void setPositionsOfSignalLines() {
+		if (m_signalLines.empty())
+			return;
+
+		m_signalLines[0]->setTargetPosition([this]() { return menuRoot->getExteriorPosition(sa::MenuComponent::TOP); });
+		for (size_t i = 1; i < m_signalLines.size(); ++i) {
+			m_signalLines[i]->setTargetPosition([this, i]() { return m_signalLines[i - 1]->getExteriorPosition(sa::MenuComponent::BOTTOM) - sa::vec3<float>(0, m_signalLines[i]->getScale().y * 0.75f, 0); });
+		}
+	}
+
 	void push(std::vector<int> signal) {
-		m_signal = std::move(signal);
+		sa::vec3<float> pos{0, 0, 0};
+		auto signalLine = std::make_shared<SignalLine>(menuRoot.get(), std::move(signal), pos);
+		m_signalLines.emplace_back(signalLine);
+		menuRoot->addChild(signalLine);
+
+		setPositionsOfSignalLines();
 	}
 
 	bool tick() {
+		g_aspectRatio = window->getAspectRatio();
+
 		long long timeNow = Timer::time_now();
 		std::this_thread::sleep_for(std::chrono::milliseconds(16));
 		
 		userIO->update();
 		auto timeSince = fps_logic.timeSince(timeNow);
 		
+		menuRoot->tick(0.016f);
+
 		// visual tick
 		if (true) {
 			pRenderer->clearScreen();
 			pRenderer->setCamera(pCamera);
 			pRenderer->cameraToGPU();
-			
-			float prevAngle = 0;
-			float prev_x = -1;
-			float prev_y = 0;
-			for (size_t i = 3; i < m_signal.size(); i+=2) {
-				float x1 = 20 * float(i - 3) / float(m_signal.size()) - 0.75f;
-				float y1 = 0.1f * float(m_signal[i - 3]) / float(1 << 15);
-				
-				float x2 = 20 * float(i) / float(m_signal.size()) - 0.75f;
-				float y2 = 0.1f * float(m_signal[i]) / float(1 << 15);
-
-				x1 *= x_scale;
-				x2 *= x_scale;
-
-				x1 += x_pos;
-				x2 += x_pos;
-
-				if(x2 < -1 || x1 > +1)
-					continue;
-
-				pRenderer->drawLine({ x1, y1, 0 }, { x2, y2, 0 }, 0.003f, Color::GREEN);
-			}
-
-			x_pos += (x_pos_target - x_pos) * 0.02f;
-			x_scale += (x_scale_target - x_scale) * 0.02f;
-
+			menuRoot->visualise(pGraphics);
 			window->swap_buffers();
 		}
-
-		if (userIO->isKeyDown(GLFW_KEY_LEFT)) {
-			x_pos_target -= 0.1f;
-		}
-		if (userIO->isKeyDown(GLFW_KEY_RIGHT)) {
-			x_pos_target += 0.1f;
-		}
-		if (userIO->isKeyDown(GLFW_KEY_UP)) {
-			x_scale_target *= 1.01f;
-		}
-		if (userIO->isKeyDown(GLFW_KEY_DOWN)) {
-			x_scale_target *= 0.99f;
-		}
-
 
 		window->pollEvents();
 		return !window->shouldClose();
@@ -180,14 +235,10 @@ private:
 	std::shared_ptr<sa::Graphics> pGraphics;
 	std::shared_ptr<sa::Window> window;
 
+	std::vector<std::shared_ptr<SignalLine>> m_signalLines;
+
 	FPS_Manager fps_logic;
 	FPS_Manager fps_graphic;
-
-	std::vector<int> m_signal;
-	float x_pos = 0;
-	float x_pos_target = 0;
-	float x_scale = 1.0f;
-	float x_scale_target = 1.0f;
 
 	std::shared_ptr<sa::UserIO> userIO;
 	std::shared_ptr<Menu> menuRoot;
@@ -241,21 +292,33 @@ int main(int argc, char* argv[]) {
 		Note note2(piano, 220, 6000, 2000);
 		Note note3(violin, 440, 6000, 3000);
 
-		std::vector<int> out;
-		out.resize(10 * 44100, 0);
+		std::vector<int> bass_out;
+		std::vector<int> piano_out;
+		std::vector<int> violin_out;
+		bass_out.resize(4 * 44100, 0);
+		piano_out.resize(4 * 44100, 0);
+		violin_out.resize(4 * 44100, 0);
 
-		note1.renderOn(out, 0);
-		note2.renderOn(out, 64500);
-		note3.renderOn(out, 200000);
+		note1.renderOn(bass_out, 0);
+		note2.renderOn(piano_out, 0);
+		note3.renderOn(violin_out, 0);
 
-		std::transform(out.begin(), out.end(), out.begin(), [](int v) { return static_cast<int>(32000 * mix(v / 32000.0f)); });
+		auto clamp_to_range = [](std::vector<int>& out) {
+			std::transform(out.begin(), out.end(), out.begin(), [](int v) { return static_cast<int>(32000 * mix(v / 32000.0f)); });
+		};
 
-		auto outWave = wave::saveMonoSignalAsWavPCM(out, 44100);
-		std::ofstream genOut("gen.wav", std::ios::binary);
-		genOut.write(reinterpret_cast<char*>(outWave.data()), outWave.size());
+		clamp_to_range(bass_out);
+		clamp_to_range(piano_out);
+		clamp_to_range(violin_out);
+
+		// auto outWave = wave::saveMonoSignalAsWavPCM(out, 44100);
+		// std::ofstream genOut("gen.wav", std::ios::binary);
+		// genOut.write(reinterpret_cast<char*>(outWave.data()), outWave.size());
 
 		Session session;
-		session.push(out);
+		session.push(bass_out);
+		session.push(piano_out);
+		session.push(violin_out);
 
 		while (session.tick()) {}
 

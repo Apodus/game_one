@@ -109,8 +109,6 @@
     <ClInclude Include="src\menu\MenuFrame.hpp" />
     <ClInclude Include="src\menu\MenuLogicalFrame.hpp" />
     <ClInclude Include="src\menu\MenuSlider.hpp" />
-    <ClInclude Include="src\menu\sample\mainmenu.hpp" />
-    <ClInclude Include="src\menu\sample\menuroot.hpp" />
     <ClInclude Include="src\messagesystem\TypedMessage.hpp" />
     <ClInclude Include="src\net\socket.hpp" />
     <ClInclude Include="src\net\socket_handler.hpp" />

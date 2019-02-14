@@ -229,13 +229,7 @@
     <ClInclude Include="src\menu\MenuLogicalFrame.hpp">
       <Filter>menu</Filter>
     </ClInclude>
-    <ClInclude Include="src\menu\sample\menuroot.hpp">
-      <Filter>menu</Filter>
-    </ClInclude>
     <ClInclude Include="src\menu\MenuSlider.hpp">
-      <Filter>menu</Filter>
-    </ClInclude>
-    <ClInclude Include="src\menu\sample\mainmenu.hpp">
       <Filter>menu</Filter>
     </ClInclude>
     <ClInclude Include="src\messagesystem\TypedMessage.hpp">

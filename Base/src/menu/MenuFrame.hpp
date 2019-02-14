@@ -115,8 +115,8 @@ public:
       const auto& parentPosition = m_pParent->getPosition();
       const auto& parentDimensions = m_pParent->getScale();
 
-			setPosition(parentPosition);
-			setScale(parentDimensions);
+	  setPosition(parentPosition);
+	  setScale(parentDimensions);
 
       buildMesh(parentDimensions.x, parentDimensions.y);
       modelMatrix.makeTranslationMatrix(parentPosition.x, parentPosition.y, 0);
