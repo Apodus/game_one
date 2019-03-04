@@ -189,7 +189,6 @@ public:
 			return;
 
 		m_signalLines[0]->setTargetPosition([this]() {
-			// return menuRoot->getExteriorPosition(sa::MenuComponent::TOP) -
 			return sa::vec3<float>(0, 0.5f * g_aspectRatio, 0) -
 				sa::vec3<float>(0, m_signalLines[0]->getScale().y * 0.5f * g_aspectRatio, 0);
 		});
@@ -263,6 +262,8 @@ private:
 
 
 int main(int argc, char* argv[]) {
+
+	if(false)
 	{
 		Instrument piano("piano", 44100, 200, 200);
 		piano.harmonic(1).amplitude(1.0f);
@@ -339,6 +340,7 @@ int main(int argc, char* argv[]) {
 
 		return 0;
 	}
+	
 	/*
 	{
 		std::ifstream in("in/" + input, std::ios::binary);
@@ -356,11 +358,12 @@ int main(int argc, char* argv[]) {
 
 		return 0;
 	}
+	*/
 
 	std::vector<std::vector<int>> sampleSets;
 
 	{
-		std::ifstream in("in/" + input, std::ios::binary);
+		std::ifstream in("in/sam.wav", std::ios::binary);
 		sampleSets.emplace_back(wave::loadWavPCMAsMonoSignal(in).sampleRate(44100).samples());
 	}
 
@@ -368,6 +371,26 @@ int main(int argc, char* argv[]) {
 	for (auto&& sample : sampleSets) {
 		Signal source;
 		source.fromTimeDomain(sample, windowSize, jumpSize);
+
+		{
+
+			Signal s = source;
+			auto numChunks = s.size();
+			size_t currentChunk = 0;
+			s.apply([&](Signal::Chunk& chunk) mutable {
+				float v = float(currentChunk++) / float(numChunks);
+				chunk.shiftGeometric((std::sin(v * 200.0f) * 0.5f + 0.5f) * 0.50f + 0.75f);
+			});
+
+			auto generatedSignal = s.render(jumpSize);
+			std::transform(generatedSignal.begin(), generatedSignal.end(), generatedSignal.begin(), [](int v) { return int(mix((float(v) / std::numeric_limits<int16_t>::max())) * std::numeric_limits<int16_t>::max()); });
+
+			{
+				auto fileContents = wave::saveMonoSignalAsWavPCM(generatedSignal, 44100);
+				std::ofstream out("out/pitch.wav", std::ios::binary);
+				out.write(reinterpret_cast<const char*>(fileContents.data()), fileContents.size());
+			}
+		}
 
 		{
 			auto generatedSignal = source.render(jumpSize);
@@ -473,5 +496,4 @@ int main(int argc, char* argv[]) {
 
 	std::cin.get();
 	return 0;
-	*/
 }
